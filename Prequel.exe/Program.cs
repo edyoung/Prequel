@@ -11,7 +11,8 @@ namespace Prequel.exe
         static int Main(string[] args)
         {
             Arguments arguments;
-            try {
+            try
+            {
                 arguments = new Arguments(args);
             }
             catch (UsageException ex)
@@ -19,6 +20,7 @@ namespace Prequel.exe
                 Console.Error.WriteLine(ex.Message);
                 return ex.ExitCode;
             }
+
             var checker = new Checker(arguments);
             var results = checker.Run();
 
