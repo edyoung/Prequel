@@ -12,7 +12,8 @@ namespace Prequel
         private IList<string> files = new List<string>();
 
         public Arguments(params string[] args)
-        {        
+        {
+            SetDefaults();
             if (args.Length == 0)
             {
                 throw new UsageException("You must specify at least one file to check");
@@ -25,11 +26,16 @@ namespace Prequel
             }
         }
 
+        private void SetDefaults()
+        {
+            SqlParserType = SqlParserFactory.DefaultType;
+        }
+
         public IEnumerable<string> Files {
             get { return files; }
         }
 
-        public int SqlVersion { get; private set; }
+        public Type SqlParserType { get; private set; }
 
         private void ProcessArgument(int i, string[] args)
         {
@@ -60,11 +66,11 @@ namespace Prequel
             {
                 string versionString = flag.Substring(2);
                 try {
-                    SqlVersion = Convert.ToInt32(versionString);
+                    SqlParserType = SqlParserFactory.Type(versionString);
                 }
-                catch(FormatException ex)
+                catch(ArgumentException ex)
                 {
-                    throw new UsageException(String.Format("Invalid SQL Version '{0}'", versionString), ex);
+                    throw new UsageException(ex.Message);
                 }
             }
         }

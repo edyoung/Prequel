@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.SqlServer.TransactSql.ScriptDom;
+using System;
 using Xunit;
 
 namespace Prequel.Tests
@@ -47,16 +48,11 @@ namespace Prequel.Tests
         [Fact]
         public void SqlVersionFlagIsRecorded()
         {
-            var a = new Arguments("/v:12", "foo.sql");
-            Assert.Equal(12, a.SqlVersion);
+            var a = new Arguments("/v:2008", "foo.sql");
+            Assert.Equal(typeof(TSql100Parser), a.SqlParserType);
         }
         
-        [Fact]
-        public void DefaultSqlVersionIsZero()
-        {
-            var a = new Arguments("foo.sql");
-            Assert.Equal(0, a.SqlVersion);
-        }
+        
 
         [InlineData("/v:", "")]
         [InlineData("/v:x", "x")]
@@ -65,7 +61,7 @@ namespace Prequel.Tests
         public void InvalidVersionStringIsReported(string version, string versionToComplainAbout)
         {
             var ex = Assert.Throws<UsageException>( () => new Arguments("foo.sql", version));
-            Assert.Contains(String.Format("Invalid SQL Version '{0}'", versionToComplainAbout), ex.Message);
+            Assert.Contains(String.Format("Unknown SQL version '{0}'", versionToComplainAbout), ex.Message);
         }
     }
 }
