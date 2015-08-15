@@ -58,7 +58,14 @@ namespace Prequel
 
             if (flag.StartsWith("v:"))
             {
-                SqlVersion = Convert.ToInt32(flag.Substring(2));
+                string versionString = flag.Substring(2);
+                try {
+                    SqlVersion = Convert.ToInt32(versionString);
+                }
+                catch(FormatException ex)
+                {
+                    throw new UsageException(String.Format("Invalid SQL Version '{0}'", versionString), ex);
+                }
             }
         }
     }

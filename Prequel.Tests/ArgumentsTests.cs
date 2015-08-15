@@ -57,5 +57,15 @@ namespace Prequel.Tests
             var a = new Arguments("foo.sql");
             Assert.Equal(0, a.SqlVersion);
         }
+
+        [InlineData("/v:", "")]
+        [InlineData("/v:x", "x")]
+        [InlineData("/v:8.4", "8.4")]
+        [Theory]
+        public void InvalidVersionStringIsReported(string version, string versionToComplainAbout)
+        {
+            var ex = Assert.Throws<UsageException>( () => new Arguments("foo.sql", version));
+            Assert.Contains(String.Format("Invalid SQL Version '{0}'", versionToComplainAbout), ex.Message);
+        }
     }
 }
