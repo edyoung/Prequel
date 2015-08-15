@@ -12,7 +12,7 @@ namespace Prequel
         private IList<string> files = new List<string>();
 
         public Arguments(params string[] args)
-        {
+        {        
             if (args.Length == 0)
             {
                 throw new UsageException("You must specify at least one file to check");
@@ -28,6 +28,8 @@ namespace Prequel
         public IEnumerable<string> Files {
             get { return files; }
         }
+
+        public int SqlVersion { get; private set; }
 
         private void ProcessArgument(int i, string[] args)
         {
@@ -52,6 +54,11 @@ namespace Prequel
             if (flag == "?")
             {
                 throw new UsageException() { ExitCode = 0 };
+            }
+
+            if (flag.StartsWith("v:"))
+            {
+                SqlVersion = Convert.ToInt32(flag.Substring(2));
             }
         }
     }

@@ -41,9 +41,21 @@ namespace Prequel.Tests
         public void FileNameIsRecorded()
         {
             var a = new Arguments("foo.sql");
-            Assert.Equal(a.Files, new string[] { "foo.sql" });
+            Assert.Equal(new string[] { "foo.sql" }, a.Files);
         }
 
+        [Fact]
+        public void SqlVersionFlagIsRecorded()
+        {
+            var a = new Arguments("/v:12", "foo.sql");
+            Assert.Equal(12, a.SqlVersion);
+        }
         
+        [Fact]
+        public void DefaultSqlVersionIsZero()
+        {
+            var a = new Arguments("foo.sql");
+            Assert.Equal(0, a.SqlVersion);
+        }
     }
 }
