@@ -1,5 +1,6 @@
 ﻿using Microsoft.SqlServer.TransactSql.ScriptDom;
 using System;
+using System.IO;
 using Xunit;
 
 namespace Prequel.Tests
@@ -62,6 +63,19 @@ namespace Prequel.Tests
         {
             var ex = Assert.Throws<UsageException>( () => new Arguments("foo.sql", version));
             Assert.Contains(String.Format("Unknown SQL version '{0}'", versionToComplainAbout), ex.Message);
+        }
+
+        [Fact]
+        public void InlineSqlReadIntoStream()
+        {
+            var a = new Arguments("/i:foo bar");
+
+            foreach (var s in a.Streams)
+            {
+                TextReader reader = new StreamReader(s);
+                string contents = reader.ReadToEnd();
+                Assert.Equal("foo bar", contents);
+            }
         }
     }
 }

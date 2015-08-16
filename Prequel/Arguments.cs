@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ namespace Prequel
     {
         private string[] args;
         private IList<string> files = new List<string>();
+        private IList<Stream> streams = new List<Stream>();
 
         public Arguments(params string[] args)
         {
@@ -33,6 +35,11 @@ namespace Prequel
 
         public IEnumerable<string> Files {
             get { return files; }
+        }
+
+        public IEnumerable<Stream> Streams
+        {
+            get { return streams; }
         }
 
         public Type SqlParserType { get; private set; }
@@ -73,6 +80,14 @@ namespace Prequel
                     throw new UsageException(ex.Message);
                 }
             }
+
+            if (flag.StartsWith("i:"))
+            {
+                string inlineSql = flag.Substring(2);
+                MemoryStream s = new MemoryStream(Encoding.UTF8.GetBytes(inlineSql)); // correct encoding?
+                streams.Add(s);
+            }
+
         }
     }
 }
