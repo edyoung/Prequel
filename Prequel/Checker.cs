@@ -18,12 +18,12 @@ namespace Prequel
         {
             var parser = (TSqlParser)Activator.CreateInstance(arguments.SqlParserType,new object[] { false });
 
-            TextReader reader = new StringReader("Select * from");
+            TextReader reader = new StreamReader(arguments.Inputs[0].Stream);
 
             IList<ParseError> errors;
             TSqlFragment sqlFragment = parser.Parse(reader, out errors);
 
-            return new CheckResults();
+            return new CheckResults(errors);
         }
     }
 }

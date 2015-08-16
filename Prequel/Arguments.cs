@@ -7,11 +7,39 @@ using System.Threading.Tasks;
 
 namespace Prequel
 {
+    public class Input
+    {
+        public string Path { get; set; }
+
+        private Stream stream;
+        public Stream Stream {
+            get
+            {
+                if(stream == null)
+                {
+                    stream = File.OpenRead(Path);
+                }
+                return stream;
+            }
+
+            private set { stream = value; }
+        }
+
+        public static Input FromString(string inlineInput)
+        {
+            return new Input() { Path = "<inline>", Stream = new MemoryStream(Encoding.UTF8.GetBytes(inlineInput)) }; // correct encoding? 
+        }
+
+        public static Input FromFile(string path)
+        {
+            return new Input() { Path = path }; // defer opening the file until we want to read it
+        }
+    }
+
     public class Arguments
     {
         private string[] args;
-        private IList<string> files = new List<string>();
-        private IList<Stream> streams = new List<Stream>();
+        private IList<Input> inputs = new List<Input>();
 
         public Arguments(params string[] args)
         {
@@ -33,13 +61,8 @@ namespace Prequel
             SqlParserType = SqlParserFactory.DefaultType;
         }
 
-        public IEnumerable<string> Files {
-            get { return files; }
-        }
-
-        public IEnumerable<Stream> Streams
-        {
-            get { return streams; }
+        public IList<Input> Inputs {
+            get { return inputs; }
         }
 
         public Type SqlParserType { get; private set; }
@@ -59,7 +82,7 @@ namespace Prequel
 
         private void ProcessFile(string file)
         {
-            files.Add(file);
+            inputs.Add( Input.FromFile(file));
         }
 
         private void ProcessFlag(string flag)
@@ -84,8 +107,7 @@ namespace Prequel
             if (flag.StartsWith("i:"))
             {
                 string inlineSql = flag.Substring(2);
-                MemoryStream s = new MemoryStream(Encoding.UTF8.GetBytes(inlineSql)); // correct encoding?
-                streams.Add(s);
+                inputs.Add(Input.FromString(inlineSql));
             }
 
         }

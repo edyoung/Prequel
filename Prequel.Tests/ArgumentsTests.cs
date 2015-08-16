@@ -1,6 +1,7 @@
 ﻿using Microsoft.SqlServer.TransactSql.ScriptDom;
 using System;
 using System.IO;
+using System.Linq;
 using Xunit;
 
 namespace Prequel.Tests
@@ -43,7 +44,7 @@ namespace Prequel.Tests
         public void FileNameIsRecorded()
         {
             var a = new Arguments("foo.sql");
-            Assert.Equal(new string[] { "foo.sql" }, a.Files);
+            Assert.Equal(new string[] { "foo.sql" }, a.Inputs.Select(x => x.Path));
         }
 
         [Fact]
@@ -53,8 +54,6 @@ namespace Prequel.Tests
             Assert.Equal(typeof(TSql100Parser), a.SqlParserType);
         }
         
-        
-
         [InlineData("/v:", "")]
         [InlineData("/v:x", "x")]
         [InlineData("/v:8.4", "8.4")]
@@ -70,12 +69,9 @@ namespace Prequel.Tests
         {
             var a = new Arguments("/i:foo bar");
 
-            foreach (var s in a.Streams)
-            {
-                TextReader reader = new StreamReader(s);
-                string contents = reader.ReadToEnd();
-                Assert.Equal("foo bar", contents);
-            }
+            TextReader reader = new StreamReader(a.Inputs[0].Stream);
+            string contents = reader.ReadToEnd();
+            Assert.Equal("foo bar", contents);        
         }
     }
 }
