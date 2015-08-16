@@ -21,5 +21,16 @@ namespace Prequel.Tests
             Assert.NotEmpty(results.Errors);
             Assert.Equal(1, results.ExitCode);
         }
+
+        [Fact]
+        public void ParseFile()
+        {
+            using (var t = new TempFile("select * from foo"))
+            {
+                Checker c = new Checker(new Arguments(t.FileName));
+                var results = c.Run();
+                Assert.Equal(0, results.ExitCode);
+            }
+        }
     }
 }
