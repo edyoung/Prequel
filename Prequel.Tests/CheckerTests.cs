@@ -3,6 +3,15 @@ using Xunit;
 
 namespace Prequel.Tests
 {       
+    public static class MyAssert
+    {
+        public static void NoErrorsOrWarnings(CheckResults results)
+        {
+            Assert.Empty(results.Errors);
+            Assert.Empty(results.Warnings);
+            Assert.Equal(0, results.ExitCode);
+        }
+    }
     public class CheckerTests
     {        
         [Fact]
@@ -10,10 +19,9 @@ namespace Prequel.Tests
         {
             Checker c = new Checker(new Arguments("/i:select * from foo"));
             var results = c.Run();
-            Assert.Empty(results.Errors);
-            Assert.Equal(0, results.ExitCode);
+            MyAssert.NoErrorsOrWarnings(results);
         }
-
+       
         [Fact]
         public void ParseInvalidStringProducesErrors()
         {
@@ -53,6 +61,14 @@ namespace Prequel.Tests
             var results = c.Run();
             Assert.Equal(1, results.Warnings.Count);
             Assert.Equal(0, results.ExitCode);
+        }
+
+        [Fact]
+        public void FindDeclaredVariableNoWarning()
+        {
+            Checker c = new Checker(new Arguments("/i:declare @declared as int; set @declared = 1"));
+            var results = c.Run();
+            MyAssert.NoErrorsOrWarnings(results);
         }
     }
 }
