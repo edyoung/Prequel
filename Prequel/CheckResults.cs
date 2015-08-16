@@ -10,15 +10,17 @@ namespace Prequel
 {
     public class CheckResults
     {
-        public CheckResults(IList<ParseError> errors)
+        public CheckResults(IList<ParseError> errors, IList<Warning> warnings)
         {
             this.Errors = errors;
             if(! (errors.Count == 0))
             {
                 ExitCode = 1;
             }
+            this.Warnings = warnings;
         }
-        public IEnumerable<ParseError> Errors { get; set; }
+        public IList<ParseError> Errors { get; set; }
         public int ExitCode { get; set; }
+        public IList<Warning> Warnings { get; set; }
     }
 }

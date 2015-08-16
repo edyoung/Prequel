@@ -23,7 +23,10 @@ namespace Prequel
             IList<ParseError> errors;
             TSqlFragment sqlFragment = parser.Parse(reader, out errors);
 
-            return new CheckResults(errors);
+            CheckVisitor checkVisitor = new CheckVisitor();
+            sqlFragment.Accept(checkVisitor);
+
+            return new CheckResults(errors, checkVisitor.Warnings);
         }
     }
 }
