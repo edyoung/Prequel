@@ -16,8 +16,7 @@ namespace Prequel
 
         public CheckResults Run()
         {
-
-            var parser = new TSql120Parser(false);
+            var parser = (TSqlParser)Activator.CreateInstance(arguments.SqlParserType,new object[] { false });
 
             TextReader reader = new StringReader("Select * from");
 
