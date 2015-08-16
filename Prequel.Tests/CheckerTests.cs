@@ -104,5 +104,29 @@ set @declared = 1"));
             var results = c.Run();
             MyAssert.NoErrorsOrWarnings(results);
         }
+
+        [Fact]
+        public void SetParameterInSprocSucceeds()
+        {
+            Checker c = new Checker(new Arguments(@"/i:
+create procedure foo @x INT
+as
+    set @x = 2
+go"));
+            var results = c.Run();
+            MyAssert.NoErrorsOrWarnings(results);
+        }
+
+        [Fact]
+        public void SetUndeclaredVariableInSprocRaisesWarning()
+        {
+            Checker c = new Checker(new Arguments(@"/i:
+create procedure foo @x INT
+as
+    set @y = 2
+go"));
+            var results = c.Run();
+            Assert.Equal(1, results.Warnings.Count);
+        }
     }
 }

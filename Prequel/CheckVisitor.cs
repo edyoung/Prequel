@@ -18,6 +18,13 @@ namespace Prequel
             DeclaredVariables[node.VariableName.Value] = new Variable();
             base.ExplicitVisit(node);
         }
+
+        public override void ExplicitVisit(ProcedureParameter node)
+        {
+            DeclaredVariables[node.VariableName.Value] = new Variable();
+            base.ExplicitVisit(node);
+        }
+
         public override void ExplicitVisit(VariableReference node)
         {
             string targetVariable = node.Name;
