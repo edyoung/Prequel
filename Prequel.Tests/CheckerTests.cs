@@ -55,7 +55,7 @@ namespace Prequel.Tests
         }
 
         [Fact]
-        public void FindUndeclaredVariableUse()
+        public void SetUndeclaredVariableRaisesWarning()
         {
             Checker c = new Checker(new Arguments("/i:set @undeclared = 1"));
             var results = c.Run();
@@ -79,6 +79,30 @@ GO
 set @declared = 1"));
             var results = c.Run();
             Assert.Equal(1, results.Warnings.Count);
+        }
+
+        [Fact]
+        public void MultipleDeclarationsWork()
+        {
+            Checker c = new Checker(new Arguments("/i:declare @a as int, @b as nvarchar; set @b = 'x'; set @a = 3"));
+            var results = c.Run();
+            MyAssert.NoErrorsOrWarnings(results);
+        }
+
+        [Fact]
+        public void SelectUndeclaredVariableRaisesWarning()
+        {
+            Checker c = new Checker(new Arguments("/i:select X from Y where X = @foo"));
+            var results = c.Run();
+            Assert.Equal(1, results.Warnings.Count);
+        }
+
+        [Fact]
+        public void UndeclaredGlobalVariableNoWarning()
+        {
+            Checker c = new Checker(new Arguments("/i:select X from Y where X = @@cpu_busy"));
+            var results = c.Run();
+            MyAssert.NoErrorsOrWarnings(results);
         }
     }
 }

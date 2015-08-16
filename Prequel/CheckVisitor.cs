@@ -18,9 +18,9 @@ namespace Prequel
             DeclaredVariables[node.VariableName.Value] = new Variable();
             base.ExplicitVisit(node);
         }
-        public override void ExplicitVisit(SetVariableStatement node)
+        public override void ExplicitVisit(VariableReference node)
         {
-            string targetVariable = node.Variable.Name;
+            string targetVariable = node.Name;
             if (!DeclaredVariables.ContainsKey(targetVariable))
             {
                 Warnings.Add(new Warning());
