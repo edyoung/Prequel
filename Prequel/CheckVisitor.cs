@@ -27,5 +27,11 @@ namespace Prequel
             }
             base.ExplicitVisit(node);
         }
+
+        public override void ExplicitVisit(TSqlBatch batch)
+        {
+            DeclaredVariables.Clear(); // clear local vars from any previous batch
+            base.ExplicitVisit(batch);
+        }
     }
 }

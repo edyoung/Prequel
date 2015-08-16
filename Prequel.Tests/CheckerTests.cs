@@ -59,8 +59,7 @@ namespace Prequel.Tests
         {
             Checker c = new Checker(new Arguments("/i:set @undeclared = 1"));
             var results = c.Run();
-            Assert.Equal(1, results.Warnings.Count);
-            Assert.Equal(0, results.ExitCode);
+            Assert.Equal(1, results.Warnings.Count);            
         }
 
         [Fact]
@@ -69,6 +68,17 @@ namespace Prequel.Tests
             Checker c = new Checker(new Arguments("/i:declare @declared as int; set @declared = 1"));
             var results = c.Run();
             MyAssert.NoErrorsOrWarnings(results);
+        }
+
+        [Fact]
+        public void DeclaredVariablesArePerBatch()
+        {
+            Checker c = new Checker(new Arguments(@"/i:
+declare @declared as int; 
+GO 
+set @declared = 1"));
+            var results = c.Run();
+            Assert.Equal(1, results.Warnings.Count);
         }
     }
 }
