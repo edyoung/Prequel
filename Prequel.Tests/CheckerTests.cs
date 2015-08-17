@@ -14,19 +14,23 @@ namespace Prequel.Tests
     }
     public class CheckerTests
     {        
+        public static CheckResults Check(string sqlToCheck)
+        {
+            Checker c = new Checker(new Arguments("/i:" + sqlToCheck));
+            return c.Run();
+        }
+
         [Fact]
         public void ParseSimpleString()
         {
-            Checker c = new Checker(new Arguments("/i:select * from foo"));
-            var results = c.Run();
+            var results = Check("select * from foo");
             MyAssert.NoErrorsOrWarnings(results);
         }
        
         [Fact]
         public void ParseInvalidStringProducesErrors()
-        {
-            Checker c = new Checker(new Arguments("/i:select >>>"));
-            var results = c.Run();
+        {            
+            var results = Check("select >>>");
             Assert.NotEmpty(results.Errors);
             Assert.Equal(1, results.ExitCode);
         }
@@ -56,76 +60,68 @@ namespace Prequel.Tests
 
         [Fact]
         public void SetUndeclaredVariableRaisesWarning()
-        {
-            Checker c = new Checker(new Arguments("/i:set @undeclared = 1"));
-            var results = c.Run();
+        {            
+            var results = Check("set @undeclared = 1");
             Assert.Equal(1, results.Warnings.Count);            
         }
 
         [Fact]
         public void FindDeclaredVariableNoWarning()
-        {
-            Checker c = new Checker(new Arguments("/i:declare @declared as int; set @declared = 1"));
-            var results = c.Run();
+        {            
+            var results = Check("declare @declared as int; set @declared = 1");
             MyAssert.NoErrorsOrWarnings(results);
         }
 
         [Fact]
         public void DeclaredVariablesArePerBatch()
         {
-            Checker c = new Checker(new Arguments(@"/i:
+            var results = Check(@"
 declare @declared as int; 
 GO 
-set @declared = 1"));
-            var results = c.Run();
+set @declared = 1");            
             Assert.Equal(1, results.Warnings.Count);
         }
 
         [Fact]
         public void MultipleDeclarationsWork()
         {
-            Checker c = new Checker(new Arguments("/i:declare @a as int, @b as nvarchar; set @b = 'x'; set @a = 3"));
-            var results = c.Run();
+            var results = Check("declare @a as int, @b as nvarchar; set @b = 'x'; set @a = 3");
             MyAssert.NoErrorsOrWarnings(results);
         }
 
         [Fact]
         public void SelectUndeclaredVariableRaisesWarning()
         {
-            Checker c = new Checker(new Arguments("/i:select X from Y where X = @foo"));
-            var results = c.Run();
+            var results = Check("select X from Y where X = @foo");
             Assert.Equal(1, results.Warnings.Count);
         }
 
         [Fact]
         public void UndeclaredGlobalVariableNoWarning()
         {
-            Checker c = new Checker(new Arguments("/i:select X from Y where X = @@cpu_busy"));
-            var results = c.Run();
+            var results = Check("select X from Y where X = @@cpu_busy");
             MyAssert.NoErrorsOrWarnings(results);
         }
 
         [Fact]
         public void SetParameterInSprocSucceeds()
         {
-            Checker c = new Checker(new Arguments(@"/i:
+            var results = Check(@"
 create procedure foo @x INT
 as
     set @x = 2
-go"));
-            var results = c.Run();
+go");
             MyAssert.NoErrorsOrWarnings(results);
         }
 
         [Fact]
         public void SetUndeclaredVariableInSprocRaisesWarning()
         {
-            Checker c = new Checker(new Arguments(@"/i:
+            var results = Check(@"
 create procedure foo @x INT
 as
     set @y = 2
-go"));
-            var results = c.Run();
+go");
             Assert.Equal(1, results.Warnings.Count);
         }
 
@@ -150,8 +146,7 @@ go"));
         [Fact]
         public void WarningFormattingLooksOK()
         {
-            Checker c = new Checker(new Arguments("/i:\nset @undeclared = 7"));
-            var results = c.Run();
+            var results = Check("\nset @undeclared = 7");            
             var warning = results.Warnings[0];
             string warningMessage = results.FormatWarning(warning);
             Assert.Equal("<inline>(2) : WARNING 1 : Variable @undeclared used before being declared", warningMessage);
