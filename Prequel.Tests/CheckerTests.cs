@@ -20,6 +20,7 @@ namespace Prequel.Tests
             return c.Run();
         }
 
+        #region basic functioning
         [Fact]
         public void ParseSimpleString()
         {
@@ -58,6 +59,35 @@ namespace Prequel.Tests
             }
         }
 
+
+        [Fact]
+        public void ErrorFormattingLooksOK()
+        {
+            using (var t = new TempFile("\nselect >>>"))
+            {
+                Checker c = new Checker(new Arguments(t.FileName));
+                var results = c.Run();
+                var error = results.Errors[0];
+                string errorMessage = results.FormatError(error);
+                Assert.Contains(t.FileName, errorMessage, StringComparison.OrdinalIgnoreCase); // should contain filename
+                Assert.Contains("(2)", errorMessage); // should contain line number in parens
+                Assert.Contains("ERROR", errorMessage); // should contain ERROR for build tools which look for that
+                Assert.Contains(error.Number.ToString(), errorMessage); // should contain SQL's error code
+                Assert.Contains("Incorrect syntax near select", errorMessage); // should contain SQL's error message
+            }
+        }
+
+        [Fact]
+        public void WarningFormattingLooksOK()
+        {
+            var results = Check("\nset @undeclared = 7");
+            var warning = results.Warnings[0];
+            string warningMessage = results.FormatWarning(warning);
+            Assert.Equal("<inline>(2) : WARNING 1 : Variable @undeclared used before being declared", warningMessage);
+        }
+        #endregion
+
+        #region Undeclared Variable check
         [Fact]
         public void SetUndeclaredVariableRaisesWarning()
         {            
@@ -124,32 +154,7 @@ as
 go");
             Assert.Equal(1, results.Warnings.Count);
         }
+        #endregion
 
-
-        [Fact]
-        public void ErrorFormattingLooksOK()
-        {
-            using (var t = new TempFile("\nselect >>>"))
-            {
-                Checker c = new Checker(new Arguments(t.FileName));
-                var results = c.Run();
-                var error = results.Errors[0];
-                string errorMessage = results.FormatError(error);
-                Assert.Contains(t.FileName, errorMessage, StringComparison.OrdinalIgnoreCase); // should contain filename
-                Assert.Contains("(2)", errorMessage); // should contain line number in parens
-                Assert.Contains("ERROR", errorMessage); // should contain ERROR for build tools which look for that
-                Assert.Contains(error.Number.ToString(), errorMessage); // should contain SQL's error code
-                Assert.Contains("Incorrect syntax near select", errorMessage); // should contain SQL's error message
-            }
-        }
-
-        [Fact]
-        public void WarningFormattingLooksOK()
-        {
-            var results = Check("\nset @undeclared = 7");            
-            var warning = results.Warnings[0];
-            string warningMessage = results.FormatWarning(warning);
-            Assert.Equal("<inline>(2) : WARNING 1 : Variable @undeclared used before being declared", warningMessage);
-        }
     }
 }
