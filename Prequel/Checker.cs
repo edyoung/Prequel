@@ -18,7 +18,8 @@ namespace Prequel
         {
             var parser = (TSqlParser)Activator.CreateInstance(arguments.SqlParserType,new object[] { false });
 
-            TextReader reader = new StreamReader(arguments.Inputs[0].Stream);
+            var input = arguments.Inputs[0];
+            TextReader reader = new StreamReader(input.Stream);
 
             IList<ParseError> errors;
             TSqlFragment sqlFragment = parser.Parse(reader, out errors);
@@ -26,7 +27,7 @@ namespace Prequel
             CheckVisitor checkVisitor = new CheckVisitor();
             sqlFragment.Accept(checkVisitor);
 
-            return new CheckResults(errors, checkVisitor.Warnings);
+            return new CheckResults(input, errors, checkVisitor.Warnings);
         }
     }
 }

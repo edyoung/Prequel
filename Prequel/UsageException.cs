@@ -25,7 +25,7 @@ namespace Prequel
         {
             ExitCode = 1;
         }
-
+       
         public int ExitCode { get; set; }
     }
 }

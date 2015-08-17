@@ -1,4 +1,5 @@
 ﻿using Microsoft.SqlServer.TransactSql.ScriptDom;
+using System;
 using System.Collections.Generic;
 
 namespace Prequel
@@ -30,7 +31,7 @@ namespace Prequel
             string targetVariable = node.Name;
             if (!DeclaredVariables.ContainsKey(targetVariable))
             {
-                Warnings.Add(new Warning());
+                Warnings.Add(new Warning(node.StartLine, 1, String.Format("Variable {0} used before being declared", targetVariable)));
             }
             base.ExplicitVisit(node);
         }
