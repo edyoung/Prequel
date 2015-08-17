@@ -103,6 +103,13 @@ namespace Prequel.Tests
         }
 
         [Fact]
+        public void DeclarationsAreCaseInsensitive()
+        {
+            var results = Check("declare @DECLARED as int; set @declared = 1");
+            MyAssert.NoErrorsOrWarnings(results);
+        }
+
+        [Fact]
         public void DeclaredVariablesArePerBatch()
         {
             var results = Check(@"
