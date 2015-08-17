@@ -16,22 +16,27 @@ namespace Prequel
 
         public override void ExplicitVisit(DeclareVariableElement node)
         {
-            DeclaredVariables[node.VariableName.Value] = new Variable();
+            DeclaredVariables[node.VariableName.Value] = new Variable() { Node = node };
             base.ExplicitVisit(node);
         }
 
         public override void ExplicitVisit(ProcedureParameter node)
         {
-            DeclaredVariables[node.VariableName.Value] = new Variable();
+            DeclaredVariables[node.VariableName.Value] = new Variable() { Node = node };
             base.ExplicitVisit(node);
         }
 
         public override void ExplicitVisit(VariableReference node)
         {
             string targetVariable = node.Name;
-            if (!DeclaredVariables.ContainsKey(targetVariable))
+            Variable target;
+            if (DeclaredVariables.TryGetValue(targetVariable, out target))
             {
-                Warnings.Add(new Warning(node.StartLine, 1, String.Format("Variable {0} used before being declared", targetVariable)));
+                target.Referenced = true;
+            }
+            else
+            {
+                Warnings.Add(new Warning(node.StartLine, WarningID.UndeclaredVariableUsed, String.Format("Variable {0} used before being declared", targetVariable)));
             }
             base.ExplicitVisit(node);
         }
@@ -40,6 +45,19 @@ namespace Prequel
         {
             DeclaredVariables.Clear(); // clear local vars from any previous batch
             base.ExplicitVisit(batch);
+            LogUnreferencedVariables();
+        }
+
+        private void LogUnreferencedVariables()
+        {
+            foreach(var kv in DeclaredVariables)
+            {
+                if(!kv.Value.Referenced)
+                {
+                    DeclareVariableElement node = kv.Value.Node;
+                    Warnings.Add(new Warning(node.StartLine, WarningID.UnusedVariableDeclared, String.Format("Variable {0} declared but never used", kv.Key)));
+                }
+            }
         }
     }
 }

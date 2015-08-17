@@ -32,7 +32,7 @@ namespace Prequel
 
         public string FormatWarning(Warning warning)
         {
-            return String.Format("{0}({1}) : WARNING {2} : {3}", input.Path, warning.Line, warning.Number, warning.Message);
+            return String.Format("{0}({1}) : WARNING {2} : {3}", input.Path, warning.Line, (int)warning.Number, warning.Message);
         }
     }
 }

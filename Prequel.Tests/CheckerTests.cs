@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Xunit;
 
 namespace Prequel.Tests
@@ -10,6 +11,12 @@ namespace Prequel.Tests
             Assert.Empty(results.Errors);
             Assert.Empty(results.Warnings);
             Assert.Equal(0, results.ExitCode);
+        }
+
+        public static void OneWarningOfType(WarningID id, CheckResults results)
+        {
+            Assert.Empty(results.Errors);
+            Assert.Equal(1, results.Warnings.Count(warning => warning.Number == id));
         }
     }
     public class CheckerTests
@@ -92,7 +99,7 @@ namespace Prequel.Tests
         public void SetUndeclaredVariableRaisesWarning()
         {            
             var results = Check("set @undeclared = 1");
-            Assert.Equal(1, results.Warnings.Count);            
+            MyAssert.OneWarningOfType(WarningID.UndeclaredVariableUsed, results);           
         }
 
         [Fact]
@@ -115,8 +122,8 @@ namespace Prequel.Tests
             var results = Check(@"
 declare @declared as int; 
 GO 
-set @declared = 1");            
-            Assert.Equal(1, results.Warnings.Count);
+set @declared = 1");
+            MyAssert.OneWarningOfType(WarningID.UndeclaredVariableUsed, results);
         }
 
         [Fact]
@@ -130,7 +137,7 @@ set @declared = 1");
         public void SelectUndeclaredVariableRaisesWarning()
         {
             var results = Check("select X from Y where X = @foo");
-            Assert.Equal(1, results.Warnings.Count);
+            MyAssert.OneWarningOfType(WarningID.UndeclaredVariableUsed, results);
         }
 
         [Fact]
@@ -159,7 +166,16 @@ create procedure foo @x INT
 as
     set @y = 2
 go");
-            Assert.Equal(1, results.Warnings.Count);
+            MyAssert.OneWarningOfType(WarningID.UndeclaredVariableUsed, results);
+        }
+        #endregion
+
+        #region Unused variable check
+        [Fact]
+        public void UnusedVariableRaisesWarning()
+        {
+            var results = Check("declare @foo as int");
+            MyAssert.OneWarningOfType(WarningID.UnusedVariableDeclared, results);
         }
         #endregion
 
