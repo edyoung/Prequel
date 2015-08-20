@@ -8,6 +8,6 @@ namespace Prequel
         internal bool Referenced { get; set; }
 
         // where the variable was defined
-        internal DeclareVariableElement Node { get; set; }
+        internal Identifier Node { get; set; }
     }
 }

@@ -16,13 +16,19 @@ namespace Prequel
 
         public override void ExplicitVisit(DeclareVariableElement node)
         {
-            DeclaredVariables[node.VariableName.Value] = new Variable() { Node = node };
+            DeclaredVariables[node.VariableName.Value] = new Variable() { Node = node.VariableName };
+            base.ExplicitVisit(node);
+        }
+
+        public override void ExplicitVisit(DeclareTableVariableBody node)
+        {
+            DeclaredVariables[node.VariableName.Value] = new Variable() { Node = node.VariableName };
             base.ExplicitVisit(node);
         }
 
         public override void ExplicitVisit(ProcedureParameter node)
         {
-            DeclaredVariables[node.VariableName.Value] = new Variable() { Node = node };
+            DeclaredVariables[node.VariableName.Value] = new Variable() { Node = node.VariableName };
             base.ExplicitVisit(node);
         }
 
@@ -54,7 +60,7 @@ namespace Prequel
             {
                 if(!kv.Value.Referenced)
                 {
-                    DeclareVariableElement node = kv.Value.Node;
+                    TSqlFragment node = kv.Value.Node;
                     Warnings.Add(new Warning(node.StartLine, WarningID.UnusedVariableDeclared, String.Format("Variable {0} declared but never used", kv.Key)));
                 }
             }

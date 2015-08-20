@@ -168,6 +168,15 @@ as
 go");
             MyAssert.OneWarningOfType(WarningID.UndeclaredVariableUsed, results);
         }
+
+        [Fact]
+        public void TableDeclarationPreventsWarning()
+        {
+            var results = Check(@"
+declare @t table(Value int)
+insert @t (Value)values(1)");
+            MyAssert.NoErrorsOrWarnings(results);
+        }
         #endregion
 
         #region Unused variable check
