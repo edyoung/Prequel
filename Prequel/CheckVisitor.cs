@@ -8,6 +8,8 @@ namespace Prequel
     {
         private IDictionary<string, Variable> DeclaredVariables { get; set; }
         public IList<Warning> Warnings { get; private set; }
+        private bool inExecuteParameter;
+
         public CheckVisitor() 
         {
             Warnings = new List<Warning>();
@@ -32,17 +34,28 @@ namespace Prequel
             base.ExplicitVisit(node);
         }
 
+        public override void ExplicitVisit(ExecuteParameter node)
+        {
+            inExecuteParameter = true;
+            base.ExplicitVisit(node);
+            inExecuteParameter = false;
+        }
+
         public override void ExplicitVisit(VariableReference node)
         {
-            string targetVariable = node.Name;
-            Variable target;
-            if (DeclaredVariables.TryGetValue(targetVariable, out target))
+            // exec foo @param = value is allowed without being declared, though really it should be checked against params of foo
+            if (!inExecuteParameter)
             {
-                target.Referenced = true;
-            }
-            else
-            {
-                Warnings.Add(new Warning(node.StartLine, WarningID.UndeclaredVariableUsed, String.Format("Variable {0} used before being declared", targetVariable)));
+                string targetVariable = node.Name;
+                Variable target;
+                if (DeclaredVariables.TryGetValue(targetVariable, out target))
+                {
+                    target.Referenced = true;
+                }
+                else
+                {
+                    Warnings.Add(new Warning(node.StartLine, WarningID.UndeclaredVariableUsed, String.Format("Variable {0} used before being declared", targetVariable)));
+                }
             }
             base.ExplicitVisit(node);
         }
