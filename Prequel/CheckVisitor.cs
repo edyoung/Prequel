@@ -8,7 +8,7 @@ namespace Prequel
     {
         private IDictionary<string, Variable> DeclaredVariables { get; set; }
         public IList<Warning> Warnings { get; private set; }
-        private bool inExecuteParameter;
+        private string executeParameterVariable;
 
         public CheckVisitor() 
         {
@@ -36,27 +36,37 @@ namespace Prequel
 
         public override void ExplicitVisit(ExecuteParameter node)
         {
-            inExecuteParameter = true;
+            if(node.Variable != null)
+            {
+                executeParameterVariable = node.Variable.Name;
+            }
             base.ExplicitVisit(node);
-            inExecuteParameter = false;
+            executeParameterVariable = null;
+        }
+
+        private void CheckVariableReference(VariableReference node)
+        {
+            string targetVariable = node.Name;
+
+            if (String.Equals(targetVariable, executeParameterVariable, StringComparison.OrdinalIgnoreCase))
+            {
+                // in "exec foo @param = value", @param is allowed without being declared, though really it should be checked against params of foo
+                return;
+            }
+            Variable target;
+            if (DeclaredVariables.TryGetValue(targetVariable, out target))
+            {
+                target.Referenced = true;
+            }
+            else
+            {
+                Warnings.Add(new Warning(node.StartLine, WarningID.UndeclaredVariableUsed, String.Format("Variable {0} used before being declared", targetVariable)));
+            }
         }
 
         public override void ExplicitVisit(VariableReference node)
         {
-            // exec foo @param = value is allowed without being declared, though really it should be checked against params of foo
-            if (!inExecuteParameter)
-            {
-                string targetVariable = node.Name;
-                Variable target;
-                if (DeclaredVariables.TryGetValue(targetVariable, out target))
-                {
-                    target.Referenced = true;
-                }
-                else
-                {
-                    Warnings.Add(new Warning(node.StartLine, WarningID.UndeclaredVariableUsed, String.Format("Variable {0} used before being declared", targetVariable)));
-                }
-            }
+            CheckVariableReference(node);        
             base.ExplicitVisit(node);
         }
 

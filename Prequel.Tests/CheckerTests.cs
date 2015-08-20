@@ -186,7 +186,7 @@ insert @t (Value)values(1)");
         }
 
         [Fact]
-        public void ExecParametersDoNotNeedDeclaration()
+        public void ExecParameterVariablesDoNotNeedDeclaration()
         {
             var results = Check(@"
 exec foo @a = 1
@@ -194,12 +194,20 @@ exec foo @a = 1
             MyAssert.NoErrorsOrWarnings(results);
         }
 
+        [Fact]
+        public void ExecParameterValuesDoNeedDeclaration()
+        {
+            var results = Check(@"
+exec foo @b
+");
+            MyAssert.OneWarningOfType(WarningID.UndeclaredVariableUsed, results);
+        }
+
         // Used just to have a convenient place to paste snippets to try out
         [Fact]
         public void Experiment()
         {
             var results = Check(@"
-exec foo @a = 1
 ");
             MyAssert.NoErrorsOrWarnings(results);
         }
