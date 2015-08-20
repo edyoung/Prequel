@@ -11,7 +11,7 @@ namespace Prequel
         public CheckVisitor() 
         {
             Warnings = new List<Warning>();
-            DeclaredVariables = new Dictionary<string, Variable>();
+            DeclaredVariables = new Dictionary<string, Variable>(StringComparer.OrdinalIgnoreCase);
         }
 
         public override void ExplicitVisit(DeclareVariableElement node)

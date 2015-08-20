@@ -117,6 +117,13 @@ namespace Prequel.Tests
         }
 
         [Fact]
+        public void AliasesAreCaseInsensitive()
+        {
+            var results = Check("declare @DECLARED as nvarchar; select @declared = Name from sys.Columns");
+            MyAssert.NoErrorsOrWarnings(results);
+        }
+
+        [Fact]
         public void DeclaredVariablesArePerBatch()
         {
             var results = Check(@"
@@ -175,6 +182,16 @@ go");
             var results = Check(@"
 declare @t table(Value int)
 insert @t (Value)values(1)");
+            MyAssert.NoErrorsOrWarnings(results);
+        }
+
+        // Used just to have a convenient place to paste snippets to try out
+        [Fact]
+        public void Experiment()
+        {
+            var results = Check(@"
+
+");
             MyAssert.NoErrorsOrWarnings(results);
         }
         #endregion
