@@ -50,7 +50,7 @@ namespace Prequel
             }
             this.args = args;
 
-            for(int i = 0; i < args.Length; ++i)
+            for (int i = 0; i < args.Length; ++i)
             {
                 ProcessArgument(i, args);
             }
@@ -66,6 +66,16 @@ namespace Prequel
         }
 
         public Type SqlParserType { get; private set; }
+        public static string UsageDescription {
+            get
+            {
+                return String.Format(@"Usage: Prequel.exe [flags] file1.sql [file2.sql ...]
+/?:                 Print this message and exit
+/v:version          Specify the SQL dialect to use. Default 2014, options: {0}
+/i:'select ...'     Give a string of inline sql to parse and check", 
+                        SqlParserFactory.AllVersions);      
+            }
+        }
 
         private void ProcessArgument(int i, string[] args)
         {

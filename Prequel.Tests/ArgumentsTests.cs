@@ -27,6 +27,12 @@ namespace Prequel.Tests
         }
 
         [Fact]
+        public void ArgumentsHasUsageDescription()
+        {
+            Assert.NotNull(Arguments.UsageDescription);
+        }
+
+        [Fact]
         public void SlashQuestionRaisesUsageExceptionWithZeroExitCode()
         {
             var ex = Assert.Throws<UsageException>(() => new Arguments("/?"));

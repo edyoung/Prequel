@@ -18,6 +18,7 @@ namespace Prequel.exe
             catch (UsageException ex)
             {
                 Console.Error.WriteLine(ex.Message);
+                Console.Error.WriteLine(Arguments.UsageDescription);
                 return ex.ExitCode;
             }
 
