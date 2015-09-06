@@ -1,6 +1,7 @@
 ﻿using Microsoft.SqlServer.TransactSql.ScriptDom;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Prequel
 {
@@ -26,6 +27,15 @@ namespace Prequel
         {
             DeclaredVariables[node.VariableName.Value] = new Variable() { Node = node.VariableName };
             base.ExplicitVisit(node);
+        }
+
+        /// <summary>
+        /// Remove all the warnings which the user doesn't want to see
+        /// </summary>
+        /// <param name="warningLevel"></param>
+        internal void FilterWarnings(WarningLevel warningLevel)
+        {
+            this.Warnings = this.Warnings.Where(warning => warning.Info.Level <= warningLevel).ToList();
         }
 
         public override void ExplicitVisit(ProcedureParameter node)

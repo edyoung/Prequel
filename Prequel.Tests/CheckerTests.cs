@@ -19,6 +19,12 @@ namespace Prequel.Tests
             Assert.Empty(results.Errors);
             Assert.Equal(1, results.Warnings.Count(warning => warning.Number == id));
         }
+
+        public static void NoWarningsOfType(WarningID id, CheckResults results)
+        {
+            Assert.Empty(results.Errors);
+            Assert.Equal(0, results.Warnings.Count(warning => warning.Number == id));
+        }
     }
     public class CheckerTests
     {        
@@ -93,8 +99,9 @@ namespace Prequel.Tests
             Assert.Contains("missing.xyz", ex.Message);
             Assert.Equal(ExitReason.IOError, ex.ExitCode);
         }
+        #endregion
 
-
+        #region reporting
         [Fact]
         public void ErrorFormattingLooksOK()
         {
@@ -119,6 +126,28 @@ namespace Prequel.Tests
             var warning = results.Warnings[0];
             string warningMessage = results.FormatWarning(warning);
             Assert.Equal("<inline>(2) : WARNING 1 : Variable @undeclared used before being declared", warningMessage);
+        }
+
+        [Fact]
+        public void WarningLevelZeroNoWarnings()
+        {
+            var results = Check("\nset @undeclared = 7", "/warn:0");
+            MyAssert.NoErrorsOrWarnings(results);
+        }
+
+        [Fact]
+        public void WarningLevelZeroStillShowsErrors()
+        {
+            var results = Check("select >>>", "/warn:0");
+            Assert.NotEmpty(results.Errors);
+        }
+
+        [Fact]
+        public void WarningLevelCriticalHidesMinorErrors()
+        {
+            var results = Check("\nset @undeclared = 7\ndeclare @unused as int", "/warn:1");
+            MyAssert.OneWarningOfType(WarningID.UndeclaredVariableUsed, results);
+            MyAssert.NoWarningsOfType(WarningID.UnusedVariableDeclared, results);
         }
         #endregion
 

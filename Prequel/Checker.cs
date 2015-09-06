@@ -29,6 +29,7 @@ namespace Prequel
                 CheckVisitor checkVisitor = new CheckVisitor();
                 sqlFragment.Accept(checkVisitor);
 
+                checkVisitor.FilterWarnings(arguments.WarningLevel);
                 return new CheckResults(input, errors, checkVisitor.Warnings);
             }
             catch (IOException ex)

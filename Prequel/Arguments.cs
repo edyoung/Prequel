@@ -62,6 +62,7 @@ namespace Prequel
         {
             SqlParserType = SqlParserFactory.DefaultType;
             DisplayLogo = true;
+            WarningLevel = WarningLevel.Serious;
         }
 
         public IList<Input> Inputs {
@@ -84,6 +85,7 @@ namespace Prequel
         }
 
         public bool DisplayLogo { get; private set; }
+        public WarningLevel WarningLevel { get; set; }
 
         private void ProcessArgument(int i, string[] args)
         {
@@ -129,6 +131,22 @@ namespace Prequel
             else if (flag.Equals("nologo"))
             {
                 DisplayLogo = false;
+            }
+            else if (flag.StartsWith("warn:"))
+            {
+                string levelString = flag.Substring(5);
+                try {
+                    int level = (Convert.ToInt32(levelString));
+                    if(level < 0 || level > (int)WarningLevel.Max)
+                    {
+                        throw new ProgramTerminatingException(String.Format("Invalid Warning Level '{0}'", levelString));
+                    }
+                    WarningLevel = (WarningLevel)level;
+                }
+                catch(FormatException)
+                {
+                    throw new ProgramTerminatingException(String.Format("Invalid Warning Level '{0}'", levelString));
+                }
             }
         }
 

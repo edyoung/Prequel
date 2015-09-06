@@ -93,5 +93,30 @@ namespace Prequel.Tests
             var a = new Arguments("foo.sql", "/nologo");
             Assert.Equal(false, a.DisplayLogo);
         }
+
+        [Fact]
+        public void DefaultWarningLevelIsSerious()
+        {
+            var a = new Arguments("foo.sql");
+            Assert.Equal(WarningLevel.Serious, a.WarningLevel);
+        }
+
+        [Fact]
+        public void WarningLevelCanBeSet()
+        {
+            var a = new Arguments("foo.sql", "/warn:1");
+            Assert.Equal((WarningLevel)1, a.WarningLevel);
+        }
+
+        [InlineData("-1")]
+        [InlineData("5")]
+        [InlineData("")]
+        [InlineData("foo")]
+        [Theory]
+        public void CrazyWarningLevelCausesError(string weirdLevel)
+        {
+            var ex = Assert.Throws<ProgramTerminatingException>(() => new Arguments("foo.sql", "/warn:" + weirdLevel));
+            Assert.Contains(String.Format("Invalid Warning Level '{0}'", weirdLevel), ex.Message);
+        }
     }
 }
