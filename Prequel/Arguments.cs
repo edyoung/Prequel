@@ -75,7 +75,10 @@ namespace Prequel
                 return String.Format(@"Usage: Prequel.exe [flags] file1.sql [file2.sql ...]
 /?:                 Print this message and exit
 /v:version          Specify the SQL dialect to use. Default 2014, options: {0}
-/i:'select ...'     Give a string of inline sql to parse and check", 
+/i:'select ...'     Give a string of inline sql to parse and check
+/nologo             Don't print program name and version info
+
+", 
                         SqlParserFactory.AllVersions);      
             }
         }

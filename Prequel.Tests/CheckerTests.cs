@@ -72,9 +72,8 @@ namespace Prequel.Tests
         [Fact]
         public void ParseFileWithTooRecentSyntax()
         {
-            // IIF was introduced in sql 2012
-            Checker c = new Checker(new Arguments("/i:select iif (1 > 0, 1, 2) from foo", "/v:2008"));
-            var results = c.Run();
+            // IIF was introduced in sql 2012            
+            var results = Check("select iif (1 > 0, 1, 2) from foo", "/v:2008");
             Assert.NotEmpty(results.Errors);
         }
 
@@ -82,8 +81,7 @@ namespace Prequel.Tests
         public void ParseFileWithRecentSyntax()
         {
             // IIF was introduced in sql 2012
-            Checker c = new Checker(new Arguments("/i:select iif (1 > 0, 1, 2) from foo", "/v:2012"));
-            var results = c.Run();
+            var results = Check("select iif (1 > 0, 1, 2) from foo", "/v:2012");
             Assert.Empty(results.Errors);
         }
 
