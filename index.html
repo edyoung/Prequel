@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Prequel : A tool for linting SQL files for Microsoft SQL Server.">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Prequel</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/edyoung/Prequel">View on GitHub</a>
+
+          <h1 id="project_title">Prequel</h1>
+          <h2 id="project_tagline">A tool for linting SQL files for Microsoft SQL Server.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/edyoung/Prequel/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/edyoung/Prequel/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h3>
+<a id="prequel" class="anchor" href="#prequel" aria-hidden="true"><span class="octicon octicon-link"></span></a>Prequel.</h3>
+
+<p>Prequel was born out of working on a product which contains a large number of database schemas and stored procedures. Every so often, a really basic error would be accidentally committed to the repository - sometimes, the SQL wouldn't even compile. This wasn't caught until tests were run, which seemed wasteful. So I wanted a tool I could run on plain .sql files and integrate into the build system so that it would catch syntax errors and other errors earlier.</p>
+
+<h2>
+<a id="basic-usage" class="anchor" href="#basic-usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Basic Usage</h2>
+
+<p>Say you have a file foo.sql which contains:</p>
+
+<pre><code>create procedure sp_foo as 
+    declare @myvar as int
+    set @mvar = 2
+go
+</code></pre>
+
+<p>You can run prequel like so:</p>
+
+<pre><code>PS C:\&gt; .\Prequel.exe /warn:3 foo.sql
+</code></pre>
+
+<p>And it will print out</p>
+
+<pre><code>Prequel version 0.1.0.0
+Warnings:
+c:\users\edwin\desktop\sqlquery2.sql(1) : WARNING 4 : Procedure sp_foo should not be named with the prefix 'sp_'
+c:\users\edwin\desktop\sqlquery2.sql(3) : WARNING 1 : Variable @mvar used before being declared
+c:\users\edwin\desktop\sqlquery2.sql(1) : WARNING 3 : Procedure sp_foo does not SET NOCOUNT ON
+c:\users\edwin\desktop\sqlquery2.sql(2) : WARNING 2 : Variable @myvar declared but never used
+</code></pre>
+
+<h2>
+<a id="status" class="anchor" href="#status" aria-hidden="true"><span class="octicon octicon-link"></span></a>Status</h2>
+
+<p>The tool works, but has a very small set of cases that it will detect so far.</p>
+
+<h2>
+<a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Authors and Contributors</h2>
+
+<p><a href="https://github.com/edyoung" class="user-mention">@edyoung</a>. Suggestions and improvements very welcome.</p>
+
+<h3>
+<a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
+
+<p>Having trouble with Pages? Check out our <a href="https://help.github.com/pages">documentation</a> or <a href="https://github.com/contact">contact support</a> and we’ll help you sort it out.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Prequel maintained by <a href="https://github.com/edyoung">edyoung</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
