@@ -68,6 +68,24 @@ namespace Prequel.Tests
         }
 
         [Fact]
+        public void ParseFileWithTooRecentSyntax()
+        {
+            // IIF was introduced in sql 2012
+            Checker c = new Checker(new Arguments("/i:select iif (1 > 0, 1, 2) from foo", "/v:2008"));
+            var results = c.Run();
+            Assert.NotEmpty(results.Errors);
+        }
+
+        [Fact]
+        public void ParseFileWithRecentSyntax()
+        {
+            // IIF was introduced in sql 2012
+            Checker c = new Checker(new Arguments("/i:select iif (1 > 0, 1, 2) from foo", "/v:2012"));
+            var results = c.Run();
+            Assert.Empty(results.Errors);
+        }
+
+        [Fact]
         public void ParseMissingFile()
         {
             var c = new Checker(new Arguments("missing.xyz"));
