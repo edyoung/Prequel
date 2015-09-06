@@ -78,7 +78,7 @@ namespace Prequel
 /v:version          Specify the SQL dialect to use. Default 2014, options: {0}
 /i:'select ...'     Give a string of inline sql to parse and check
 /nologo             Don't print program name and version info
-
+/warn:level         0-3. 0 = syntax errors only, 1 critical warnings, 2 = serious warnings, 3 = all warnings
 ", 
                         SqlParserFactory.AllVersions);      
             }

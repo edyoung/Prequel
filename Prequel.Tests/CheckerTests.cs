@@ -145,6 +145,10 @@ namespace Prequel.Tests
         [Fact]
         public void WarningLevelCriticalHidesMinorErrors()
         {
+            // assert that I haven't changed the level of these warnings
+            Assert.Equal(WarningLevel.Critical, Warning.WarningTypes[WarningID.UndeclaredVariableUsed].Level);
+            Assert.Equal(WarningLevel.Minor, Warning.WarningTypes[WarningID.UnusedVariableDeclared].Level);
+
             var results = Check("\nset @undeclared = 7\ndeclare @unused as int", "/warn:1");
             MyAssert.OneWarningOfType(WarningID.UndeclaredVariableUsed, results);
             MyAssert.NoWarningsOfType(WarningID.UnusedVariableDeclared, results);
@@ -274,7 +278,7 @@ exec foo @b
         [Fact]
         public void UnusedVariableRaisesWarning()
         {
-            var results = Check("declare @foo as int");
+            var results = Check("declare @foo as int", "/warn:3");
             MyAssert.OneWarningOfType(WarningID.UnusedVariableDeclared, results);
         }
         #endregion

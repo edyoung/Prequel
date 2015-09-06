@@ -42,7 +42,7 @@ namespace Prequel
 
     public class Warning
     {
-        static readonly IDictionary<WarningID, WarningInfo> infoMap = InitWarningLevelMap();
+        public static readonly IDictionary<WarningID, WarningInfo> WarningTypes = InitWarningLevelMap();
 
         public int Line { get; private set; }
         public string Message { get; private set; }
@@ -54,7 +54,7 @@ namespace Prequel
             this.Line = line;
             this.Number = number;
             this.Message = message;
-            this.Info = infoMap[number];
+            this.Info = WarningTypes[number];
         }
 
         private static IDictionary<WarningID, WarningInfo> InitWarningLevelMap()
