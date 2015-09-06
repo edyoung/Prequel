@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using Xunit;
 
@@ -64,6 +65,15 @@ namespace Prequel.Tests
                 Assert.NotEmpty(results.Errors);
                 Assert.Equal(1, results.ExitCode);
             }
+        }
+
+        [Fact]
+        public void ParseMissingFile()
+        {
+            var c = new Checker(new Arguments("missing.xyz"));
+            var ex = Assert.Throws<ProgramTerminatingException>(() => c.Run());
+            Assert.Contains("missing.xyz", ex.Message);
+            Assert.Equal(2, ex.ExitCode);
         }
 
 

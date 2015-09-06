@@ -46,7 +46,7 @@ namespace Prequel
             SetDefaults();
             if (args.Length == 0)
             {
-                throw new UsageException("You must specify at least one file to check");
+                throw new ProgramTerminatingException("You must specify at least one file to check");
             }
             this.args = args;
 
@@ -99,7 +99,7 @@ namespace Prequel
         { 
             if (flag == "?")
             {
-                throw new UsageException() { ExitCode = 0 };
+                throw new ProgramTerminatingException() { ExitCode = 0 };
             }
 
             if (flag.StartsWith("v:"))
@@ -110,7 +110,7 @@ namespace Prequel
                 }
                 catch(ArgumentException ex)
                 {
-                    throw new UsageException(ex.Message);
+                    throw new ProgramTerminatingException(ex.Message);
                 }
             }
 

@@ -16,13 +16,13 @@ namespace Prequel.Tests
         [Fact]
         public void NoArgumentsRaisesUsageException()
         {
-            Assert.Throws<UsageException>(() => new Arguments(new string[] { }));
+            Assert.Throws<ProgramTerminatingException>(() => new Arguments(new string[] { }));
         }
 
         [Fact]
         public void NoArgumentsSetsExitCode()
         {
-            var ex = Assert.Throws<UsageException>( () => new Arguments(new string[] { } ));
+            var ex = Assert.Throws<ProgramTerminatingException>( () => new Arguments(new string[] { } ));
             Assert.Equal(1, ex.ExitCode);
         }
 
@@ -35,14 +35,14 @@ namespace Prequel.Tests
         [Fact]
         public void SlashQuestionRaisesUsageExceptionWithZeroExitCode()
         {
-            var ex = Assert.Throws<UsageException>(() => new Arguments("/?"));
+            var ex = Assert.Throws<ProgramTerminatingException>(() => new Arguments("/?"));
             Assert.Equal(0, ex.ExitCode);
         }
 
         [Fact]
         public void MinusQuestionRaisesUsageExceptionWithZeroExitCode()
         {
-            var ex = Assert.Throws<UsageException>(() => new Arguments("-?" ));
+            var ex = Assert.Throws<ProgramTerminatingException>(() => new Arguments("-?" ));
             Assert.Equal(0, ex.ExitCode);
         }
 
@@ -66,7 +66,7 @@ namespace Prequel.Tests
         [Theory]
         public void InvalidVersionStringIsReported(string version, string versionToComplainAbout)
         {
-            var ex = Assert.Throws<UsageException>( () => new Arguments("foo.sql", version));
+            var ex = Assert.Throws<ProgramTerminatingException>( () => new Arguments("foo.sql", version));
             Assert.Contains(String.Format("Unknown SQL version '{0}'", versionToComplainAbout), ex.Message);
         }
 

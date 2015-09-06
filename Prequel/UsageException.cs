@@ -4,24 +4,24 @@ using System.Runtime.Serialization;
 namespace Prequel
 {
     [Serializable]
-    public class UsageException : Exception, ISerializable
+    public class ProgramTerminatingException : Exception, ISerializable
     {
-        public UsageException()
+        public ProgramTerminatingException()
         {
             ExitCode = 1;
         }
 
-        public UsageException(string message) : base(message)
+        public ProgramTerminatingException(string message) : base(message)
         {
             ExitCode = 1;
         }
 
-        public UsageException(string message, Exception innerException) : base(message, innerException)
+        public ProgramTerminatingException(string message, Exception innerException) : base(message, innerException)
         {
             ExitCode = 1;
         }
 
-        protected UsageException(SerializationInfo info, StreamingContext context) : base(info, context)
+        protected ProgramTerminatingException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
             ExitCode = 1;
         }
