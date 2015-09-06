@@ -303,5 +303,16 @@ go
         }
         #endregion
 
+        #region sp_ check
+        [Fact]
+        public void SprocWithSpRaisesWarning()
+        {
+            var results = Check(@"
+create procedure sp_foo as 
+return 1
+go");
+            MyAssert.OneWarningOfType(WarningID.ProcedureWithSPPrefix, results);
+        }
+        #endregion
     }
 }

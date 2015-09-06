@@ -58,11 +58,22 @@ namespace Prequel
         public override void ExplicitVisit(CreateProcedureStatement node)
         {
             var currentProcedure = node.ProcedureReference.Name.BaseIdentifier.Value;
+
+            if(currentProcedure.StartsWith("sp_"))
+            {
+                Warnings.Add(new Warning(
+                    node.StartLine, 
+                    WarningID.ProcedureWithSPPrefix, 
+                    String.Format("Procedure {0} should not be named with the prefix 'sp_' ", currentProcedure)));
+            }
             this.noCountSet = false;
             base.ExplicitVisit(node);
             if (!this.noCountSet)
             {
-                Warnings.Add(new Warning(node.StartLine, WarningID.ProcedureWithoutNoCount, String.Format("Procedure {0} does not SET NOCOUNT ON", currentProcedure)));
+                Warnings.Add(new Warning(
+                    node.StartLine, 
+                    WarningID.ProcedureWithoutNoCount, 
+                    String.Format("Procedure {0} does not SET NOCOUNT ON", currentProcedure)));
             }
         }
 

@@ -10,7 +10,8 @@ namespace Prequel
     {
         UndeclaredVariableUsed = 1,
         UnusedVariableDeclared,
-        ProcedureWithoutNoCount
+        ProcedureWithoutNoCount,
+        ProcedureWithSPPrefix
     }
 
     public enum WarningLevel
@@ -64,6 +65,7 @@ namespace Prequel
             warningInfo[WarningID.UndeclaredVariableUsed] = new WarningInfo(WarningID.UndeclaredVariableUsed, WarningLevel.Critical);
             warningInfo[WarningID.UnusedVariableDeclared] = new WarningInfo(WarningID.UnusedVariableDeclared, WarningLevel.Minor);
             warningInfo[WarningID.ProcedureWithoutNoCount] = new WarningInfo(WarningID.ProcedureWithoutNoCount, WarningLevel.Minor);
+            warningInfo[WarningID.ProcedureWithSPPrefix] = new WarningInfo(WarningID.ProcedureWithSPPrefix, WarningLevel.Serious);
             return warningInfo;
         }
     }
