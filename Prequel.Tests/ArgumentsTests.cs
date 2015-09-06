@@ -20,10 +20,10 @@ namespace Prequel.Tests
         }
 
         [Fact]
-        public void NoArgumentsSetsExitCode()
+        public void NoArgumentsSetsFailedExitCode()
         {
             var ex = Assert.Throws<ProgramTerminatingException>( () => new Arguments(new string[] { } ));
-            Assert.Equal(1, ex.ExitCode);
+            Assert.Equal(ExitReason.GeneralFailure, ex.ExitCode);
         }
 
         [Fact]
@@ -33,17 +33,17 @@ namespace Prequel.Tests
         }
 
         [Fact]
-        public void SlashQuestionRaisesUsageExceptionWithZeroExitCode()
+        public void SlashQuestionRaisesUsageExceptionWithSuccessExitCode()
         {
             var ex = Assert.Throws<ProgramTerminatingException>(() => new Arguments("/?"));
-            Assert.Equal(0, ex.ExitCode);
+            Assert.Equal(ExitReason.Success, ex.ExitCode);
         }
 
         [Fact]
-        public void MinusQuestionRaisesUsageExceptionWithZeroExitCode()
+        public void MinusQuestionRaisesUsageExceptionWithSuccessExitCode()
         {
             var ex = Assert.Throws<ProgramTerminatingException>(() => new Arguments("-?" ));
-            Assert.Equal(0, ex.ExitCode);
+            Assert.Equal(ExitReason.Success, ex.ExitCode);
         }
 
         [Fact]

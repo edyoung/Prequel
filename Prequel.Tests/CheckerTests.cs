@@ -11,7 +11,7 @@ namespace Prequel.Tests
         {
             Assert.Empty(results.Errors);
             Assert.Empty(results.Warnings);
-            Assert.Equal(0, results.ExitCode);
+            Assert.Equal(ExitReason.Success, results.ExitCode);
         }
 
         public static void OneWarningOfType(WarningID id, CheckResults results)
@@ -41,7 +41,7 @@ namespace Prequel.Tests
         {            
             var results = Check("select >>>");
             Assert.NotEmpty(results.Errors);
-            Assert.Equal(1, results.ExitCode);
+            Assert.Equal(ExitReason.GeneralFailure, results.ExitCode);
         }
 
         [Fact]
@@ -51,7 +51,7 @@ namespace Prequel.Tests
             {
                 Checker c = new Checker(new Arguments(t.FileName));
                 var results = c.Run();
-                Assert.Equal(0, results.ExitCode);
+                Assert.Equal(ExitReason.Success, results.ExitCode);
             }
         }
 
@@ -63,7 +63,7 @@ namespace Prequel.Tests
                 Checker c = new Checker(new Arguments(t.FileName));
                 var results = c.Run();
                 Assert.NotEmpty(results.Errors);
-                Assert.Equal(1, results.ExitCode);
+                Assert.Equal<ExitReason>(ExitReason.GeneralFailure, results.ExitCode);
             }
         }
 
@@ -73,7 +73,7 @@ namespace Prequel.Tests
             var c = new Checker(new Arguments("missing.xyz"));
             var ex = Assert.Throws<ProgramTerminatingException>(() => c.Run());
             Assert.Contains("missing.xyz", ex.Message);
-            Assert.Equal(2, ex.ExitCode);
+            Assert.Equal(ExitReason.IOError, ex.ExitCode);
         }
 
 

@@ -15,14 +15,14 @@ namespace Prequel
             this.Errors = errors;
             if(! (errors.Count == 0))
             {
-                ExitCode = 1;
+                ExitCode = ExitReason.GeneralFailure;
             }
             this.Warnings = warnings;
             this.input = input;
         }
         private Input input;
         public IList<ParseError> Errors { get; set; }
-        public int ExitCode { get; set; }
+        public ExitReason ExitCode { get; set; }
         public IList<Warning> Warnings { get; set; }
 
         public string FormatError(ParseError error)

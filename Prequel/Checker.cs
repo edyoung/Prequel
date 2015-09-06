@@ -34,8 +34,7 @@ namespace Prequel
             catch (IOException ex)
             {
                 throw new ProgramTerminatingException(
-                    String.Format("Error reading file {0}: {1}", input.Path, ex.Message), ex)
-                { ExitCode = 2 };
+                    String.Format("Error reading file {0}: {1}", input.Path, ex.Message), ex, ExitReason.IOError);
             }
         }
     }

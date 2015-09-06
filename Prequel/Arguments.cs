@@ -99,7 +99,7 @@ namespace Prequel
         { 
             if (flag == "?")
             {
-                throw new ProgramTerminatingException() { ExitCode = 0 };
+                throw new ProgramTerminatingException(ExitReason.Success);
             }
 
             if (flag.StartsWith("v:"))

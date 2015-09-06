@@ -36,13 +36,13 @@ namespace Prequel.exe
                         Console.Error.WriteLine(results.FormatWarning(warning));
                     }
                 }
-                return results.ExitCode;
+                return (int)results.ExitCode;
             }
             catch (ProgramTerminatingException ex)
             {
                 Console.Error.WriteLine(ex.Message);
                 Console.Error.WriteLine(Arguments.UsageDescription);
-                return ex.ExitCode;
+                return (int)ex.ExitCode;
             }
         }
     }
