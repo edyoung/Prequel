@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -99,7 +101,8 @@ namespace Prequel
         { 
             if (flag == "?")
             {
-                throw new ProgramTerminatingException(ExitReason.Success);
+                throw new ProgramTerminatingException(
+                    String.Format("Prequel version {0}", FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).ProductVersion), ExitReason.Success);
             }
 
             if (flag.StartsWith("v:"))
