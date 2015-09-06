@@ -10,6 +10,7 @@ namespace Prequel
         private IDictionary<string, Variable> DeclaredVariables { get; set; }
         public IList<Warning> Warnings { get; private set; }
         private string executeParameterVariable;
+        private bool noCountSet;
 
         public CheckVisitor() 
         {
@@ -52,6 +53,27 @@ namespace Prequel
             }
             base.ExplicitVisit(node);
             executeParameterVariable = null;
+        }
+
+        public override void ExplicitVisit(CreateProcedureStatement node)
+        {
+            var currentProcedure = node.ProcedureReference.Name.BaseIdentifier.Value;
+            this.noCountSet = false;
+            base.ExplicitVisit(node);
+            if (!this.noCountSet)
+            {
+                Warnings.Add(new Warning(node.StartLine, WarningID.ProcedureWithoutNoCount, String.Format("Procedure {0} does not SET NOCOUNT ON", currentProcedure)));
+            }
+        }
+
+        public override void ExplicitVisit(PredicateSetStatement node)
+        {
+            if (node.Options.HasFlag(SetOptions.NoCount) && node.IsOn)
+            {
+                // we found a 'set nocount on' in this sproc
+                this.noCountSet = true;
+            }
+            base.ExplicitVisit(node);
         }
 
         private void CheckVariableReference(VariableReference node)

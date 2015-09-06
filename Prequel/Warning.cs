@@ -9,7 +9,8 @@ namespace Prequel
     public enum WarningID
     {
         UndeclaredVariableUsed = 1,
-        UnusedVariableDeclared
+        UnusedVariableDeclared,
+        ProcedureWithoutNoCount
     }
 
     public enum WarningLevel
@@ -62,7 +63,7 @@ namespace Prequel
             IDictionary<WarningID, WarningInfo> warningInfo = new Dictionary<WarningID, WarningInfo>();
             warningInfo[WarningID.UndeclaredVariableUsed] = new WarningInfo(WarningID.UndeclaredVariableUsed, WarningLevel.Critical);
             warningInfo[WarningID.UnusedVariableDeclared] = new WarningInfo(WarningID.UnusedVariableDeclared, WarningLevel.Minor);
-
+            warningInfo[WarningID.ProcedureWithoutNoCount] = new WarningInfo(WarningID.ProcedureWithoutNoCount, WarningLevel.Minor);
             return warningInfo;
         }
     }

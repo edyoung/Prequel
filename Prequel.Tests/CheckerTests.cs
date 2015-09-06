@@ -283,5 +283,25 @@ exec foo @b
         }
         #endregion
 
+        #region nocount check
+
+        // complain if a procedure does not set nocount on
+        [Fact]
+        public void SprocWithoutNoCountOnRaisesWarning()
+        {
+            var results = Check(@"
+                create procedure foo as
+return 1
+go
+create procedure bar as
+set nocount on
+return 1
+go
+                ", "/warn:3");
+
+            MyAssert.OneWarningOfType(WarningID.ProcedureWithoutNoCount, results);
+        }
+        #endregion
+
     }
 }
