@@ -8,10 +8,12 @@ namespace Prequel
 {
     public enum WarningID
     {
+        Min = UndeclaredVariableUsed,
         UndeclaredVariableUsed = 1,
         UnusedVariableDeclared,
         ProcedureWithoutNoCount,
-        ProcedureWithSPPrefix
+        ProcedureWithSPPrefix,
+        Max = ProcedureWithSPPrefix
     }
 
     public enum WarningLevel
