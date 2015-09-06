@@ -22,9 +22,11 @@ namespace Prequel.Tests
     }
     public class CheckerTests
     {        
-        public static CheckResults Check(string sqlToCheck)
+        public static CheckResults Check(string sqlToCheck, params string[] arguments)
         {
-            Checker c = new Checker(new Arguments("/i:" + sqlToCheck));
+            var allArguments = arguments.ToList();
+            allArguments.Add("/i:" + sqlToCheck);
+            Checker c = new Checker(new Arguments(allArguments.ToArray()));
             return c.Run();
         }
 

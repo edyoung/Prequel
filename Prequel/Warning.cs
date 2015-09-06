@@ -11,6 +11,15 @@ namespace Prequel
         UndeclaredVariableUsed = 1,
         UnusedVariableDeclared
     }
+
+    public enum WarningFilterLevel
+    {
+        None = 0,
+        Critical = 1,
+        Serious = 2,
+        Minor = 3
+    }
+
     public class Warning
     {
         public int Line { get; private set; }

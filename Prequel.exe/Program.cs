@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,8 +17,11 @@ namespace Prequel.exe
             try
             {
                 arguments = new Arguments(args);
+
+                Console.WriteLine("Prequel version {0}", GetProgramVersion());
             
                 var checker = new Checker(arguments);
+                
                 var results = checker.Run();
 
                 if (results.Errors.Count > 0)
@@ -44,6 +49,17 @@ namespace Prequel.exe
                 Console.Error.WriteLine(Arguments.UsageDescription);
                 return (int)ex.ExitCode;
             }
+        }
+
+        private static string GetProgramVersion()
+        {
+            // when code is run in xunit runner, there is no entryassembly
+            var assembly = Assembly.GetEntryAssembly();
+            if(null == assembly)
+            {
+                return "unknown";
+            }
+            return FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion;
         }
     }
 }

@@ -61,6 +61,7 @@ namespace Prequel
         private void SetDefaults()
         {
             SqlParserType = SqlParserFactory.DefaultType;
+            DisplayLogo = true;
         }
 
         public IList<Input> Inputs {
@@ -78,6 +79,8 @@ namespace Prequel
                         SqlParserFactory.AllVersions);      
             }
         }
+
+        public bool DisplayLogo { get; private set; }
 
         private void ProcessArgument(int i, string[] args)
         {
@@ -101,8 +104,7 @@ namespace Prequel
         { 
             if (flag == "?")
             {
-                throw new ProgramTerminatingException(
-                    String.Format("Prequel version {0}", FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).ProductVersion), ExitReason.Success);
+                throw new ProgramTerminatingException("Usage Information Requested", ExitReason.Success);
             }
 
             if (flag.StartsWith("v:"))
@@ -116,13 +118,17 @@ namespace Prequel
                     throw new ProgramTerminatingException(ex.Message);
                 }
             }
-
-            if (flag.StartsWith("i:"))
+            else if (flag.StartsWith("i:"))
             {
                 string inlineSql = flag.Substring(2);
                 inputs.Add(Input.FromString(inlineSql));
             }
-
+            else if (flag.Equals("nologo"))
+            {
+                DisplayLogo = false;
+            }
         }
+
+        
     }
 }

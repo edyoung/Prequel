@@ -79,5 +79,19 @@ namespace Prequel.Tests
             string contents = reader.ReadToEnd();
             Assert.Equal("foo bar", contents);        
         }
+
+        [Fact]
+        public void DefaultIsToDisplayLogo()
+        {
+            var a = new Arguments("foo.sql");
+            Assert.Equal(true, a.DisplayLogo);
+        }
+
+        [Fact]
+        public void NoLogoSuppressesLogo()
+        {
+            var a = new Arguments("foo.sql", "/nologo");
+            Assert.Equal(false, a.DisplayLogo);
+        }
     }
 }
