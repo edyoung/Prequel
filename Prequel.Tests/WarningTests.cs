@@ -15,12 +15,15 @@ namespace Prequel.Tests
         /// </summary>
         [Fact]
         public void AllWarningsInMap()
-        {
-            for (int id = (int)WarningID.Min; id < (int)WarningID.Max ; id++)
+        {            
+            for (int id = WarningInfo.MinWarningID; id <= WarningInfo.MaxWarningID ; id++)
             {
                 WarningID warningID = (WarningID)id;
-                Assert.Equal(warningID, Warning.WarningTypes[warningID].ID); 
+                Assert.Equal(warningID, Warning.WarningTypes[warningID].ID); // make sure every warning is in the map and has correct id
             }
+
+            // make sure min and max are up-to-date
+            Assert.Equal(Warning.WarningTypes.Count, (WarningInfo.MaxWarningID - WarningInfo.MinWarningID) + 1);
         }
     }
 }

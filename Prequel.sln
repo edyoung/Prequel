@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prequel.Tests", "Prequel.Te
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prequel.exe", "Prequel.exe\Prequel.exe.csproj", "{2343C1AC-134F-400A-9B3C-9ED44EBA8273}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenerateDocs", "GenerateDocs\GenerateDocs.csproj", "{9C82F659-178B-4B55-9268-D361718ECEAC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{2343C1AC-134F-400A-9B3C-9ED44EBA8273}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2343C1AC-134F-400A-9B3C-9ED44EBA8273}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2343C1AC-134F-400A-9B3C-9ED44EBA8273}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C82F659-178B-4B55-9268-D361718ECEAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C82F659-178B-4B55-9268-D361718ECEAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C82F659-178B-4B55-9268-D361718ECEAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C82F659-178B-4B55-9268-D361718ECEAC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

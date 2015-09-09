@@ -8,14 +8,12 @@ namespace Prequel
 {
     public enum WarningID
     {
-        Min = UndeclaredVariableUsed,
         UndeclaredVariableUsed = 1,
         UnusedVariableDeclared,
         ProcedureWithoutNoCount,
-        ProcedureWithSPPrefix,
-        Max = ProcedureWithSPPrefix
+        ProcedureWithSPPrefix,        
     }
-
+    
     public enum WarningLevel
     {
         None = 0,
@@ -27,6 +25,9 @@ namespace Prequel
 
     public class WarningInfo
     {
+        public const int MinWarningID = (int)WarningID.UndeclaredVariableUsed;
+        public const int MaxWarningID = (int)WarningID.ProcedureWithSPPrefix;
+
         public WarningLevel Level
         {
             get; private set;
@@ -37,10 +38,22 @@ namespace Prequel
             get; private set;
         }
 
-        public WarningInfo(WarningID id, WarningLevel level)
+        public string Name
+        {
+            get; private set;
+        }
+
+        public string Description
+        {
+            get; private set;
+        }
+
+        public WarningInfo(WarningID id, WarningLevel level, string name, string description)
         {
             ID = id;
             Level = level;
+            Name = name;
+            Description = description;
         }
     }
 
@@ -64,10 +77,27 @@ namespace Prequel
         private static IDictionary<WarningID, WarningInfo> InitWarningLevelMap()
         {
             IDictionary<WarningID, WarningInfo> warningInfo = new Dictionary<WarningID, WarningInfo>();
-            warningInfo[WarningID.UndeclaredVariableUsed] = new WarningInfo(WarningID.UndeclaredVariableUsed, WarningLevel.Critical);
-            warningInfo[WarningID.UnusedVariableDeclared] = new WarningInfo(WarningID.UnusedVariableDeclared, WarningLevel.Minor);
-            warningInfo[WarningID.ProcedureWithoutNoCount] = new WarningInfo(WarningID.ProcedureWithoutNoCount, WarningLevel.Minor);
-            warningInfo[WarningID.ProcedureWithSPPrefix] = new WarningInfo(WarningID.ProcedureWithSPPrefix, WarningLevel.Serious);
+            warningInfo[WarningID.UndeclaredVariableUsed] = new WarningInfo(
+                WarningID.UndeclaredVariableUsed, 
+                WarningLevel.Critical,
+                "Undeclared Variable used",
+                "A variable which was not declared was referenced or set. Declare it before use, for example 'DECLARE @variable AS INT'");
+            warningInfo[WarningID.UnusedVariableDeclared] = new WarningInfo(
+                WarningID.UnusedVariableDeclared, 
+                WarningLevel.Minor,
+                "Unused Variable declared",
+                "A variable or parameter was declared, but never referenced. It could be removed without affecting the procedure's logic, or this could indicate a typo or logical error");
+            warningInfo[WarningID.ProcedureWithoutNoCount] = new WarningInfo(
+                WarningID.ProcedureWithoutNoCount, 
+                WarningLevel.Minor,
+                "Procedure without SET NOCOUNT ON",
+                @"Performance for stored procedures can be increased with the SET NOCOUNT ON option. The difference can range from tiny to substantial depending on the nature of the sproc. 
+Some SQL tools require the rowcount to be returned - if you use one of those, suppress this warning.");
+            warningInfo[WarningID.ProcedureWithSPPrefix] = new WarningInfo(
+                WarningID.ProcedureWithSPPrefix, 
+                WarningLevel.Serious,
+                "Procedure name begins with sp_",
+                "sp_ is a reserved prefix in SQL server. Even a sproc which does not clash with any system procedure incurs a performance penalty when using this prefix. Rename the procedure");
             return warningInfo;
         }
     }
