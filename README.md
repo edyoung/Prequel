@@ -1,11 +1,6 @@
----
-title: Prequel
-layout: default
----
-
 [![Build status](https://ci.appveyor.com/api/projects/status/ebtg15yc3wls89yi/branch/master?svg=true)](https://ci.appveyor.com/project/edyoung/prequel/branch/master)
 
-# Prequel.
+# Prequel
 
 Prequel was born out of working on a product which contains a large number of database schemas and stored procedures. 
 Every so often, a really basic error would be accidentally committed to the repository - sometimes, the SQL had syntax errors.
@@ -33,7 +28,7 @@ And it will print out
     c:\temp\foo.sql(1) : WARNING 3 : Procedure sp_foo does not SET NOCOUNT ON
     c:\temp\foo.sql(2) : WARNING 2 : Variable @myvar declared but never used
 
-## Installation and prerequisites.
+## Installation and prerequisites
 
 Prequel requires the Microsoft SQL Server 2014 Transact-SQL ScriptDom package, which can be found on 
 [http://www.microsoft.com/en-us/download/details.aspx?id=42295](http://www.microsoft.com/en-us/download/details.aspx?id=42295).
