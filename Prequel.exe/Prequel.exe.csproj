@@ -31,9 +31,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-</PropertyGroup>
+  </PropertyGroup>
   <PropertyGroup>
-      <!-- for zip task -->
+    <!-- for zip task -->
     <SourceDirectory>$(OutDir)</SourceDirectory>
     <WorkingDir>$(OutDir)</WorkingDir>
     <OutputDirectory>$(OutDir)</OutputDirectory>
@@ -54,6 +54,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\README.md">
+      <Link>README.md</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
@@ -66,7 +70,7 @@
   <Target Name="BeforeBuild">
   </Target>
   <Target Name="AfterBuild">
-    <Zip TaskAction="Create" CompressFiles="$(OutDir)Prequel.exe;$(OutDir)Prequel.Library.dll" RemoveRoot="$(OutDir)" ZipFileName="$(OutDir)prequel.zip" />
+    <Zip TaskAction="Create" CompressFiles="$(OutDir)Prequel.exe;$(OutDir)Prequel.Library.dll;$(OutDir)readme.md" RemoveRoot="$(OutDir)" ZipFileName="$(OutDir)prequel.zip" />
   </Target>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
