@@ -3,5 +3,5 @@ title: Prequel
 layout: default
 ---
 
-{% include_relative readme.md  %}
+{% include_relative README.md  %}
 
