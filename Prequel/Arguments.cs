@@ -157,6 +157,11 @@ Flags:
                     throw new ProgramTerminatingException(String.Format("Invalid Warning Level '{0}'", levelString));
                 }
             }
+            else
+            {
+                // flag not matched
+                throw new ProgramTerminatingException(String.Format("Unknown flag '/{0}'", flag));
+            }
         }
 
         

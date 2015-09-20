@@ -118,5 +118,12 @@ namespace Prequel.Tests
             var ex = Assert.Throws<ProgramTerminatingException>(() => new Arguments("foo.sql", "/warn:" + weirdLevel));
             Assert.Contains(String.Format("Invalid Warning Level '{0}'", weirdLevel), ex.Message);
         }
+
+        [Fact]
+        public void UnknownFlagRaisesError()
+        {
+            var ex = Assert.Throws<ProgramTerminatingException>(() => new Arguments("foo.sql", "/z"));
+            Assert.Contains("Unknown flag '/z'", ex.Message);
+        }
     }
 }
