@@ -19,7 +19,14 @@ namespace Prequel
             {
                 if(stream == null)
                 {
-                    stream = File.OpenRead(Path);
+                    try {
+                        stream = File.OpenRead(Path);
+                    }
+                    catch(ArgumentException ex)
+                    {
+                        throw new ProgramTerminatingException(
+                            String.Format("Error reading file {0}: {1}", Path, ex.Message), ExitReason.IOError);
+                    }
                 }
                 return stream;
             }

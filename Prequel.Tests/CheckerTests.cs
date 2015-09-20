@@ -99,6 +99,14 @@ namespace Prequel.Tests
             Assert.Contains("missing.xyz", ex.Message);
             Assert.Equal(ExitReason.IOError, ex.ExitCode);
         }
+
+        [Fact]
+        public void InvalidFileNameRaisesError()
+        {
+            var c = new Checker(new Arguments("??"));
+            var ex = Assert.Throws<ProgramTerminatingException>(() => c.Run());
+        }
+
         #endregion
 
         #region reporting

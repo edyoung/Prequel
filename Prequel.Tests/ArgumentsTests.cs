@@ -106,7 +106,7 @@ namespace Prequel.Tests
         {
             var a = new Arguments("foo.sql", "/warn:1");
             Assert.Equal((WarningLevel)1, a.WarningLevel);
-        }
+        }        
 
         [InlineData("-1")]
         [InlineData("5")]
