@@ -18,33 +18,37 @@ namespace Prequel.exe
             {
                 arguments = new Arguments(args);
 
-                Console.WriteLine("Prequel version {0}", GetProgramVersion());
-            
                 var checker = new Checker(arguments);
                 
                 var results = checker.Run();
 
+                if (arguments.DisplayLogo)
+                {
+                    Console.WriteLine("Prequel version {0}", GetProgramVersion());
+                }
+
                 if (results.Errors.Count > 0)
                 {
-                    Console.Error.WriteLine("SQL Parse Errors:");
+                    Console.WriteLine("SQL Parse Errors:");
                     foreach (var error in results.Errors)
                     {
-                        Console.Error.WriteLine(results.FormatError(error));
+                        Console.WriteLine(results.FormatError(error));
                     }
                 }
 
                 if (results.Warnings.Count > 0)
                 {
-                    Console.Error.WriteLine("Warnings:");
+                    Console.WriteLine("Warnings:");
                     foreach (var warning in results.Warnings)
                     {
-                        Console.Error.WriteLine(results.FormatWarning(warning));
+                        Console.WriteLine(results.FormatWarning(warning));
                     }
                 }
                 return (int)results.ExitCode;
             }
             catch (ProgramTerminatingException ex)
             {
+                Console.Error.WriteLine("Prequel version {0}", GetProgramVersion());
                 Console.Error.WriteLine(ex.Message);
                 Console.Error.WriteLine(Arguments.UsageDescription);
                 return (int)ex.ExitCode;
