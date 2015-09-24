@@ -61,10 +61,7 @@ namespace Prequel
 
             if(currentProcedure.StartsWith("sp_"))
             {
-                Warnings.Add(new Warning(
-                    node.StartLine, 
-                    WarningID.ProcedureWithSPPrefix, 
-                    String.Format("Procedure {0} should not be named with the prefix 'sp_' ", currentProcedure)));
+                Warnings.Add(Warning.ProcedureWithSPPrefix(node.StartLine, currentProcedure));                
             }
             this.noCountSet = false;
             base.ExplicitVisit(node);

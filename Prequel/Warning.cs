@@ -74,6 +74,12 @@ namespace Prequel
             this.Info = WarningTypes[number];
         }
 
+        public static Warning ProcedureWithSPPrefix(int line, string procedureName)
+        {
+            return new Warning(line, WarningID.ProcedureWithSPPrefix,
+                String.Format("Procedure {0} does not SET NOCOUNT ON", procedureName));
+        }
+
         private static IDictionary<WarningID, WarningInfo> InitWarningLevelMap()
         {
             IDictionary<WarningID, WarningInfo> warningInfo = new Dictionary<WarningID, WarningInfo>();
