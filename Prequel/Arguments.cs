@@ -49,13 +49,16 @@ namespace Prequel
             get; private set;
         }
         public string LongName { get; private set; }
+        public string ExampleValue { get; private set; }
         public string HelpText { get; private set; }
         public bool AcceptsValue { get; private set; }
         public Action<Arguments, string> Process { get; private set; }
 
-        private Flag(string shortName, string longName, string helpText, bool acceptsValue, Action<Arguments, string> action)
+        private Flag(string shortName, string longName, 
+            string exampleValue, string helpText, 
+            bool acceptsValue, Action<Arguments, string> action)
         {
-            this.ShortName = shortName; this.LongName = longName; this.HelpText = helpText;
+            this.ShortName = shortName; this.LongName = longName; this.ExampleValue = exampleValue;  this.HelpText = helpText;
             this.AcceptsValue = acceptsValue;
             this.Process = action;
         }
@@ -98,9 +101,22 @@ namespace Prequel
             return true;            
         }
 
+        public string UsageText
+        {
+            get
+            {
+                // like: /f /foo:wibble
+                string firstPart = String.Format(
+                    "/{0} /{1}{2}{3}", ShortName, LongName, AcceptsValue ? ":" : "", ExampleValue);
+
+                // FIXME pad the first part with spaces once on the internet and can figure out syntax
+                return String.Format("{0}{1}", firstPart, HelpText);
+            }
+        }
+
         private static Flag Help()
         {
-            return new Flag("?", "help", "Print this message and exit", false,
+            return new Flag("?", "help", "", "Print this message and exit", false,
                 (arguments, value) =>
                 {
                     throw new ProgramTerminatingException("Usage Information Requested", ExitReason.Success);
@@ -110,6 +126,7 @@ namespace Prequel
         private static Flag SqlVersion()
         {
             return new Flag("v", "sqlversion", 
+                "version", 
                 String.Format("Specify the SQL dialect to use. Default 2014, options: {0}", SqlParserFactory.AllVersions), 
                 true,
                 (arguments, value) =>
@@ -127,7 +144,8 @@ namespace Prequel
 
         private static Flag InlineSql()
         {
-            return new Flag("i", "inline", "Give a string of inline sql to parse and check", true,
+            return new Flag("i", "inline", 
+                "'select ...'", "Give a string of inline sql to parse and check", true,
                 (arguments, value) =>
                 {
                     arguments.Inputs.Add(Input.FromString(value));
@@ -136,7 +154,7 @@ namespace Prequel
 
         public static Flag NoLogo()
         {
-            return new Flag("q", "nologo", "Don't print program name and version info", false,
+            return new Flag("q", "nologo", "", "Don't print program name and version info", false,
                 (arguments, value) =>
                 {
                     arguments.DisplayLogo = false;
@@ -145,7 +163,7 @@ namespace Prequel
 
         public static Flag Warnings()
         {
-            return new Flag("w", "warn", "", true,
+            return new Flag("w", "warn", "level", "0-3. 0 = syntax errors only, 1 critical warnings, 2 = serious warnings, 3 = all warnings", true,
                 (arguments, value) =>
                 {
                     try
@@ -211,14 +229,12 @@ namespace Prequel
         {
             get
             {
+                var flagDescriptions = Flag.AllFlags().Select(x => x.UsageText).ToList();
                 return String.Format(@"Usage: Prequel.exe [flags] file1.sql [file2.sql ...]
-/?:                 Print this message and exit
-/v:version          Specify the SQL dialect to use. Default 2014, options: {0}
-/i:'select ...'     Give a string of inline sql to parse and check
-/nologo             Don't print program name and version info
-/warn:level         0-3. 0 = syntax errors only, 1 critical warnings, 2 = serious warnings, 3 = all warnings
-",
-                        SqlParserFactory.AllVersions);
+
+Flags:
+{0}
+", String.Join("\n",flagDescriptions));
             }
         }
 
