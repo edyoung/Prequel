@@ -128,11 +128,31 @@ namespace Prequel
                 });
         }
 
+        private static Flag InlineSql()
+        {
+            return new Flag("i", "inline", "xxx", true,
+                (arguments, value) =>
+                {
+                    arguments.Inputs.Add(Input.FromString(value));
+                });
+        }
+
+        public static Flag NoLogo()
+        {
+            return new Flag("q", "nologo", "xxx", false,
+                (arguments, value) =>
+                {
+                    arguments.DisplayLogo = false;
+                });
+        }
+
         public static IEnumerable<Flag> AllFlags()
         {
             yield return Help();
             yield return SqlVersion();
+            yield return InlineSql();
         }
+        
     }
 
     public class Arguments
@@ -183,7 +203,7 @@ namespace Prequel
             }
         }
 
-        public bool DisplayLogo { get; private set; }
+        public bool DisplayLogo { get; internal set; }
         public WarningLevel WarningLevel { get; set; }
 
         private void ProcessArgument(int i, string[] args)
@@ -213,17 +233,8 @@ namespace Prequel
                     return;
                 }
             }
-            
-            if (flag.StartsWith("i:"))
-            {
-                string inlineSql = flag.Substring(2);
-                inputs.Add(Input.FromString(inlineSql));
-            }
-            else if (flag.Equals("nologo"))
-            {
-                DisplayLogo = false;
-            }
-            else if (flag.StartsWith("warn:"))
+                        
+            if (flag.StartsWith("warn:"))
             {
                 string levelString = flag.Substring(5);
                 try
@@ -241,7 +252,5 @@ namespace Prequel
                 }
             }
         }
-
-
     }
 }
