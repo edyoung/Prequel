@@ -32,17 +32,13 @@ namespace Prequel.Tests
             Assert.NotNull(Arguments.UsageDescription);
         }
 
-        [Fact]
-        public void SlashQuestionRaisesUsageExceptionWithSuccessExitCode()
+        [InlineData("/help")]
+        [InlineData("-?")]
+        [InlineData("/?")]
+        [Theory]
+        public void UsageRequestUsageExceptionWithSuccessExitCode(string flag)
         {
-            var ex = Assert.Throws<ProgramTerminatingException>(() => new Arguments("/?"));
-            Assert.Equal(ExitReason.Success, ex.ExitCode);
-        }
-
-        [Fact]
-        public void MinusQuestionRaisesUsageExceptionWithSuccessExitCode()
-        {
-            var ex = Assert.Throws<ProgramTerminatingException>(() => new Arguments("-?" ));
+            var ex = Assert.Throws<ProgramTerminatingException>(() => new Arguments(flag));
             Assert.Equal(ExitReason.Success, ex.ExitCode);
         }
 

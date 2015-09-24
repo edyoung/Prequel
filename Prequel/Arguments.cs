@@ -14,10 +14,11 @@ namespace Prequel
         public string Path { get; set; }
 
         private Stream stream;
-        public Stream Stream {
+        public Stream Stream
+        {
             get
             {
-                if(stream == null)
+                if (stream == null)
                 {
                     stream = File.OpenRead(Path);
                 }
@@ -35,6 +36,102 @@ namespace Prequel
         public static Input FromFile(string path)
         {
             return new Input() { Path = path }; // defer opening the file until we want to read it
+        }
+    }
+
+    /// <summary>
+    /// Encapsulates a command line flag such as /?
+    /// </summary>
+    public class Flag
+    {
+        public string ShortName
+        {
+            get; private set;
+        }
+        public string LongName { get; private set; }
+        public string HelpText { get; private set; }
+        public bool AcceptsValue { get; private set; }
+        public Action<Arguments, string> Process { get; private set; }
+
+        private Flag(string shortName, string longName, string helpText, bool acceptsValue, Action<Arguments, string> action)
+        {
+            this.ShortName = shortName; this.LongName = longName; this.HelpText = helpText;
+            this.AcceptsValue = acceptsValue;
+            this.Process = action;
+        }
+
+        public bool Handles(string flag, Arguments arguments)
+        {
+            string value;
+            if (TryMatch(flag, out value))
+            {
+                Process(arguments, value);
+                return true;
+            }
+            return false;
+        }
+
+        public bool TryMatch(string parameter, out string value)
+        {
+            if(AcceptsValue)
+            {
+                if (parameter.StartsWith(ShortName))
+                {
+                    value = parameter.Substring(ShortName.Length);
+                }
+                else if (parameter.StartsWith(LongName))
+                {
+                    value = parameter.Substring(LongName.Length);
+                }
+                else
+                {
+                    value = null;
+                    return false;
+                }
+
+                if (value.StartsWith(":"))
+                {
+                    value = value.Substring(1);
+                }
+            }
+            else
+            {
+                // just look for the exact name
+                value = null;
+                return parameter == ShortName || parameter == LongName;
+            }
+            return true;            
+        }
+
+        private static Flag Help()
+        {
+            return new Flag("?", "help", "Print this message and exit", false,
+                (arguments, value) =>
+                {
+                    throw new ProgramTerminatingException("Usage Information Requested", ExitReason.Success);
+                });
+        }
+
+        private static Flag SqlVersion()
+        {
+            return new Flag("v", "sqlversion", "Specify the version of SQL to target", true,
+                (arguments, value) =>
+                {
+                    try
+                    {
+                        arguments.SqlParserType = SqlParserFactory.Type(value);
+                    }
+                    catch (ArgumentException ex)
+                    {
+                        throw new ProgramTerminatingException(ex.Message);
+                    }
+                });
+        }
+
+        public static IEnumerable<Flag> AllFlags()
+        {
+            yield return Help();
+            yield return SqlVersion();
         }
     }
 
@@ -65,12 +162,14 @@ namespace Prequel
             WarningLevel = WarningLevel.Serious;
         }
 
-        public IList<Input> Inputs {
+        public IList<Input> Inputs
+        {
             get { return inputs; }
         }
 
-        public Type SqlParserType { get; private set; }
-        public static string UsageDescription {
+        public Type SqlParserType { get; internal set; }
+        public static string UsageDescription
+        {
             get
             {
                 return String.Format(@"Usage: Prequel.exe [flags] file1.sql [file2.sql ...]
@@ -79,8 +178,8 @@ namespace Prequel
 /i:'select ...'     Give a string of inline sql to parse and check
 /nologo             Don't print program name and version info
 /warn:level         0-3. 0 = syntax errors only, 1 critical warnings, 2 = serious warnings, 3 = all warnings
-", 
-                        SqlParserFactory.AllVersions);      
+",
+                        SqlParserFactory.AllVersions);
             }
         }
 
@@ -102,28 +201,20 @@ namespace Prequel
 
         private void ProcessFile(string file)
         {
-            inputs.Add( Input.FromFile(file));
+            inputs.Add(Input.FromFile(file));
         }
 
         private void ProcessFlag(string flag)
-        { 
-            if (flag == "?")
+        {
+            foreach(var f in Flag.AllFlags())
             {
-                throw new ProgramTerminatingException("Usage Information Requested", ExitReason.Success);
-            }
-
-            if (flag.StartsWith("v:"))
-            {
-                string versionString = flag.Substring(2);
-                try {
-                    SqlParserType = SqlParserFactory.Type(versionString);
-                }
-                catch(ArgumentException ex)
+                if(f.Handles(flag, this))
                 {
-                    throw new ProgramTerminatingException(ex.Message);
+                    return;
                 }
             }
-            else if (flag.StartsWith("i:"))
+            
+            if (flag.StartsWith("i:"))
             {
                 string inlineSql = flag.Substring(2);
                 inputs.Add(Input.FromString(inlineSql));
@@ -135,21 +226,22 @@ namespace Prequel
             else if (flag.StartsWith("warn:"))
             {
                 string levelString = flag.Substring(5);
-                try {
+                try
+                {
                     int level = (Convert.ToInt32(levelString));
-                    if(level < 0 || level > (int)WarningLevel.Max)
+                    if (level < 0 || level > (int)WarningLevel.Max)
                     {
                         throw new ProgramTerminatingException(String.Format("Invalid Warning Level '{0}'", levelString));
                     }
                     WarningLevel = (WarningLevel)level;
                 }
-                catch(FormatException)
+                catch (FormatException)
                 {
                     throw new ProgramTerminatingException(String.Format("Invalid Warning Level '{0}'", levelString));
                 }
             }
         }
 
-        
+
     }
 }
