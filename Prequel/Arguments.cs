@@ -75,24 +75,19 @@ namespace Prequel
         {
             if(AcceptsValue)
             {
-                if (parameter.StartsWith(ShortName))
+                if (parameter.StartsWith(ShortName + ":"))
                 {
-                    value = parameter.Substring(ShortName.Length);
+                    value = parameter.Substring(ShortName.Length+1);
                 }
-                else if (parameter.StartsWith(LongName))
+                else if (parameter.StartsWith(LongName + ":"))
                 {
-                    value = parameter.Substring(LongName.Length);
+                    value = parameter.Substring(LongName.Length+1);
                 }
                 else
                 {
                     value = null;
                     return false;
-                }
-
-                if (value.StartsWith(":"))
-                {
-                    value = value.Substring(1);
-                }
+                }                
             }
             else
             {
@@ -114,7 +109,9 @@ namespace Prequel
 
         private static Flag SqlVersion()
         {
-            return new Flag("v", "sqlversion", "Specify the version of SQL to target", true,
+            return new Flag("v", "sqlversion", 
+                String.Format("Specify the SQL dialect to use. Default 2014, options: {0}", SqlParserFactory.AllVersions), 
+                true,
                 (arguments, value) =>
                 {
                     try
@@ -130,7 +127,7 @@ namespace Prequel
 
         private static Flag InlineSql()
         {
-            return new Flag("i", "inline", "xxx", true,
+            return new Flag("i", "inline", "Give a string of inline sql to parse and check", true,
                 (arguments, value) =>
                 {
                     arguments.Inputs.Add(Input.FromString(value));
@@ -139,18 +136,40 @@ namespace Prequel
 
         public static Flag NoLogo()
         {
-            return new Flag("q", "nologo", "xxx", false,
+            return new Flag("q", "nologo", "Don't print program name and version info", false,
                 (arguments, value) =>
                 {
                     arguments.DisplayLogo = false;
                 });
         }
 
+        public static Flag Warnings()
+        {
+            return new Flag("w", "warn", "", true,
+                (arguments, value) =>
+                {
+                    try
+                    {
+                        int level = (Convert.ToInt32(value));
+                        if (level < 0 || level > (int)WarningLevel.Max)
+                        {
+                            throw new ProgramTerminatingException(String.Format("Invalid Warning Level '{0}'", value));
+                        }
+                        arguments.WarningLevel = (WarningLevel)level;
+                    }
+                    catch (FormatException)
+                    {
+                        throw new ProgramTerminatingException(String.Format("Invalid Warning Level '{0}'", value));
+                    }
+                });
+        }
         public static IEnumerable<Flag> AllFlags()
         {
             yield return Help();
             yield return SqlVersion();
             yield return InlineSql();
+            yield return NoLogo();
+            yield return Warnings();
         }
         
     }
@@ -204,7 +223,7 @@ namespace Prequel
         }
 
         public bool DisplayLogo { get; internal set; }
-        public WarningLevel WarningLevel { get; set; }
+        public WarningLevel WarningLevel { get; internal set; }
 
         private void ProcessArgument(int i, string[] args)
         {
@@ -232,25 +251,7 @@ namespace Prequel
                 {
                     return;
                 }
-            }
-                        
-            if (flag.StartsWith("warn:"))
-            {
-                string levelString = flag.Substring(5);
-                try
-                {
-                    int level = (Convert.ToInt32(levelString));
-                    if (level < 0 || level > (int)WarningLevel.Max)
-                    {
-                        throw new ProgramTerminatingException(String.Format("Invalid Warning Level '{0}'", levelString));
-                    }
-                    WarningLevel = (WarningLevel)level;
-                }
-                catch (FormatException)
-                {
-                    throw new ProgramTerminatingException(String.Format("Invalid Warning Level '{0}'", levelString));
-                }
-            }
+            }                                   
         }
     }
 }
