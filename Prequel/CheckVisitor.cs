@@ -67,10 +67,7 @@ namespace Prequel
             base.ExplicitVisit(node);
             if (!this.noCountSet)
             {
-                Warnings.Add(new Warning(
-                    node.StartLine, 
-                    WarningID.ProcedureWithoutNoCount, 
-                    String.Format("Procedure {0} does not SET NOCOUNT ON", currentProcedure)));
+                Warnings.Add(Warning.ProcedureWithoutNoCount(node.StartLine, currentProcedure));
             }
         }
 
@@ -100,7 +97,7 @@ namespace Prequel
             }
             else
             {
-                Warnings.Add(new Warning(node.StartLine, WarningID.UndeclaredVariableUsed, String.Format("Variable {0} used before being declared", targetVariable)));
+                Warnings.Add(Warning.UndeclaredVariableUsed(node.StartLine,targetVariable));
             }
         }
 
@@ -124,7 +121,7 @@ namespace Prequel
                 if(!kv.Value.Referenced)
                 {
                     TSqlFragment node = kv.Value.Node;
-                    Warnings.Add(new Warning(node.StartLine, WarningID.UnusedVariableDeclared, String.Format("Variable {0} declared but never used", kv.Key)));
+                    Warnings.Add(Warning.UnusedVariableDeclared(node.StartLine, kv.Key));
                 }
             }
         }

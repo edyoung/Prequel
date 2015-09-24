@@ -66,7 +66,8 @@ namespace Prequel
         public WarningID Number { get; private set; }
         public WarningInfo Info { get; private set; }
 
-        public Warning(int line, WarningID number, string message)
+        // use the per-warning factpory methods instead
+        private Warning(int line, WarningID number, string message)
         {
             this.Line = line;
             this.Number = number;
@@ -78,6 +79,23 @@ namespace Prequel
         {
             return new Warning(line, WarningID.ProcedureWithSPPrefix,
                 String.Format("Procedure {0} does not SET NOCOUNT ON", procedureName));
+        }
+
+        public static Warning ProcedureWithoutNoCount(int line, string procedureName)
+        {
+            return new Warning(line, WarningID.ProcedureWithoutNoCount,
+                String.Format("Procedure {0} does not SET NOCOUNT ON", procedureName));
+        }
+
+        public static Warning UndeclaredVariableUsed(int line, string variableName)
+        {
+            return new Warning(line, WarningID.UndeclaredVariableUsed,
+                String.Format("Variable {0} used before being declared", variableName));
+        }
+
+        public static Warning UnusedVariableDeclared(int line, string variableName)
+        {
+            return new Warning(line, WarningID.UnusedVariableDeclared, String.Format("Variable {0} declared but never used", variableName));
         }
 
         private static IDictionary<WarningID, WarningInfo> InitWarningLevelMap()
