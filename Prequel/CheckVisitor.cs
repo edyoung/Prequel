@@ -1,18 +1,24 @@
-﻿using Microsoft.SqlServer.TransactSql.ScriptDom;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Prequel
+﻿namespace Prequel
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Microsoft.SqlServer.TransactSql.ScriptDom;
+
+    /// <summary>
+    /// Visits all the sql nodes from the parser and performs the actual code analysis
+    /// </summary>
     internal class CheckVisitor : TSqlFragmentVisitor
     {
         private IDictionary<string, Variable> DeclaredVariables { get; set; }
+
         public IList<Warning> Warnings { get; private set; }
+
         private string executeParameterVariable;
+
         private bool noCountSet;
 
-        public CheckVisitor() 
+        public CheckVisitor()
         {
             Warnings = new List<Warning>();
             DeclaredVariables = new Dictionary<string, Variable>(StringComparer.OrdinalIgnoreCase);
@@ -30,10 +36,7 @@ namespace Prequel
             base.ExplicitVisit(node);
         }
 
-        /// <summary>
-        /// Remove all the warnings which the user doesn't want to see
-        /// </summary>
-        /// <param name="warningLevel"></param>
+        // Remove all the warnings which the user doesn't want to see
         internal void FilterWarnings(WarningLevel warningLevel)
         {
             this.Warnings = this.Warnings.Where(warning => warning.Info.Level <= warningLevel).ToList();
@@ -47,10 +50,11 @@ namespace Prequel
 
         public override void ExplicitVisit(ExecuteParameter node)
         {
-            if(node.Variable != null)
+            if (node.Variable != null)
             {
                 executeParameterVariable = node.Variable.Name;
             }
+
             base.ExplicitVisit(node);
             executeParameterVariable = null;
         }
@@ -59,10 +63,11 @@ namespace Prequel
         {
             var currentProcedure = node.ProcedureReference.Name.BaseIdentifier.Value;
 
-            if(currentProcedure.StartsWith("sp_"))
+            if (currentProcedure.StartsWith("sp_"))
             {
-                Warnings.Add(Warning.ProcedureWithSPPrefix(node.StartLine, currentProcedure));                
+                Warnings.Add(Warning.ProcedureWithSPPrefix(node.StartLine, currentProcedure));
             }
+
             this.noCountSet = false;
             base.ExplicitVisit(node);
             if (!this.noCountSet)
@@ -78,6 +83,7 @@ namespace Prequel
                 // we found a 'set nocount on' in this sproc
                 this.noCountSet = true;
             }
+
             base.ExplicitVisit(node);
         }
 
@@ -85,11 +91,12 @@ namespace Prequel
         {
             string targetVariable = node.Name;
 
-            if (String.Equals(targetVariable, executeParameterVariable, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(targetVariable, executeParameterVariable, StringComparison.OrdinalIgnoreCase))
             {
                 // in "exec foo @param = value", @param is allowed without being declared, though really it should be checked against params of foo
                 return;
             }
+
             Variable target;
             if (DeclaredVariables.TryGetValue(targetVariable, out target))
             {
@@ -97,13 +104,13 @@ namespace Prequel
             }
             else
             {
-                Warnings.Add(Warning.UndeclaredVariableUsed(node.StartLine,targetVariable));
+                Warnings.Add(Warning.UndeclaredVariableUsed(node.StartLine, targetVariable));
             }
         }
 
         public override void ExplicitVisit(VariableReference node)
         {
-            CheckVariableReference(node);        
+            CheckVariableReference(node);
             base.ExplicitVisit(node);
         }
 
@@ -116,9 +123,9 @@ namespace Prequel
 
         private void LogUnreferencedVariables()
         {
-            foreach(var kv in DeclaredVariables)
+            foreach (var kv in DeclaredVariables)
             {
-                if(!kv.Value.Referenced)
+                if (!kv.Value.Referenced)
                 {
                     TSqlFragment node = kv.Value.Node;
                     Warnings.Add(Warning.UnusedVariableDeclared(node.StartLine, kv.Key));

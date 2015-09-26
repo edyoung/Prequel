@@ -313,6 +313,9 @@ return 1
 go");
             MyAssert.OneWarningOfType(WarningID.ProcedureWithSPPrefix, results);
         }
+
+        // Is SP_ a problem too?
+        
         #endregion
     }
 }

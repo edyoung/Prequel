@@ -63,7 +63,7 @@ namespace Prequel.Tests
         public void InvalidVersionStringIsReported(string version, string versionToComplainAbout)
         {
             var ex = Assert.Throws<ProgramTerminatingException>( () => new Arguments("foo.sql", version));
-            Assert.Contains(String.Format("Unknown SQL version '{0}'", versionToComplainAbout), ex.Message);
+            Assert.Contains(string.Format("Unknown SQL version '{0}'", versionToComplainAbout), ex.Message);
         }
 
         [Fact]
@@ -112,7 +112,7 @@ namespace Prequel.Tests
         public void CrazyWarningLevelCausesError(string weirdLevel)
         {
             var ex = Assert.Throws<ProgramTerminatingException>(() => new Arguments("foo.sql", "/warn:" + weirdLevel));
-            Assert.Contains(String.Format("Invalid Warning Level '{0}'", weirdLevel), ex.Message);
+            Assert.Contains(string.Format("Invalid Warning Level '{0}'", weirdLevel), ex.Message);
         }
     }
 }

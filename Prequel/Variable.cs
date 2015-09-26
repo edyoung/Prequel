@@ -1,7 +1,7 @@
-﻿using Microsoft.SqlServer.TransactSql.ScriptDom;
-
-namespace Prequel
+﻿namespace Prequel
 {
+    using Microsoft.SqlServer.TransactSql.ScriptDom;
+
     internal class Variable
     {
         // initially unset, set to true if some other statement dereferences it

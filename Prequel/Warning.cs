@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Prequel
+﻿namespace Prequel
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+
     public enum WarningID
     {
         UndeclaredVariableUsed = 1,
@@ -59,11 +60,19 @@ namespace Prequel
 
     public class Warning
     {
-        public static readonly IDictionary<WarningID, WarningInfo> WarningTypes = InitWarningLevelMap();
+        private static IDictionary<WarningID, WarningInfo> warningTypes = InitWarningLevelMap();
+
+        public static IDictionary<WarningID, WarningInfo> WarningTypes
+        {
+            get { return warningTypes; }
+        }
 
         public int Line { get; private set; }
+
         public string Message { get; private set; }
+
         public WarningID Number { get; private set; }
+
         public WarningInfo Info { get; private set; }
 
         // use the per-warning factpory methods instead
@@ -78,26 +87,27 @@ namespace Prequel
         public static Warning ProcedureWithSPPrefix(int line, string procedureName)
         {
             return new Warning(line, WarningID.ProcedureWithSPPrefix,
-                String.Format("Procedure {0} does not SET NOCOUNT ON", procedureName));
+                string.Format("Procedure {0} does not SET NOCOUNT ON", procedureName));
         }
 
         public static Warning ProcedureWithoutNoCount(int line, string procedureName)
         {
             return new Warning(line, WarningID.ProcedureWithoutNoCount,
-                String.Format("Procedure {0} does not SET NOCOUNT ON", procedureName));
+                string.Format("Procedure {0} does not SET NOCOUNT ON", procedureName));
         }
 
         public static Warning UndeclaredVariableUsed(int line, string variableName)
         {
             return new Warning(line, WarningID.UndeclaredVariableUsed,
-                String.Format("Variable {0} used before being declared", variableName));
+                string.Format("Variable {0} used before being declared", variableName));
         }
 
         public static Warning UnusedVariableDeclared(int line, string variableName)
         {
-            return new Warning(line, WarningID.UnusedVariableDeclared, String.Format("Variable {0} declared but never used", variableName));
+            return new Warning(line, WarningID.UnusedVariableDeclared, string.Format("Variable {0} declared but never used", variableName));
         }
 
+        [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1118:ParameterMustNotSpanMultipleLines", Justification="Long doc strings")]
         private static IDictionary<WarningID, WarningInfo> InitWarningLevelMap()
         {
             IDictionary<WarningID, WarningInfo> warningInfo = new Dictionary<WarningID, WarningInfo>();
