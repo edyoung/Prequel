@@ -14,10 +14,16 @@ namespace Prequel.Tests
             Assert.Equal(ExitReason.Success, results.ExitCode);
         }
 
-        public static void OneWarningOfType(WarningID id, CheckResults results)
+        public static void NoErrors(CheckResults results)
         {
             Assert.Empty(results.Errors);
+        }
+
+        public static Warning OneWarningOfType(WarningID id, CheckResults results)
+        {
+            Assert.Empty(results.Errors);            
             Assert.Equal(1, results.Warnings.Count(warning => warning.Number == id));
+            return results.Warnings.First(warning => warning.Number == id);
         }
 
         public static void NoWarningsOfType(WarningID id, CheckResults results)
@@ -181,7 +187,8 @@ namespace Prequel.Tests
         public void AliasesAreCaseInsensitive()
         {
             var results = Check("declare @DECLARED as nvarchar; select @declared = Name from sys.Columns");
-            MyAssert.NoErrorsOrWarnings(results);
+            MyAssert.NoErrors(results);
+            MyAssert.NoWarningsOfType(WarningID.UndeclaredVariableUsed, results);
         }
 
         [Fact]
@@ -198,7 +205,8 @@ set @declared = 1");
         public void MultipleDeclarationsWork()
         {
             var results = Check("declare @a as int, @b as nvarchar; set @b = 'x'; set @a = 3");
-            MyAssert.NoErrorsOrWarnings(results);
+            MyAssert.NoErrors(results);
+            MyAssert.NoWarningsOfType(WarningID.UndeclaredVariableUsed, results);
         }
 
         [Fact]
@@ -315,7 +323,17 @@ go");
         }
 
         // Is SP_ a problem too?
-        
+
+        #endregion
+
+        #region implicit length char
+        [Fact]
+        public void DeclareCharVariableWithNoLenghtRaisesWarning()
+        {
+            var results = Check(@"declare @bar as char(1); declare @foo as char");
+            Warning w = MyAssert.OneWarningOfType(WarningID.CharVariableWithImplicitLength, results);
+            Assert.Contains("@foo", w.Message);            
+        }
         #endregion
     }
 }

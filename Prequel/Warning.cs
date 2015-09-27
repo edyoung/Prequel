@@ -12,7 +12,8 @@
         UndeclaredVariableUsed = 1,
         UnusedVariableDeclared,
         ProcedureWithoutNoCount,
-        ProcedureWithSPPrefix,        
+        ProcedureWithSPPrefix,
+        CharVariableWithImplicitLength,
     }
     
     public enum WarningLevel
@@ -73,6 +74,11 @@
             return new Warning(line, WarningID.UnusedVariableDeclared, string.Format("Variable {0} declared but never used", variableName));
         }
 
+        public static Warning CharVariableWithImplicitLength(int line, string variableName)
+        {
+            return new Warning(line, WarningID.CharVariableWithImplicitLength, string.Format("Variable {0} declared without an explicit length.", variableName));
+        }
+
         [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1118:ParameterMustNotSpanMultipleLines", Justification="Long doc strings")]
         private static IDictionary<WarningID, WarningInfo> InitWarningLevelMap()
         {
@@ -98,6 +104,11 @@ Some SQL tools require the rowcount to be returned - if you use one of those, su
                 WarningLevel.Serious,
                 "Procedure name begins with sp_",
                 "sp_ is a reserved prefix in SQL server. Even a sproc which does not clash with any system procedure incurs a performance penalty when using this prefix. Rename the procedure");
+            warningInfo[WarningID.CharVariableWithImplicitLength] = new WarningInfo(
+                WarningID.CharVariableWithImplicitLength,
+                WarningLevel.Serious,
+                "Char variable without explicit length",
+                "Char, varchar, nchar and nvarchar have short implicit lengths. To reduce the risk of truncating data, it's better to explicitly declare the length you want, eg char(1) instead of char");
             return warningInfo;
         }
     }

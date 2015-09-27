@@ -10,7 +10,7 @@
     public class WarningInfo
     {
         public const int MinWarningID = (int)WarningID.UndeclaredVariableUsed;
-        public const int MaxWarningID = (int)WarningID.ProcedureWithSPPrefix;
+        public const int MaxWarningID = (int)WarningID.CharVariableWithImplicitLength;
 
         public WarningLevel Level
         {
