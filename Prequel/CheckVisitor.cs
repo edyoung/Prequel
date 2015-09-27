@@ -27,6 +27,13 @@
         public override void ExplicitVisit(DeclareVariableElement node)
         {
             DeclaredVariables[node.VariableName.Value] = new Variable() { Node = node.VariableName };
+            CheckForImplicitLength(node);
+
+            base.ExplicitVisit(node);
+        }
+
+        private void CheckForImplicitLength(DeclareVariableElement node)
+        {
             var typeReference = node.DataType as SqlDataTypeReference;
 
             if (typeReference != null)
@@ -45,8 +52,6 @@
                     }
                 }
             }
-
-            base.ExplicitVisit(node);
         }
 
         public override void ExplicitVisit(DeclareTableVariableBody node)
@@ -64,6 +69,7 @@
         public override void ExplicitVisit(ProcedureParameter node)
         {
             DeclaredVariables[node.VariableName.Value] = new Variable() { Node = node.VariableName };
+            CheckForImplicitLength(node);
             base.ExplicitVisit(node);
         }
 

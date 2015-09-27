@@ -328,11 +328,19 @@ go");
 
         #region implicit length char
         [Fact]
-        public void DeclareCharVariableWithNoLenghtRaisesWarning()
+        public void DeclareCharVariableWithNoLengthRaisesWarning()
         {
             var results = Check(@"declare @bar as char(1); declare @foo as char");
             Warning w = MyAssert.OneWarningOfType(WarningID.CharVariableWithImplicitLength, results);
             Assert.Contains("@foo", w.Message);            
+        }
+
+        [Fact]
+        public void DeclareCharParameterWithNoLengthRaisesWarning()
+        {
+            var results = Check("create procedure myproc(@myparam as char) as return @myparam");
+            Warning w = MyAssert.OneWarningOfType(WarningID.CharVariableWithImplicitLength, results);
+            Assert.Contains("@myparam", w.Message);
         }
         #endregion
     }
