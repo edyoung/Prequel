@@ -359,12 +359,45 @@ go");
             var results = Check("declare @fine as char(1)");
             MyAssert.NoWarningsOfType(WarningID.StringTruncated, results);
         }
+
         [Fact]
         public void DeclareStringWithLongerLiteralRaisesWarning()
         {
             var results = Check("declare @tooshort as char(1) = 'hello'");
             Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
+            Assert.Contains("Variable @tooshort has length 1 and is assigned a value with length 5", w.Message);
         }
+
+        [Fact]
+        public void DeclareStringWithSameLengthLiteralNoWarning()
+        {
+            var results = Check("declare @fine as char(5) = 'hello'");
+            MyAssert.NoWarningsOfType(WarningID.StringTruncated, results);
+        }
+
+        [Fact]
+        public void DeclareStringWithImplicitLengthAndLongerLiteralRaisesWarning()
+        {
+            var results = Check("declare @tooshort as char = 'hello'");
+            Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
+            Assert.Contains("Variable @tooshort has length 1 and is assigned a value with length 5", w.Message);
+        }
+
+        [Fact]
+        public void DeclareVarCharStringWithImplicitLengthAndLongerLiteralRaisesWarning()
+        {
+            var results = Check("declare @tooshort as varchar = 'hello'");
+            Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
+            Assert.Contains("Variable @tooshort has length 1 and is assigned a value with length 5", w.Message);
+        }
+
+        [Fact]
+        public void DeclareVarCharMaxNoWarning()
+        {
+            var results = Check("declare @fine as varchar(max) = 'hello'");
+            MyAssert.NoWarningsOfType(WarningID.StringTruncated, results);
+        }
+
         #endregion
     }
 }

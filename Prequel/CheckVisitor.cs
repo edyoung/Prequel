@@ -29,10 +29,10 @@
             DeclaredVariables[node.VariableName.Value] = new Variable() { Node = node.VariableName };
             CheckForImplicitLength(node);
             base.ExplicitVisit(node);
-            CheckForValidAssignment(node.DataType, node.Value);
+            CheckForValidAssignment(node.VariableName.Value, node.DataType, node.Value);
         }
 
-        private void CheckForValidAssignment(DataTypeReference dataType, ScalarExpression value)
+        private void CheckForValidAssignment(string variableName, DataTypeReference dataType, ScalarExpression value)
         {
             if (null == value)
             {
@@ -64,15 +64,25 @@
                 bool foundLength = false;
                 foreach (var param in typeReference.Parameters)
                 {
-                    if(param.LiteralType == LiteralType.Integer)
+                    if (param.LiteralType == LiteralType.Integer)
                     {
                         targetLength = Convert.ToInt32(param.Value);
                         foundLength = true;
-                    }                    
+                    }
+                    else if (param.LiteralType == LiteralType.Max)
+                    {
+                        targetLength = Int32.MaxValue; // isn't it different for char(max)?
+                        foundLength = true;
+                    }
                 }
-                // get default if we didn't find the length
+
+                if (!foundLength)
+                {
+                    // TODO: is this really right? 
+                    targetLength = 1;                    
+                }
             }
-             
+
             if (targetLength == -1)
             {
                 return; // can't figure out how long the string is. TODO: shouldn't that be impossible in this case? 
@@ -80,7 +90,7 @@
 
             if (targetLength < sourceLength)
             {
-                Warnings.Add(Warning.StringTruncated(dataType.StartLine, "foo", targetLength, sourceLength));
+                Warnings.Add(Warning.StringTruncated(dataType.StartLine, variableName, targetLength, sourceLength));
             }
         }
 
