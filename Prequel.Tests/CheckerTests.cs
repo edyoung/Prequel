@@ -398,6 +398,14 @@ go");
             MyAssert.NoWarningsOfType(WarningID.StringTruncated, results);
         }
 
+        [Fact]
+        public void DeclareAndSeparatelySetWithLiteralRaisesWarning()
+        {
+            var results = Check("declare @tooshort as varchar; set @tooshort = 'hello'");
+            Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
+            Assert.Contains("Variable @tooshort has length 1 and is assigned a value with length 5", w.Message);
+        }
+
         #endregion
     }
 }

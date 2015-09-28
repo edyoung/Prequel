@@ -26,10 +26,17 @@
 
         public override void ExplicitVisit(DeclareVariableElement node)
         {
-            DeclaredVariables[node.VariableName.Value] = new Variable() { Node = node.VariableName };
+            DeclaredVariables[node.VariableName.Value] = new Variable(node.DataType) { Node = node.VariableName };
             CheckForImplicitLength(node);
             base.ExplicitVisit(node);
             CheckForValidAssignment(node.VariableName.Value, node.DataType, node.Value);
+        }
+
+        public override void ExplicitVisit(SetVariableStatement node)
+        {
+            base.ExplicitVisit(node);
+            Variable target = DeclaredVariables[node.Variable.Name];
+            CheckForValidAssignment(node.Variable.Name, target.SqlTypeInfo.DataType, node.Expression);
         }
 
         private void CheckForValidAssignment(string variableName, DataTypeReference dataType, ScalarExpression value)
@@ -54,7 +61,7 @@
                 return; // not a sql data type, can't check
             }
 
-            int targetLength = GetMaxLengthOfStringVariable(typeReference);
+            int targetLength = DeclaredVariables[variableName].SqlTypeInfo.Length; 
 
             if (targetLength == -1)
             {
@@ -65,40 +72,6 @@
             {
                 Warnings.Add(Warning.StringTruncated(dataType.StartLine, variableName, targetLength, sourceLength));
             }
-        }
-
-        private static int GetMaxLengthOfStringVariable(SqlDataTypeReference typeReference)
-        {
-            int length = -1;
-            var typeOption = typeReference.SqlDataTypeOption;
-            if (typeOption == SqlDataTypeOption.Char ||
-                typeOption == SqlDataTypeOption.VarChar ||
-                typeOption == SqlDataTypeOption.NChar ||
-                typeOption == SqlDataTypeOption.NVarChar)
-            {
-                bool foundLength = false;
-                foreach (var param in typeReference.Parameters)
-                {
-                    if (param.LiteralType == LiteralType.Integer)
-                    {
-                        length = Convert.ToInt32(param.Value);
-                        foundLength = true;
-                    }
-                    else if (param.LiteralType == LiteralType.Max)
-                    {
-                        length = Int32.MaxValue; // isn't it different for char(max)?
-                        foundLength = true;
-                    }
-                }
-
-                if (!foundLength)
-                {
-                    // TODO: is this really right? 
-                    length = 1;
-                }
-            }
-
-            return length;
         }
 
         private void CheckForImplicitLength(DeclareVariableElement node)
@@ -125,7 +98,7 @@
 
         public override void ExplicitVisit(DeclareTableVariableBody node)
         {
-            DeclaredVariables[node.VariableName.Value] = new Variable() { Node = node.VariableName };
+            DeclaredVariables[node.VariableName.Value] = new Variable(null) { Node = node.VariableName };
             base.ExplicitVisit(node);
         }
 
@@ -137,7 +110,7 @@
 
         public override void ExplicitVisit(ProcedureParameter node)
         {
-            DeclaredVariables[node.VariableName.Value] = new Variable() { Node = node.VariableName };
+            DeclaredVariables[node.VariableName.Value] = new Variable(node.DataType) { Node = node.VariableName };
             CheckForImplicitLength(node);
             base.ExplicitVisit(node);
         }
