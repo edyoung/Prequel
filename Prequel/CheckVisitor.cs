@@ -49,13 +49,11 @@
                 return; // no expression, nothing to check
             }
 
-            var stringLiteralValue = value as StringLiteral;
-            if (null == stringLiteralValue)
+            int sourceLength = GetExpressionLengthIfPossible(value);
+            if (sourceLength == -1)
             {
-                return; // not a string literal, can't check
+                return; // can't work out source length, can't check
             }
-
-            int sourceLength = stringLiteralValue.Value.Length; // any weird corner cases where C# length != SQL length?
 
             var typeReference = dataType as SqlDataTypeReference;
 
@@ -75,6 +73,27 @@
             {
                 Warnings.Add(Warning.StringTruncated(dataType.StartLine, variableName, targetLength, sourceLength));
             }
+        }
+
+        private int GetExpressionLengthIfPossible(ScalarExpression value)
+        {
+            var stringLiteralValue = value as StringLiteral;
+            if (null != stringLiteralValue)
+            {
+                return stringLiteralValue.Value.Length; // any weird corner cases where C# length != SQL length?                
+            }
+
+            var variableReference = value as VariableReference;
+            if(null != variableReference)
+            {
+                Variable variable;
+                if(DeclaredVariables.TryGetValue(variableReference.Name, out variable))
+                {
+                    return variable.SqlTypeInfo.Length;
+                }
+            } 
+
+            return -1; // can't determine a length
         }
 
         private void CheckForImplicitLength(DeclareVariableElement node)
