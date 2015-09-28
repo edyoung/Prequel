@@ -48,21 +48,20 @@
             {
                 return; // no expression, nothing to check
             }
-
+            
             int sourceLength = GetExpressionLengthIfPossible(value);
             if (sourceLength == -1)
             {
                 return; // can't work out source length, can't check
             }
 
-            var typeReference = dataType as SqlDataTypeReference;
-
-            if (typeReference == null)
+            Variable target;
+            if (!DeclaredVariables.TryGetValue(variableName, out target))
             {
-                return; // not a sql data type, can't check
+                return; // can't find a variable declaration
             }
 
-            int targetLength = DeclaredVariables[variableName].SqlTypeInfo.Length; 
+            int targetLength = target.SqlTypeInfo.Length;
 
             if (targetLength == -1)
             {
@@ -84,14 +83,14 @@
             }
 
             var variableReference = value as VariableReference;
-            if(null != variableReference)
+            if (null != variableReference)
             {
                 Variable variable;
-                if(DeclaredVariables.TryGetValue(variableReference.Name, out variable))
+                if (DeclaredVariables.TryGetValue(variableReference.Name, out variable))
                 {
                     return variable.SqlTypeInfo.Length;
                 }
-            } 
+            }
 
             return -1; // can't determine a length
         }

@@ -15,6 +15,7 @@
         ProcedureWithSPPrefix,
         CharVariableWithImplicitLength,
         StringTruncated,
+        StringConverted,
     }
     
     public enum WarningLevel
@@ -85,6 +86,11 @@
             return new Warning(line, WarningID.StringTruncated, string.Format("Variable {0} has length {1} and is assigned a value with length {2}, which will be truncated", variableName, targetLength, sourceLength));
         }
 
+        public static Warning StringConverted(int line, string variableName)
+        {
+            return new Warning(line, WarningID.StringConverted, string.Format("Variable {0} is of 8-bit (char or varchar) type but is assigned a unicode value.", variableName));
+        }
+
         [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1118:ParameterMustNotSpanMultipleLines", Justification="Long doc strings")]
         private static IDictionary<WarningID, WarningInfo> CreateWarningInfoMap()
         {
@@ -121,6 +127,13 @@ Some SQL tools require the rowcount to be returned - if you use one of those, su
                 WarningLevel.Serious,
                 "Fixed-length or variable-length variable assigned a value greater than it can hold",
                 "A variable was assigned a string which is too large for it to hold. The string will be truncated, which is probably not desired.");
+
+            warningInfo[WarningID.StringConverted] = new WarningInfo(
+                WarningID.StringConverted,
+                WarningLevel.Serious,
+                "8-bit variable assigned a unicode value",
+                "A variable is of 8-bit (char or varchar) type but is assigned a unicode value. This will mangle the text if it contains characters which can't be represented. Use CONVERT to explicitly indicate how you want this handled.");
+
             return warningInfo;
         }
     }

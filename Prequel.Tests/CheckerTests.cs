@@ -416,8 +416,18 @@ set @tooshort = @toolong
 ");
             Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
             Assert.Contains("Variable @tooshort has length 10 and is assigned a value with length 20", w.Message);
-        }        
+        }
 
+        #endregion
+
+        #region String type narrowing
+        
+        //[Fact] - under development
+        public void DeclareVarCharWithNLiteralRaisesWarning()
+        {
+            var results = Check("declare @wrongtype as varchar(5) = N'hello'");
+            MyAssert.OneWarningOfType(WarningID.StringConverted, results);
+        }
         #endregion
     }
 }
