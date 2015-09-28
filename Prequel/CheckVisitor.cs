@@ -42,7 +42,7 @@
             var stringLiteralValue = value as StringLiteral;
             if (null == stringLiteralValue)
             {
-                return;
+                return; // not a string literal, can't check
             }
 
             int sourceLength = stringLiteralValue.Value.Length; // any weird corner cases where C# length != SQL length?
@@ -54,7 +54,22 @@
                 return; // not a sql data type, can't check
             }
 
-            int targetLength = -1; // unknown
+            int targetLength = GetMaxLengthOfStringVariable(typeReference);
+
+            if (targetLength == -1)
+            {
+                return; // can't figure out how long the string is. TODO: shouldn't that be impossible in this case? 
+            }
+
+            if (targetLength < sourceLength)
+            {
+                Warnings.Add(Warning.StringTruncated(dataType.StartLine, variableName, targetLength, sourceLength));
+            }
+        }
+
+        private static int GetMaxLengthOfStringVariable(SqlDataTypeReference typeReference)
+        {
+            int length = -1;
             var typeOption = typeReference.SqlDataTypeOption;
             if (typeOption == SqlDataTypeOption.Char ||
                 typeOption == SqlDataTypeOption.VarChar ||
@@ -66,12 +81,12 @@
                 {
                     if (param.LiteralType == LiteralType.Integer)
                     {
-                        targetLength = Convert.ToInt32(param.Value);
+                        length = Convert.ToInt32(param.Value);
                         foundLength = true;
                     }
                     else if (param.LiteralType == LiteralType.Max)
                     {
-                        targetLength = Int32.MaxValue; // isn't it different for char(max)?
+                        length = Int32.MaxValue; // isn't it different for char(max)?
                         foundLength = true;
                     }
                 }
@@ -79,19 +94,11 @@
                 if (!foundLength)
                 {
                     // TODO: is this really right? 
-                    targetLength = 1;                    
+                    length = 1;
                 }
             }
 
-            if (targetLength == -1)
-            {
-                return; // can't figure out how long the string is. TODO: shouldn't that be impossible in this case? 
-            }
-
-            if (targetLength < sourceLength)
-            {
-                Warnings.Add(Warning.StringTruncated(dataType.StartLine, variableName, targetLength, sourceLength));
-            }
+            return length;
         }
 
         private void CheckForImplicitLength(DeclareVariableElement node)
