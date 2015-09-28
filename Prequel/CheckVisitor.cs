@@ -110,7 +110,7 @@
                 {
                     if (typeReference.Parameters.Count == 0)
                     {
-                        // I believe the only valid for param for any of these types is the length, so if there's
+                        // I believe the only valid param for any of these types is the length, so if there's
                         // no params we haven't specified the length
                         Warnings.Add(Warning.CharVariableWithImplicitLength(node.StartLine, node.VariableName.Value));
                     }
