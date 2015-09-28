@@ -14,6 +14,7 @@
         ProcedureWithoutNoCount,
         ProcedureWithSPPrefix,
         CharVariableWithImplicitLength,
+        StringTruncated,
     }
     
     public enum WarningLevel
@@ -79,6 +80,11 @@
             return new Warning(line, WarningID.CharVariableWithImplicitLength, string.Format("Variable {0} declared without an explicit length.", variableName));
         }
 
+        public static Warning StringTruncated(int line, string variableName, int targetLength, int sourceLength)
+        {
+            return new Warning(line, WarningID.StringTruncated, string.Format("Variable {0} has length {1} and is assigned a value with length {2}, which will be truncated", variableName, targetLength, sourceLength));
+        }
+
         [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1118:ParameterMustNotSpanMultipleLines", Justification="Long doc strings")]
         private static IDictionary<WarningID, WarningInfo> CreateWarningInfoMap()
         {
@@ -109,6 +115,12 @@ Some SQL tools require the rowcount to be returned - if you use one of those, su
                 WarningLevel.Serious,
                 "Fixed-length or Variable-length variable declared without explicit length",
                 "Char, varchar, nchar and nvarchar have short implicit lengths. To reduce the risk of truncating data, it's better to explicitly declare the length you want, eg char(1) instead of char.");
+
+            warningInfo[WarningID.StringTruncated] = new WarningInfo(
+                WarningID.StringTruncated,
+                WarningLevel.Serious,
+                "Fixed-length or variable-length variable assigned a value greater than it can hold",
+                "A variable was assigned a string which is too large for it to hold. The string will be truncated, which is probably not desired.");
             return warningInfo;
         }
     }

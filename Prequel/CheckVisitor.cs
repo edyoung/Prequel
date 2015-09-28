@@ -28,8 +28,60 @@
         {
             DeclaredVariables[node.VariableName.Value] = new Variable() { Node = node.VariableName };
             CheckForImplicitLength(node);
-
             base.ExplicitVisit(node);
+            CheckForValidAssignment(node.DataType, node.Value);
+        }
+
+        private void CheckForValidAssignment(DataTypeReference dataType, ScalarExpression value)
+        {
+            if (null == value)
+            {
+                return; // no expression, nothing to check
+            }
+
+            var stringLiteralValue = value as StringLiteral;
+            if (null == stringLiteralValue)
+            {
+                return;
+            }
+
+            int sourceLength = stringLiteralValue.Value.Length; // any weird corner cases where C# length != SQL length?
+
+            var typeReference = dataType as SqlDataTypeReference;
+
+            if (typeReference == null)
+            {
+                return; // not a sql data type, can't check
+            }
+
+            int targetLength = -1; // unknown
+            var typeOption = typeReference.SqlDataTypeOption;
+            if (typeOption == SqlDataTypeOption.Char ||
+                typeOption == SqlDataTypeOption.VarChar ||
+                typeOption == SqlDataTypeOption.NChar ||
+                typeOption == SqlDataTypeOption.NVarChar)
+            {
+                bool foundLength = false;
+                foreach (var param in typeReference.Parameters)
+                {
+                    if(param.LiteralType == LiteralType.Integer)
+                    {
+                        targetLength = Convert.ToInt32(param.Value);
+                        foundLength = true;
+                    }                    
+                }
+                // get default if we didn't find the length
+            }
+             
+            if (targetLength == -1)
+            {
+                return; // can't figure out how long the string is. TODO: shouldn't that be impossible in this case? 
+            }
+
+            if (targetLength < sourceLength)
+            {
+                Warnings.Add(Warning.StringTruncated(dataType.StartLine, "foo", targetLength, sourceLength));
+            }
         }
 
         private void CheckForImplicitLength(DeclareVariableElement node)

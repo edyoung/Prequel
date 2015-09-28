@@ -351,5 +351,20 @@ go");
             Assert.Contains("@myparam", w.Message);
         }
         #endregion
+
+        #region type checking
+        [Fact]
+        public void DeclareStringWithoutLiteralNoWarning()
+        {
+            var results = Check("declare @fine as char(1)");
+            MyAssert.NoWarningsOfType(WarningID.StringTruncated, results);
+        }
+        [Fact]
+        public void DeclareStringWithLongerLiteralRaisesWarning()
+        {
+            var results = Check("declare @tooshort as char(1) = 'hello'");
+            Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
+        }
+        #endregion
     }
 }
