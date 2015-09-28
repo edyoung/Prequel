@@ -27,7 +27,7 @@
     
     public class Warning
     {
-        private static IDictionary<WarningID, WarningInfo> warningTypes = InitWarningLevelMap();
+        private static IDictionary<WarningID, WarningInfo> warningTypes = CreateWarningInfoMap();
 
         public static IDictionary<WarningID, WarningInfo> WarningTypes
         {
@@ -42,7 +42,7 @@
 
         public WarningInfo Info { get; private set; }
 
-        // use the per-warning factpory methods instead
+        // use the per-warning factory methods instead
         private Warning(int line, WarningID number, string message)
         {
             this.Line = line;
@@ -80,7 +80,7 @@
         }
 
         [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1118:ParameterMustNotSpanMultipleLines", Justification="Long doc strings")]
-        private static IDictionary<WarningID, WarningInfo> InitWarningLevelMap()
+        private static IDictionary<WarningID, WarningInfo> CreateWarningInfoMap()
         {
             IDictionary<WarningID, WarningInfo> warningInfo = new Dictionary<WarningID, WarningInfo>();
             warningInfo[WarningID.UndeclaredVariableUsed] = new WarningInfo(
