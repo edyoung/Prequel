@@ -35,8 +35,11 @@
         public override void ExplicitVisit(SetVariableStatement node)
         {
             base.ExplicitVisit(node);
-            Variable target = DeclaredVariables[node.Variable.Name];
-            CheckForValidAssignment(node.Variable.Name, target.SqlTypeInfo.DataType, node.Expression);
+            Variable target;
+            if (DeclaredVariables.TryGetValue(node.Variable.Name, out target))
+            {
+                CheckForValidAssignment(node.Variable.Name, target.SqlTypeInfo.DataType, node.Expression);
+            }
         }
 
         private void CheckForValidAssignment(string variableName, DataTypeReference dataType, ScalarExpression value)
