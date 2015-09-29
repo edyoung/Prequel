@@ -14,10 +14,16 @@ namespace Prequel.Tests
             Assert.Equal(ExitReason.Success, results.ExitCode);
         }
 
-        public static void OneWarningOfType(WarningID id, CheckResults results)
+        public static void NoErrors(CheckResults results)
         {
             Assert.Empty(results.Errors);
+        }
+
+        public static Warning OneWarningOfType(WarningID id, CheckResults results)
+        {
+            Assert.Empty(results.Errors);            
             Assert.Equal(1, results.Warnings.Count(warning => warning.Number == id));
+            return results.Warnings.First(warning => warning.Number == id);
         }
 
         public static void NoWarningsOfType(WarningID id, CheckResults results)
@@ -189,7 +195,8 @@ namespace Prequel.Tests
         public void AliasesAreCaseInsensitive()
         {
             var results = Check("declare @DECLARED as nvarchar; select @declared = Name from sys.Columns");
-            MyAssert.NoErrorsOrWarnings(results);
+            MyAssert.NoErrors(results);
+            MyAssert.NoWarningsOfType(WarningID.UndeclaredVariableUsed, results);
         }
 
         [Fact]
@@ -206,7 +213,8 @@ set @declared = 1");
         public void MultipleDeclarationsWork()
         {
             var results = Check("declare @a as int, @b as nvarchar; set @b = 'x'; set @a = 3");
-            MyAssert.NoErrorsOrWarnings(results);
+            MyAssert.NoErrors(results);
+            MyAssert.NoWarningsOfType(WarningID.UndeclaredVariableUsed, results);
         }
 
         [Fact]
@@ -320,6 +328,113 @@ create procedure sp_foo as
 return 1
 go");
             MyAssert.OneWarningOfType(WarningID.ProcedureWithSPPrefix, results);
+        }
+
+        // Is SP_ a problem too?
+
+        #endregion
+
+        #region implicit length char
+        [InlineData("char")]
+        [InlineData("varchar")]
+        [InlineData("nchar")]
+        [InlineData("nvarchar")]
+        [Theory]       
+        public void DeclareCharVariableWithNoLengthRaisesWarning(string type)
+        {
+            var results = Check(string.Format(@"declare @explicit_length as {0}(1); declare @implicit_length as {0}", type));
+            Warning w = MyAssert.OneWarningOfType(WarningID.CharVariableWithImplicitLength, results);
+            Assert.Contains("@implicit_length", w.Message);            
+        }
+
+        [InlineData("char")]
+        [InlineData("varchar")]
+        [InlineData("nchar")]
+        [InlineData("nvarchar")]
+        [Theory]
+        public void DeclareCharParameterWithNoLengthRaisesWarning(string type)
+        {
+            var results = Check(string.Format("create procedure myproc(@myparam as {0}) as return @myparam", type));
+            Warning w = MyAssert.OneWarningOfType(WarningID.CharVariableWithImplicitLength, results);
+            Assert.Contains("@myparam", w.Message);
+        }
+        #endregion
+
+        #region type checking
+        [Fact]
+        public void DeclareStringWithoutLiteralNoWarning()
+        {
+            var results = Check("declare @fine as char(1)");
+            MyAssert.NoWarningsOfType(WarningID.StringTruncated, results);
+        }
+
+        [Fact]
+        public void DeclareStringWithLongerLiteralRaisesWarning()
+        {
+            var results = Check("declare @tooshort as char(1) = 'hello'");
+            Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
+            Assert.Contains("Variable @tooshort has length 1 and is assigned a value with length 5", w.Message);
+        }
+
+        [Fact]
+        public void DeclareStringWithSameLengthLiteralNoWarning()
+        {
+            var results = Check("declare @fine as char(5) = 'hello'");
+            MyAssert.NoWarningsOfType(WarningID.StringTruncated, results);
+        }
+
+        [Fact]
+        public void DeclareStringWithImplicitLengthAndLongerLiteralRaisesWarning()
+        {
+            var results = Check("declare @tooshort as char = 'hello'");
+            Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
+            Assert.Contains("Variable @tooshort has length 1 and is assigned a value with length 5", w.Message);
+        }
+
+        [Fact]
+        public void DeclareVarCharStringWithImplicitLengthAndLongerLiteralRaisesWarning()
+        {
+            var results = Check("declare @tooshort as varchar = 'hello'");
+            Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
+            Assert.Contains("Variable @tooshort has length 1 and is assigned a value with length 5", w.Message);
+        }
+
+        [Fact]
+        public void DeclareVarCharMaxNoWarning()
+        {
+            var results = Check("declare @fine as varchar(max) = 'hello'");
+            MyAssert.NoWarningsOfType(WarningID.StringTruncated, results);
+        }
+
+        [Fact]
+        public void DeclareAndSeparatelySetWithLiteralRaisesWarning()
+        {
+            var results = Check("declare @tooshort as varchar; set @tooshort = 'hello'");
+            Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
+            Assert.Contains("Variable @tooshort has length 1 and is assigned a value with length 5", w.Message);
+        }
+
+        [Fact]
+        public void AssignVariablesWithLongerLengthRaisesWarning()
+        {
+            var results = Check(@"
+declare @tooshort as varchar(10);
+declare @toolong as varchar(20) = '01234567890123456789'
+set @tooshort = @toolong
+");
+            Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
+            Assert.Contains("Variable @tooshort has length 10 and is assigned a value with length 20", w.Message);
+        }
+
+        #endregion
+
+        #region String type narrowing
+        
+        //[Fact] - under development
+        public void DeclareVarCharWithNLiteralRaisesWarning()
+        {
+            var results = Check("declare @wrongtype as varchar(5) = N'hello'");
+            MyAssert.OneWarningOfType(WarningID.StringConverted, results);
         }
         #endregion
     }

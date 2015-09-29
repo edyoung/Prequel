@@ -1,18 +1,24 @@
-﻿using Microsoft.SqlServer.TransactSql.ScriptDom;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Prequel
+﻿namespace Prequel
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Microsoft.SqlServer.TransactSql.ScriptDom;
+
+    /// <summary>
+    /// Visits all the sql nodes from the parser and performs the actual code analysis
+    /// </summary>
     internal class CheckVisitor : TSqlFragmentVisitor
     {
         private IDictionary<string, Variable> DeclaredVariables { get; set; }
+
         public IList<Warning> Warnings { get; private set; }
+
         private string executeParameterVariable;
+
         private bool noCountSet;
 
-        public CheckVisitor() 
+        public CheckVisitor()
         {
             Warnings = new List<Warning>();
             DeclaredVariables = new Dictionary<string, Variable>(StringComparer.OrdinalIgnoreCase);
@@ -20,20 +26,104 @@ namespace Prequel
 
         public override void ExplicitVisit(DeclareVariableElement node)
         {
-            DeclaredVariables[node.VariableName.Value] = new Variable() { Node = node.VariableName };
+            DeclaredVariables[node.VariableName.Value] = new Variable(node.DataType) { Node = node.VariableName };
+            CheckForImplicitLength(node);
             base.ExplicitVisit(node);
+            CheckForValidAssignment(node.VariableName.Value, node.DataType, node.Value);
+        }
+
+        public override void ExplicitVisit(SetVariableStatement node)
+        {
+            base.ExplicitVisit(node);
+            Variable target;
+            if (DeclaredVariables.TryGetValue(node.Variable.Name, out target))
+            {
+                CheckForValidAssignment(node.Variable.Name, target.SqlTypeInfo.DataType, node.Expression);
+            }
+        }
+
+        private void CheckForValidAssignment(string variableName, DataTypeReference dataType, ScalarExpression value)
+        {
+            if (null == value)
+            {
+                return; // no expression, nothing to check
+            }
+            
+            int sourceLength = GetExpressionLengthIfPossible(value);
+            if (sourceLength == -1)
+            {
+                return; // can't work out source length, can't check
+            }
+
+            Variable target;
+            if (!DeclaredVariables.TryGetValue(variableName, out target))
+            {
+                return; // can't find a variable declaration
+            }
+
+            int targetLength = target.SqlTypeInfo.Length;
+
+            if (targetLength == -1)
+            {
+                return; // can't figure out how long the string is. TODO: shouldn't that be impossible in this case? 
+            }
+
+            if (targetLength < sourceLength)
+            {
+                Warnings.Add(Warning.StringTruncated(dataType.StartLine, variableName, targetLength, sourceLength));
+            }
+        }
+
+        private int GetExpressionLengthIfPossible(ScalarExpression value)
+        {
+            var stringLiteralValue = value as StringLiteral;
+            if (null != stringLiteralValue)
+            {
+                return stringLiteralValue.Value.Length; // any weird corner cases where C# length != SQL length?                
+            }
+
+            var variableReference = value as VariableReference;
+            if (null != variableReference)
+            {
+                Variable variable;
+                if (DeclaredVariables.TryGetValue(variableReference.Name, out variable))
+                {
+                    return variable.SqlTypeInfo.Length;
+                }
+            }
+
+            return -1; // can't determine a length
+        }
+
+        private void CheckForImplicitLength(DeclareVariableElement node)
+        {
+            var typeReference = node.DataType as SqlDataTypeReference;
+
+            if (typeReference != null)
+            {
+                var typeOption = typeReference.SqlDataTypeOption;
+                if (typeOption == SqlDataTypeOption.Char ||
+                    typeOption == SqlDataTypeOption.VarChar ||
+                    typeOption == SqlDataTypeOption.NChar ||
+                    typeOption == SqlDataTypeOption.NVarChar)
+                {
+                    if (typeReference.Parameters.Count == 0)
+                    {
+                        // I believe the only valid param for any of these types is the length, so if there's
+                        // no params we haven't specified the length
+                        Warnings.Add(Warning.CharVariableWithImplicitLength(node.StartLine, node.VariableName.Value));
+                    }
+                }
+            }
         }
 
         public override void ExplicitVisit(DeclareTableVariableBody node)
         {
-            DeclaredVariables[node.VariableName.Value] = new Variable() { Node = node.VariableName };
+            DeclaredVariables[node.VariableName.Value] = new Variable(null) { Node = node.VariableName };
             base.ExplicitVisit(node);
         }
 
-        /// <summary>
-        /// Remove all the warnings which the user doesn't want to see
-        /// </summary>
-        /// <param name="warningLevel"></param>
+        // Remove all the warnings which the user doesn't want to see
         internal void FilterWarnings(WarningLevel warningLevel)
         {
             this.Warnings = this.Warnings.Where(warning => warning.Info.Level <= warningLevel).ToList();
@@ -41,16 +131,18 @@ namespace Prequel
 
         public override void ExplicitVisit(ProcedureParameter node)
         {
-            DeclaredVariables[node.VariableName.Value] = new Variable() { Node = node.VariableName };
+            DeclaredVariables[node.VariableName.Value] = new Variable(node.DataType) { Node = node.VariableName };
+            CheckForImplicitLength(node);
             base.ExplicitVisit(node);
         }
 
         public override void ExplicitVisit(ExecuteParameter node)
         {
-            if(node.Variable != null)
+            if (node.Variable != null)
             {
                 executeParameterVariable = node.Variable.Name;
             }
+
             base.ExplicitVisit(node);
             executeParameterVariable = null;
         }
@@ -59,21 +151,16 @@ namespace Prequel
         {
             var currentProcedure = node.ProcedureReference.Name.BaseIdentifier.Value;
 
-            if(currentProcedure.StartsWith("sp_"))
+            if (currentProcedure.StartsWith("sp_"))
             {
-                Warnings.Add(new Warning(
-                    node.StartLine, 
-                    WarningID.ProcedureWithSPPrefix, 
-                    String.Format("Procedure {0} should not be named with the prefix 'sp_' ", currentProcedure)));
+                Warnings.Add(Warning.ProcedureWithSPPrefix(node.StartLine, currentProcedure));
             }
+
             this.noCountSet = false;
             base.ExplicitVisit(node);
             if (!this.noCountSet)
             {
-                Warnings.Add(new Warning(
-                    node.StartLine, 
-                    WarningID.ProcedureWithoutNoCount, 
-                    String.Format("Procedure {0} does not SET NOCOUNT ON", currentProcedure)));
+                Warnings.Add(Warning.ProcedureWithoutNoCount(node.StartLine, currentProcedure));
             }
         }
 
@@ -84,6 +171,7 @@ namespace Prequel
                 // we found a 'set nocount on' in this sproc
                 this.noCountSet = true;
             }
+
             base.ExplicitVisit(node);
         }
 
@@ -91,11 +179,12 @@ namespace Prequel
         {
             string targetVariable = node.Name;
 
-            if (String.Equals(targetVariable, executeParameterVariable, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(targetVariable, executeParameterVariable, StringComparison.OrdinalIgnoreCase))
             {
                 // in "exec foo @param = value", @param is allowed without being declared, though really it should be checked against params of foo
                 return;
             }
+
             Variable target;
             if (DeclaredVariables.TryGetValue(targetVariable, out target))
             {
@@ -103,13 +192,13 @@ namespace Prequel
             }
             else
             {
-                Warnings.Add(new Warning(node.StartLine, WarningID.UndeclaredVariableUsed, String.Format("Variable {0} used before being declared", targetVariable)));
+                Warnings.Add(Warning.UndeclaredVariableUsed(node.StartLine, targetVariable));
             }
         }
 
         public override void ExplicitVisit(VariableReference node)
         {
-            CheckVariableReference(node);        
+            CheckVariableReference(node);
             base.ExplicitVisit(node);
         }
 
@@ -122,12 +211,12 @@ namespace Prequel
 
         private void LogUnreferencedVariables()
         {
-            foreach(var kv in DeclaredVariables)
+            foreach (var kv in DeclaredVariables)
             {
-                if(!kv.Value.Referenced)
+                if (!kv.Value.Referenced)
                 {
                     TSqlFragment node = kv.Value.Node;
-                    Warnings.Add(new Warning(node.StartLine, WarningID.UnusedVariableDeclared, String.Format("Variable {0} declared but never used", kv.Key)));
+                    Warnings.Add(Warning.UnusedVariableDeclared(node.StartLine, kv.Key));
                 }
             }
         }

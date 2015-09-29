@@ -30,6 +30,14 @@ namespace GenerateDocs
 ", (int)info.ID, info.Name, info.Level, info.Description);
                 }
             }
+
+            foreach(var f in Flag.AllFlags())
+            {
+                Console.WriteLine(@"
+### Option /{0} (/{1}) {2} {3}
+{4}
+", f.LongName, f.ShortName, (f.AcceptsValue ? ":" : ""), f.ExampleValue, f.HelpText);
+            }
         }
     }
 }
