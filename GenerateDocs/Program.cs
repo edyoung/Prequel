@@ -1,6 +1,7 @@
 ﻿using Prequel;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,17 +15,20 @@ namespace GenerateDocs
     {
         static void Main(string[] args)
         {
-            for (int id = WarningInfo.MinWarningID; id <= WarningInfo.MaxWarningID; id++)
+            using (var stream = new StreamWriter("warnings.md"))
             {
-                WarningID warningID = (WarningID)id;
-                WarningInfo info = Warning.WarningTypes[warningID];
+                for (int id = WarningInfo.MinWarningID; id <= WarningInfo.MaxWarningID; id++)
+                {
+                    WarningID warningID = (WarningID)id;
+                    WarningInfo info = Warning.WarningTypes[warningID];
 
-                Console.WriteLine(@"
+                    stream.WriteLine(@"
 ### Warning {0} : {1}
 {2}
 
 {3}
 ", (int)info.ID, info.Name, info.Level, info.Description);
+                }
             }
         }
     }
