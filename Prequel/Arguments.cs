@@ -49,7 +49,8 @@
             get
             {
                 var flagDescriptions = Flag.AllFlags().Select(x => x.UsageText).ToArray();
-                return String.Format(@"Usage: Prequel.exe [flags] file1.sql [file2.sql ...]
+                return string.Format(
+@"Usage: Prequel.exe [flags] file1.sql [file2.sql ...]
 
 Flags:
 {0}
@@ -91,7 +92,7 @@ string.Join("\n", flagDescriptions));
             }
 
             // flag not matched
-            throw new ProgramTerminatingException(String.Format("Unknown flag '/{0}'", flag));
+            throw new ProgramTerminatingException(string.Format("Unknown flag '/{0}'", flag));
         }
     }
 }

@@ -24,12 +24,13 @@
             {
                 if (stream == null)
                 {
-                    try {
+                    try
+                    {
                         stream = File.OpenRead(Path);
                     }
-                    catch(ArgumentException ex)
+                    catch(ArgumentException)
                     {
-                        throw new ProgramTerminatingException(String.Format("Invalid file name '{0}'", Path));
+                        throw new ProgramTerminatingException(string.Format("Invalid file name '{0}'", Path));
                     }
                 }
 
