@@ -333,33 +333,7 @@ go");
         // Is SP_ a problem too?
 
         #endregion
-
-        #region implicit length char
-        [InlineData("char")]
-        [InlineData("varchar")]
-        [InlineData("nchar")]
-        [InlineData("nvarchar")]
-        [Theory]       
-        public void DeclareCharVariableWithNoLengthRaisesWarning(string type)
-        {
-            var results = Check(string.Format(@"declare @explicit_length as {0}(1); declare @implicit_length as {0}", type));
-            Warning w = MyAssert.OneWarningOfType(WarningID.CharVariableWithImplicitLength, results);
-            Assert.Contains("@implicit_length", w.Message);            
-        }
-
-        [InlineData("char")]
-        [InlineData("varchar")]
-        [InlineData("nchar")]
-        [InlineData("nvarchar")]
-        [Theory]
-        public void DeclareCharParameterWithNoLengthRaisesWarning(string type)
-        {
-            var results = Check(string.Format("create procedure myproc(@myparam as {0}) as return @myparam", type));
-            Warning w = MyAssert.OneWarningOfType(WarningID.CharVariableWithImplicitLength, results);
-            Assert.Contains("@myparam", w.Message);
-        }
-        #endregion
-
+        
         #region type checking
         [Fact]
         public void DeclareStringWithoutLiteralNoWarning()

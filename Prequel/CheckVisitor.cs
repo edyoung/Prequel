@@ -26,8 +26,7 @@
 
         public override void ExplicitVisit(DeclareVariableElement node)
         {
-            DeclaredVariables[node.VariableName.Value] = new Variable(node.DataType) { Node = node.VariableName };
-            CheckForImplicitLength(node);
+            DeclaredVariables[node.VariableName.Value] = new Variable(node.DataType) { Node = node.VariableName };            
             base.ExplicitVisit(node);
             CheckForValidAssignment(node.VariableName.Value, node.DataType, node.Value);
         }
@@ -93,29 +92,7 @@
             }
 
             return -1; // can't determine a length
-        }
-
-        private void CheckForImplicitLength(DeclareVariableElement node)
-        {
-            var typeReference = node.DataType as SqlDataTypeReference;
-
-            if (typeReference != null)
-            {
-                var typeOption = typeReference.SqlDataTypeOption;
-                if (typeOption == SqlDataTypeOption.Char ||
-                    typeOption == SqlDataTypeOption.VarChar ||
-                    typeOption == SqlDataTypeOption.NChar ||
-                    typeOption == SqlDataTypeOption.NVarChar)
-                {
-                    if (typeReference.Parameters.Count == 0)
-                    {
-                        // I believe the only valid param for any of these types is the length, so if there's
-                        // no params we haven't specified the length
-                        Warnings.Add(Warning.CharVariableWithImplicitLength(node.StartLine, node.VariableName.Value));
-                    }
-                }
-            }
-        }
+        }        
 
         public override void ExplicitVisit(DeclareTableVariableBody node)
         {
@@ -131,8 +108,7 @@
 
         public override void ExplicitVisit(ProcedureParameter node)
         {
-            DeclaredVariables[node.VariableName.Value] = new Variable(node.DataType) { Node = node.VariableName };
-            CheckForImplicitLength(node);
+            DeclaredVariables[node.VariableName.Value] = new Variable(node.DataType) { Node = node.VariableName };            
             base.ExplicitVisit(node);
         }
 

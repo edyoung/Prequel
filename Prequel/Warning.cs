@@ -12,8 +12,7 @@
         UndeclaredVariableUsed = 1,
         UnusedVariableDeclared,
         ProcedureWithoutNoCount,
-        ProcedureWithSPPrefix,
-        CharVariableWithImplicitLength,
+        ProcedureWithSPPrefix,        
         StringTruncated,
         StringConverted,
     }
@@ -75,12 +74,7 @@
         {
             return new Warning(line, WarningID.UnusedVariableDeclared, string.Format("Variable {0} declared but never used", variableName));
         }
-
-        public static Warning CharVariableWithImplicitLength(int line, string variableName)
-        {
-            return new Warning(line, WarningID.CharVariableWithImplicitLength, string.Format("Variable {0} declared without an explicit length.", variableName));
-        }
-
+        
         public static Warning StringTruncated(int line, string variableName, int targetLength, int sourceLength)
         {
             return new Warning(line, WarningID.StringTruncated, string.Format("Variable {0} has length {1} and is assigned a value with length {2}, which will be truncated", variableName, targetLength, sourceLength));
@@ -100,27 +94,25 @@
                 WarningLevel.Critical,
                 "Undeclared Variable used",
                 "A variable which was not declared was referenced or set. Declare it before use, for example 'DECLARE @variable AS INT'");
+
             warningInfo[WarningID.UnusedVariableDeclared] = new WarningInfo(
                 WarningID.UnusedVariableDeclared, 
                 WarningLevel.Minor,
                 "Unused Variable declared",
                 "A variable or parameter was declared, but never referenced. It could be removed without affecting the procedure's logic, or this could indicate a typo or logical error");
+
             warningInfo[WarningID.ProcedureWithoutNoCount] = new WarningInfo(
                 WarningID.ProcedureWithoutNoCount, 
                 WarningLevel.Minor,
                 "Procedure without SET NOCOUNT ON",
                 @"Performance for stored procedures can be increased with the SET NOCOUNT ON option. The difference can range from tiny to substantial depending on the nature of the sproc. 
 Some SQL tools require the rowcount to be returned - if you use one of those, suppress this warning.");
+
             warningInfo[WarningID.ProcedureWithSPPrefix] = new WarningInfo(
                 WarningID.ProcedureWithSPPrefix, 
                 WarningLevel.Serious,
                 "Procedure name begins with sp_",
                 "sp_ is a reserved prefix in SQL server. Even a sproc which does not clash with any system procedure incurs a performance penalty when using this prefix. Rename the procedure.");
-            warningInfo[WarningID.CharVariableWithImplicitLength] = new WarningInfo(
-                WarningID.CharVariableWithImplicitLength,
-                WarningLevel.Serious,
-                "Fixed-length or Variable-length variable declared without explicit length",
-                "Char, varchar, nchar and nvarchar have short implicit lengths. To reduce the risk of truncating data, it's better to explicitly declare the length you want, eg char(1) instead of char.");
 
             warningInfo[WarningID.StringTruncated] = new WarningInfo(
                 WarningID.StringTruncated,
