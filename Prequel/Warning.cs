@@ -27,10 +27,7 @@
     }
     
     public class Warning
-    {
-        public const int MinWarningID = (int)WarningID.UndeclaredVariableUsed;
-        public const int MaxWarningID = (int)WarningID.StringConverted;
-
+    {        
         private static IDictionary<WarningID, WarningInfo> warningTypes = CreateWarningInfoMap();
 
         public static IDictionary<WarningID, WarningInfo> WarningTypes
@@ -92,7 +89,8 @@
         private static IDictionary<WarningID, WarningInfo> CreateWarningInfoMap()
         {
             IDictionary<WarningID, WarningInfo> warningInfo = new Dictionary<WarningID, WarningInfo>();
-            WarningInfo[] warnings = new[] {
+            WarningInfo[] warnings = new[] 
+            {
                 new WarningInfo(
                     WarningID.UndeclaredVariableUsed,
                     WarningLevel.Critical,

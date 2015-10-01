@@ -17,7 +17,7 @@ namespace GenerateDocs
         {
             using (var stream = new StreamWriter("warnings.md"))
             {
-                for (int id = Warning.MinWarningID; id <= Warning.MaxWarningID; id++)
+                foreach (var id in System.Enum.GetValues(typeof(WarningID)))
                 {
                     WarningID warningID = (WarningID)id;
                     WarningInfo info = Warning.WarningTypes[warningID];
