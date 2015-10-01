@@ -88,46 +88,53 @@
             return new Warning(line, WarningID.StringConverted, string.Format("Variable {0} is of 8-bit (char or varchar) type but is assigned a unicode value.", variableName));
         }
 
-        [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1118:ParameterMustNotSpanMultipleLines", Justification="Long doc strings")]
+        [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1118:ParameterMustNotSpanMultipleLines", Justification = "Long doc strings")]
         private static IDictionary<WarningID, WarningInfo> CreateWarningInfoMap()
         {
             IDictionary<WarningID, WarningInfo> warningInfo = new Dictionary<WarningID, WarningInfo>();
-            warningInfo[WarningID.UndeclaredVariableUsed] = new WarningInfo(
-                WarningID.UndeclaredVariableUsed, 
-                WarningLevel.Critical,
-                "Undeclared Variable used",
-                "A variable which was not declared was referenced or set. Declare it before use, for example 'DECLARE @variable AS INT'");
+            WarningInfo[] warnings = new[] {
+                new WarningInfo(
+                    WarningID.UndeclaredVariableUsed,
+                    WarningLevel.Critical,
+                    "Undeclared Variable used",
+                    "A variable which was not declared was referenced or set. Declare it before use, for example 'DECLARE @variable AS INT'"),
 
-            warningInfo[WarningID.UnusedVariableDeclared] = new WarningInfo(
-                WarningID.UnusedVariableDeclared, 
-                WarningLevel.Minor,
-                "Unused Variable declared",
-                "A variable or parameter was declared, but never referenced. It could be removed without affecting the procedure's logic, or this could indicate a typo or logical error");
+                new WarningInfo(
+                    WarningID.UnusedVariableDeclared,
+                    WarningLevel.Minor,
+                    "Unused Variable declared",
+                    "A variable or parameter was declared, but never referenced. It could be removed without affecting the procedure's logic, or this could indicate a typo or logical error"),
 
-            warningInfo[WarningID.ProcedureWithoutNoCount] = new WarningInfo(
-                WarningID.ProcedureWithoutNoCount, 
-                WarningLevel.Minor,
-                "Procedure without SET NOCOUNT ON",
-                @"Performance for stored procedures can be increased with the SET NOCOUNT ON option. The difference can range from tiny to substantial depending on the nature of the sproc. 
-Some SQL tools require the rowcount to be returned - if you use one of those, suppress this warning.");
+                new WarningInfo(
+                    WarningID.ProcedureWithoutNoCount,
+                    WarningLevel.Minor,
+                    "Procedure without SET NOCOUNT ON",
+                    @"Performance for stored procedures can be increased with the SET NOCOUNT ON option. The difference can range from tiny to substantial depending on the nature of the sproc. 
+    Some SQL tools require the rowcount to be returned - if you use one of those, suppress this warning."),
 
-            warningInfo[WarningID.ProcedureWithSPPrefix] = new WarningInfo(
-                WarningID.ProcedureWithSPPrefix, 
-                WarningLevel.Serious,
-                "Procedure name begins with sp_",
-                "sp_ is a reserved prefix in SQL server. Even a sproc which does not clash with any system procedure incurs a performance penalty when using this prefix. Rename the procedure.");
+                new WarningInfo(
+                    WarningID.ProcedureWithSPPrefix,
+                    WarningLevel.Serious,
+                    "Procedure name begins with sp_",
+                    "sp_ is a reserved prefix in SQL server. Even a sproc which does not clash with any system procedure incurs a performance penalty when using this prefix. Rename the procedure."),
 
-            warningInfo[WarningID.StringTruncated] = new WarningInfo(
-                WarningID.StringTruncated,
-                WarningLevel.Serious,
-                "Fixed-length or variable-length variable assigned a value greater than it can hold",
-                "A variable was assigned a string which is too large for it to hold. The string will be truncated, which is probably not desired.");
+                new WarningInfo(
+                    WarningID.StringTruncated,
+                    WarningLevel.Serious,
+                    "Fixed-length or variable-length variable assigned a value greater than it can hold",
+                    "A variable was assigned a string which is too large for it to hold. The string will be truncated, which is probably not desired."),
 
-            warningInfo[WarningID.StringConverted] = new WarningInfo(
-                WarningID.StringConverted,
-                WarningLevel.Serious,
-                "8-bit variable assigned a unicode value",
-                "A variable is of 8-bit (char or varchar) type but is assigned a unicode value. This will mangle the text if it contains characters which can't be represented. Use CONVERT to explicitly indicate how you want this handled.");
+                new WarningInfo(
+                    WarningID.StringConverted,
+                    WarningLevel.Serious,
+                    "8-bit variable assigned a unicode value",
+                    "A variable is of 8-bit (char or varchar) type but is assigned a unicode value. This will mangle the text if it contains characters which can't be represented. Use CONVERT to explicitly indicate how you want this handled.")
+            };
+
+            foreach(var w in warnings)
+            {
+                warningInfo[w.ID] = w;
+            }
 
             return warningInfo;
         }
