@@ -58,7 +58,7 @@
         public static Warning ProcedureWithSPPrefix(int line, string procedureName)
         {
             return new Warning(line, WarningID.ProcedureWithSPPrefix,
-                string.Format("Procedure {0} does not SET NOCOUNT ON", procedureName));
+                string.Format("Procedure {0} should not start with sp_", procedureName));
         }
 
         public static Warning ProcedureWithoutNoCount(int line, string procedureName)
