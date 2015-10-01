@@ -69,7 +69,7 @@
 
             if (targetLength < sourceLength)
             {
-                Warnings.Add(Warning.StringTruncated(dataType.StartLine, variableName, targetLength, sourceLength));
+                Warnings.Add(Warning.StringTruncated(value.StartLine, variableName, targetLength, sourceLength));
             }
         }
 

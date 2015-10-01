@@ -398,6 +398,7 @@ set @tooshort = @toolong
 ");
             Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
             Assert.Contains("Variable @tooshort has length 10 and is assigned a value with length 20", w.Message);
+            Assert.Equal(4, w.Line); // warning should come from the line with the assignment
         }
 
         #endregion
