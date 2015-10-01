@@ -17,7 +17,7 @@ namespace GenerateDocs
         {
             using (var stream = new StreamWriter("warnings.md"))
             {
-                for (int id = WarningInfo.MinWarningID; id <= WarningInfo.MaxWarningID; id++)
+                for (int id = Warning.MinWarningID; id <= Warning.MaxWarningID; id++)
                 {
                     WarningID warningID = (WarningID)id;
                     WarningInfo info = Warning.WarningTypes[warningID];

@@ -28,6 +28,9 @@
     
     public class Warning
     {
+        public const int MinWarningID = (int)WarningID.UndeclaredVariableUsed;
+        public const int MaxWarningID = (int)WarningID.StringConverted;
+
         private static IDictionary<WarningID, WarningInfo> warningTypes = CreateWarningInfoMap();
 
         public static IDictionary<WarningID, WarningInfo> WarningTypes

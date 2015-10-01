@@ -8,10 +8,7 @@
     using System.Threading.Tasks;
 
     public class WarningInfo
-    {
-        public const int MinWarningID = (int)WarningID.UndeclaredVariableUsed;
-        public const int MaxWarningID = (int)WarningID.StringConverted;
-
+    {        
         public WarningLevel Level
         {
             get; private set;
