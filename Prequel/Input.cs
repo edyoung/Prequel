@@ -28,7 +28,7 @@
                     {
                         stream = File.OpenRead(Path);
                     }
-                    catch(ArgumentException)
+                    catch (ArgumentException)
                     {
                         throw new ProgramTerminatingException(string.Format("Invalid file name '{0}'", Path));
                     }

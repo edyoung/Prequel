@@ -129,7 +129,7 @@
                     "A variable is of 8-bit (char or varchar) type but is assigned a unicode value. This will mangle the text if it contains characters which can't be represented. Use CONVERT to explicitly indicate how you want this handled.")
             };
 
-            foreach(var w in warnings)
+            foreach (var w in warnings)
             {
                 warningInfo[w.ID] = w;
             }
