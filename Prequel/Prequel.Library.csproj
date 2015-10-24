@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Arguments.cs" />
+    <Compile Include="AssignmentResult.cs" />
     <Compile Include="Checker.cs" />
     <Compile Include="CheckResults.cs" />
     <Compile Include="CheckVisitor.cs" />

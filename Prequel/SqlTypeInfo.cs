@@ -6,11 +6,39 @@
     /// <summary>
     /// Summarizes SQL's type info in a handier form.
     /// </summary>
-    internal class SqlTypeInfo
+    public class SqlTypeInfo
     {
         public DataTypeReference DataType
         {
             get; private set;
+        }
+
+        /// <summary>
+        /// If we assign type other to this, report any possible issues
+        /// </summary>
+        public AssignmentResult CheckAssignment(SqlTypeInfo other)
+        {
+            if (this == SqlTypeInfo.Unknown)
+            {
+                return AssignmentResult.OK;
+            }
+
+            if (other == SqlTypeInfo.Unknown)
+            {
+                return AssignmentResult.OK;
+            }
+
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// A special value for when we don't know the value of the expression
+        /// </summary>
+        private static SqlTypeInfo unknown = new SqlTypeInfo(null);
+
+        public static SqlTypeInfo Unknown
+        {
+            get { return unknown; }
         }
 
         // NB dataType can be null
@@ -30,7 +58,7 @@
 
         public SqlDataTypeOption? TypeOption { get; private set; }
 
-        public int Length { get; private set; }
+        public int Length { get; private set; }        
 
         private int GetMaxLengthOfStringVariable(SqlDataTypeReference typeReference)
         {
