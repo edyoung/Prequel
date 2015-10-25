@@ -11,22 +11,30 @@ namespace Prequel.Tests
     public class TypeInfoTests
     {
         [Fact]
-        public void UnknownTypeInfoCanBeAssignedToUnknown()
+        public void Assign_Unknown_To_Unknown_NoWarn()
         {
             AssignmentResult result = SqlTypeInfo.Unknown.CheckAssignment(0, "x", SqlTypeInfo.Unknown);
             Assert.True(result.IsOK);
         }
 
         [Fact]
-        public void UnknownTypeInfoCanBeAssignedToKnown()
+        public void Assign_UnknownType_To_Known_NoWarn()
         {
             SqlTypeInfo knownTypeInfo = new SqlTypeInfo(new SqlDataTypeReference() { SqlDataTypeOption = SqlDataTypeOption.Bit });
             AssignmentResult result = knownTypeInfo.CheckAssignment(0, "x", SqlTypeInfo.Unknown);
             Assert.True(result.IsOK);
-        }        
+        }
 
         [Fact]
-        public void ShortStringCanBeAssignedToLongString()
+        public void Assign_KnownType_To_Unknown_NoWarn()
+        {
+            SqlTypeInfo knownTypeInfo = new SqlTypeInfo(new SqlDataTypeReference() { SqlDataTypeOption = SqlDataTypeOption.Bit });
+            AssignmentResult result = SqlTypeInfo.Unknown.CheckAssignment(0, "x", knownTypeInfo);
+            Assert.True(result.IsOK);
+        }
+
+        [Fact]
+        public void Assign_ShortString_To_LongString_NoWarn()
         {
             SqlTypeInfo longStringInfo = new SqlTypeInfo(CharOfLength(10));
             SqlTypeInfo shortStringInfo = new SqlTypeInfo(CharOfLength(5));
@@ -37,7 +45,7 @@ namespace Prequel.Tests
         }
 
         [Fact]
-        public void LongStringCannotBeAssignedToShortString()
+        public void Assign_LongString_To_ShortString_Warns()
         {
             SqlTypeInfo longStringInfo = new SqlTypeInfo(CharOfLength(10));
             SqlTypeInfo shortStringInfo = new SqlTypeInfo(CharOfLength(5));
@@ -48,7 +56,7 @@ namespace Prequel.Tests
         }
 
         [Fact]
-        public void ShortStringCannotBeAssignedFromMaxString()
+        public void Assign_MaxString_To_ShortString_Warns()
         {
             SqlTypeInfo maxStringInfo = new SqlTypeInfo(CharOfMaxLength());
             SqlTypeInfo shortStringInfo = new SqlTypeInfo(CharOfLength(5));
@@ -58,7 +66,7 @@ namespace Prequel.Tests
         }
 
         [Fact]
-        public void MaxStringCanBeAssignedFromMaxString()
+        public void Assign_ShortString_To_MaxString_NoWarn()
         {
             SqlTypeInfo maxStringInfo = new SqlTypeInfo(CharOfMaxLength());
             SqlTypeInfo shortStringInfo = new SqlTypeInfo(CharOfLength(5));
@@ -68,7 +76,7 @@ namespace Prequel.Tests
         }
 
         [Fact]
-        public void WideStringCanBeAssignedFromNarrowString()
+        public void Assign_NarrowString_To_WideString_NoWarn()
         {
             SqlTypeInfo wideStringInfo = new SqlTypeInfo(NCharOfLength(10));
             SqlTypeInfo narrowStringInfo = new SqlTypeInfo(CharOfLength(10));
@@ -78,7 +86,7 @@ namespace Prequel.Tests
         }
 
         [Fact]
-        public void NarrowStringCannotBeAssignedFromWideString()
+        public void Assign_WideString_To_NarrowString_Warns()
         {
             SqlTypeInfo wideStringInfo = new SqlTypeInfo(NCharOfLength(10));
             SqlTypeInfo narrowStringInfo = new SqlTypeInfo(CharOfLength(10));
@@ -89,7 +97,7 @@ namespace Prequel.Tests
         }
 
         [Fact]
-        public void NarrowShortStringCannotBeAssignedFromLongWideString()
+        public void Assign_LongWideString_To_NarrowShortString_WarnsTwice()
         {
             SqlTypeInfo wideStringInfo = new SqlTypeInfo(NCharOfLength(20));
             SqlTypeInfo narrowStringInfo = new SqlTypeInfo(CharOfLength(10));
@@ -98,6 +106,12 @@ namespace Prequel.Tests
             Assert.False(result.IsOK);
             Assert.Contains(result.Warnings, (w) => w.Number == WarningID.StringConverted);
             Assert.Contains(result.Warnings, (w) => w.Number == WarningID.StringTruncated);
+        }
+
+        [Fact]
+        public void Assign_String_To_Int_Warns()
+        {
+
         }
 
         private static SqlDataTypeReference CharOfLength(int len)
