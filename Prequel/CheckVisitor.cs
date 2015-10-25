@@ -95,28 +95,7 @@
             }
 
             return SqlTypeInfo.Unknown;
-        }        
-
-        private int GetExpressionLengthIfPossible(ScalarExpression value)
-        {
-            var stringLiteralValue = value as StringLiteral;
-            if (null != stringLiteralValue)
-            {
-                return stringLiteralValue.Value.Length; // any weird corner cases where C# length != SQL length?                
-            }
-
-            var variableReference = value as VariableReference;
-            if (null != variableReference)
-            {
-                Variable variable;
-                if (DeclaredVariables.TryGetValue(variableReference.Name, out variable))
-                {
-                    return variable.SqlTypeInfo.Length;
-                }
-            }
-
-            return -1; // can't determine a length
-        }        
+        }                
 
         public override void ExplicitVisit(DeclareTableVariableBody node)
         {
