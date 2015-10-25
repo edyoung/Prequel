@@ -409,8 +409,25 @@ set @tooshort = @toolong
         public void DeclareVarCharWithNLiteralRaisesWarning()
         {
             var results = Check("declare @wrongtype as varchar(5) = N'hello'");
+            Warning w = MyAssert.OneWarningOfType(WarningID.StringConverted, results);
+            Assert.Contains("Variable @wrongtype", w.Message);
+            Assert.Contains("assigned a unicode value", w.Message);
+        }
+
+        [Fact]
+        public void AssignNCharToCharRaisesWarning()
+        {
+            var results = Check("declare @wide as nchar; declare @narrow as char; set @narrow = @wide");
             MyAssert.OneWarningOfType(WarningID.StringConverted, results);
         }
+
+        [Fact]
+        public void AssignCharToNCharIsOK()
+        {
+            var results = Check("declare @wide as nchar; declare @narrow as char; set @wide = @narrow");
+            MyAssert.NoWarningsOfType(WarningID.StringConverted, results);
+        }
+
         #endregion
     }
 }
