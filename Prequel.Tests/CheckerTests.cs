@@ -139,7 +139,7 @@ namespace Prequel.Tests
             var results = Check("\nset @undeclared = 7");
             var warning = results.Warnings[0];
             string warningMessage = results.FormatWarning(warning);
-            Assert.Equal("<inline>(2) : WARNING PQL0001 : Variable @undeclared used before being declared", warningMessage);
+            Assert.Equal("<inline>(2): WARNING PQL0001: Variable @undeclared used before being declared", warningMessage);
         }
 
         [Fact]

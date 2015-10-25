@@ -40,7 +40,7 @@
 
         public string FormatWarning(Warning warning)
         {
-            return string.Format("{0}({1}) : WARNING PQL{2} : {3}", input.Path, warning.Line, ((int)warning.Number).ToString("D4"), warning.Message);
+            return string.Format("{0}({1}): WARNING PQL{2}: {3}", input.Path, warning.Line, ((int)warning.Number).ToString("D4"), warning.Message);
         }
     }
 }
