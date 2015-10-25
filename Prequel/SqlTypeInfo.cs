@@ -1,6 +1,7 @@
 ﻿namespace Prequel
 {
     using System;
+    using System.Collections.Generic;
     using Microsoft.SqlServer.TransactSql.ScriptDom;
 
     /// <summary>
@@ -35,21 +36,18 @@
 
             if (IsStringLike(this.TypeOption.Value) && IsStringLike(other.TypeOption.Value))
             {
+                List<Warning> warnings = new List<Warning>();
                 if (this.Length < other.Length)
                 {
-                    var result = new AssignmentResult(false);
-                    result.Warnings.Add(Warning.StringTruncated(startLine, variableName, this.Length, other.Length));
-                    return result;
+                    warnings.Add(Warning.StringTruncated(startLine, variableName, this.Length, other.Length));                    
                 }
 
                 if (IsNarrowString(this.TypeOption.Value) && IsWideString(other.TypeOption.Value))
                 {
-                    var result = new AssignmentResult(false);
-                    result.Warnings.Add(Warning.StringConverted(startLine, variableName));
-                    return result;
+                    warnings.Add(Warning.StringConverted(startLine, variableName));                 
                 }
 
-                return AssignmentResult.OK;
+                return new AssignmentResult(warnings.Count == 0, warnings);
             }
 
             throw new NotImplementedException();

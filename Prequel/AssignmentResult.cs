@@ -6,10 +6,10 @@
     {
         public bool IsOK { get; private set; }
 
-        public AssignmentResult(bool isOK)
+        public AssignmentResult(bool isOK, IList<Warning> warnings = null)
         {
             IsOK = isOK;
-            Warnings = new List<Warning>();
+            Warnings = warnings ?? new List<Warning>();
         }
 
         private static AssignmentResult ok = new AssignmentResult(true);
@@ -22,6 +22,6 @@
             }
         }
 
-        public IList<Warning> Warnings { get; internal set; }
+        public IList<Warning> Warnings { get; private set; }
     }
 }
