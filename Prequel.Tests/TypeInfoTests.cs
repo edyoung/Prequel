@@ -44,6 +44,7 @@ namespace Prequel.Tests
 
             AssignmentResult result = shortStringInfo.CheckAssignment(longStringInfo);
             Assert.False(result.IsOK);
+            Assert.Contains(WarningID.StringTruncated, result.Warnings);
         }
 
         [Fact]

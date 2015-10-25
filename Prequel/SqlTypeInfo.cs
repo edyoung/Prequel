@@ -37,7 +37,9 @@
             {
                 if (this.Length < other.Length)
                 {
-                    return new AssignmentResult(false);
+                    var result = new AssignmentResult(false);
+                    result.Warnings.Add(WarningID.StringTruncated);
+                    return result;
                 }
 
                 return AssignmentResult.OK;
