@@ -50,7 +50,8 @@
                 return new AssignmentResult(warnings.Count == 0, warnings);
             }
 
-            throw new NotImplementedException();
+            // more checks go here
+            return AssignmentResult.OK;
         }
 
         private bool IsWideString(SqlDataTypeOption typeOption)
