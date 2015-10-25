@@ -89,8 +89,7 @@
                 string firstPart = string.Format(
                     "/{0} /{1}{2}{3}", ShortName, LongName, AcceptsValue ? ":" : "", ExampleValue);
 
-                // FIXME pad the first part with spaces once on the internet and can figure out syntax
-                return string.Format("{0}{1}", firstPart, HelpText);
+                return string.Format("{0,-30}{1}", firstPart, HelpText);
             }
         }
 
