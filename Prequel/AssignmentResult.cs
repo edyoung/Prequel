@@ -9,7 +9,7 @@
         public AssignmentResult(bool isOK)
         {
             IsOK = isOK;
-            Warnings = new List<WarningID>();
+            Warnings = new List<Warning>();
         }
 
         private static AssignmentResult ok = new AssignmentResult(true);
@@ -22,6 +22,6 @@
             }
         }
 
-        public IList<WarningID> Warnings { get; internal set; }
+        public IList<Warning> Warnings { get; internal set; }
     }
 }

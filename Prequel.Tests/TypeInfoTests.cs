@@ -13,7 +13,7 @@ namespace Prequel.Tests
         [Fact]
         public void UnknownTypeInfoCanBeAssignedToUnknown()
         {
-            AssignmentResult result = SqlTypeInfo.Unknown.CheckAssignment(SqlTypeInfo.Unknown);
+            AssignmentResult result = SqlTypeInfo.Unknown.CheckAssignment(0, "x", SqlTypeInfo.Unknown);
             Assert.True(result.IsOK);
         }
 
@@ -21,7 +21,7 @@ namespace Prequel.Tests
         public void UnknownTypeInfoCanBeAssignedToKnown()
         {
             SqlTypeInfo knownTypeInfo = new SqlTypeInfo(new SqlDataTypeReference() { SqlDataTypeOption = SqlDataTypeOption.Bit });
-            AssignmentResult result = knownTypeInfo.CheckAssignment(SqlTypeInfo.Unknown);
+            AssignmentResult result = knownTypeInfo.CheckAssignment(0, "x", SqlTypeInfo.Unknown);
             Assert.True(result.IsOK);
         }        
 
@@ -31,7 +31,7 @@ namespace Prequel.Tests
             SqlTypeInfo longStringInfo = new SqlTypeInfo(CharOfLength(10));
             SqlTypeInfo shortStringInfo = new SqlTypeInfo(CharOfLength(5));
 
-            AssignmentResult result = longStringInfo.CheckAssignment(shortStringInfo);
+            AssignmentResult result = longStringInfo.CheckAssignment(0, "x", shortStringInfo);
             Assert.True(result.IsOK);
 
         }
@@ -42,9 +42,9 @@ namespace Prequel.Tests
             SqlTypeInfo longStringInfo = new SqlTypeInfo(CharOfLength(10));
             SqlTypeInfo shortStringInfo = new SqlTypeInfo(CharOfLength(5));
 
-            AssignmentResult result = shortStringInfo.CheckAssignment(longStringInfo);
+            AssignmentResult result = shortStringInfo.CheckAssignment(0, "x", longStringInfo);
             Assert.False(result.IsOK);
-            Assert.Contains(WarningID.StringTruncated, result.Warnings);
+            Assert.Contains(result.Warnings, (w) => w.Number == WarningID.StringTruncated);
         }
 
         [Fact]
@@ -53,7 +53,7 @@ namespace Prequel.Tests
             SqlTypeInfo maxStringInfo = new SqlTypeInfo(CharOfMaxLength());
             SqlTypeInfo shortStringInfo = new SqlTypeInfo(CharOfLength(5));
 
-            AssignmentResult result = shortStringInfo.CheckAssignment(maxStringInfo);
+            AssignmentResult result = shortStringInfo.CheckAssignment(0, "x", maxStringInfo);
             Assert.False(result.IsOK);
         }
 
@@ -63,7 +63,7 @@ namespace Prequel.Tests
             SqlTypeInfo maxStringInfo = new SqlTypeInfo(CharOfMaxLength());
             SqlTypeInfo shortStringInfo = new SqlTypeInfo(CharOfLength(5));
 
-            AssignmentResult result = maxStringInfo.CheckAssignment(shortStringInfo);
+            AssignmentResult result = maxStringInfo.CheckAssignment(0, "x", shortStringInfo);
             Assert.True(result.IsOK);
         }
 
@@ -73,7 +73,7 @@ namespace Prequel.Tests
             SqlTypeInfo wideStringInfo = new SqlTypeInfo(NCharOfLength(10));
             SqlTypeInfo narrowStringInfo = new SqlTypeInfo(CharOfLength(10));
 
-            AssignmentResult result = wideStringInfo.CheckAssignment(narrowStringInfo);
+            AssignmentResult result = wideStringInfo.CheckAssignment(0, "x", narrowStringInfo);
             Assert.True(result.IsOK);
         }
 
@@ -83,9 +83,9 @@ namespace Prequel.Tests
             SqlTypeInfo wideStringInfo = new SqlTypeInfo(NCharOfLength(10));
             SqlTypeInfo narrowStringInfo = new SqlTypeInfo(CharOfLength(10));
 
-            AssignmentResult result = narrowStringInfo.CheckAssignment(wideStringInfo);
+            AssignmentResult result = narrowStringInfo.CheckAssignment(0, "x", wideStringInfo);
             Assert.False(result.IsOK);
-            Assert.Contains(WarningID.StringConverted, result.Warnings);
+            Assert.Contains(result.Warnings, (w) => w.Number == WarningID.StringConverted);
         }
 
         private static SqlDataTypeReference CharOfLength(int len)

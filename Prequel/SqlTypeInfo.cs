@@ -14,7 +14,7 @@
         }
 
         // If we assign type other to this, report any possible issues
-        public AssignmentResult CheckAssignment(SqlTypeInfo other)
+        public AssignmentResult CheckAssignment(int startLine, string variableName, SqlTypeInfo other)
         {
             if (this == SqlTypeInfo.Unknown)
             {
@@ -38,14 +38,14 @@
                 if (this.Length < other.Length)
                 {
                     var result = new AssignmentResult(false);
-                    result.Warnings.Add(WarningID.StringTruncated);
+                    result.Warnings.Add(Warning.StringTruncated(startLine, variableName, this.Length, other.Length));
                     return result;
                 }
 
                 if (IsNarrowString(this.TypeOption.Value) && IsWideString(other.TypeOption.Value))
                 {
                     var result = new AssignmentResult(false);
-                    result.Warnings.Add(WarningID.StringConverted);
+                    result.Warnings.Add(Warning.StringConverted(startLine, variableName));
                     return result;
                 }
 

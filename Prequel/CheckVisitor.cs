@@ -43,23 +43,21 @@
 
         private void CheckForValidAssignment(string variableName, DataTypeReference dataType, ScalarExpression value)
         {
+            if (null == value)
+            {
+                return; // no actual assignment, nothing to do
+            }
+
             SqlTypeInfo sourceType = GetTypeInfoForExpression(value);
             SqlTypeInfo targetType = GetTypeInfoForVariable(variableName);
 
-            AssignmentResult result = targetType.CheckAssignment(sourceType);
+            AssignmentResult result = targetType.CheckAssignment(value.StartLine, variableName, sourceType);
 
             if (!result.IsOK)
             {
                 foreach (var warning in result.Warnings)
                 {
-                    if (warning == WarningID.StringTruncated)
-                    {
-                        Warnings.Add(Warning.StringTruncated(value.StartLine, variableName, targetType.Length, sourceType.Length));
-                    }
-                    if (warning == WarningID.StringConverted)
-                    {
-                        Warnings.Add(Warning.StringConverted(value.StartLine, variableName));
-                    }
+                    Warnings.Add(warning);                    
                 }
             }
         }
