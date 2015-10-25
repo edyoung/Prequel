@@ -23,20 +23,23 @@ namespace GenerateDocs
                     WarningInfo info = Warning.WarningTypes[warningID];
 
                     stream.WriteLine(@"
-### Warning {0} : {1}
+### Warning PQL{0} : {1}
 {2}
 
 {3}
-", (int)info.ID, info.Name, info.Level, info.Description);
+", ((int)info.ID).ToString("D4"), info.Name, info.Level, info.Description);
                 }
             }
 
-            foreach(var f in Flag.AllFlags())
+            using (var stream = new StreamWriter("flags.md"))
             {
-                Console.WriteLine(@"
+                foreach (var f in Flag.AllFlags())
+                {
+                    stream.WriteLine(@"
 ### Option /{0} (/{1}) {2} {3}
 {4}
 ", f.LongName, f.ShortName, (f.AcceptsValue ? ":" : ""), f.ExampleValue, f.HelpText);
+                }
             }
         }
     }
