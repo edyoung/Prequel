@@ -13,9 +13,7 @@
             get; private set;
         }
 
-        /// <summary>
-        /// If we assign type other to this, report any possible issues
-        /// </summary>
+        // If we assign type other to this, report any possible issues
         public AssignmentResult CheckAssignment(SqlTypeInfo other)
         {
             if (this == SqlTypeInfo.Unknown)
@@ -37,10 +35,11 @@
 
             if (IsStringLike(this.TypeOption.Value) && IsStringLike(other.TypeOption.Value))
             {
-                if(this.Length < other.Length)
+                if (this.Length < other.Length)
                 {
                     return new AssignmentResult(false);
                 }
+
                 return AssignmentResult.OK;
             }
 
@@ -79,18 +78,15 @@
                 Length = GetMaxLengthOfStringVariable(sqlDataType);
             }
         }
-
-        public SqlDataTypeOption? TypeOption { get; private set; }
+        
+        private SqlDataTypeOption? TypeOption { get; set; }
 
         public int Length { get; private set; }        
 
         private int GetMaxLengthOfStringVariable(SqlDataTypeReference typeReference)
         {
             int length = -1;
-            if (TypeOption == SqlDataTypeOption.Char ||
-                TypeOption == SqlDataTypeOption.VarChar ||
-                TypeOption == SqlDataTypeOption.NChar ||
-                TypeOption == SqlDataTypeOption.NVarChar)
+            if (IsStringLike(typeReference.SqlDataTypeOption))
             {
                 bool foundLength = false;
                 foreach (var param in typeReference.Parameters)

@@ -43,35 +43,59 @@
 
         private void CheckForValidAssignment(string variableName, DataTypeReference dataType, ScalarExpression value)
         {
-            if (null == value)
-            {
-                return; // no expression, nothing to check
-            }
+            SqlTypeInfo sourceType = GetTypeInfoForExpression(value);
+
+            SqlTypeInfo targetType = GetTypeInfoForVariable(variableName);
             
-            int sourceLength = GetExpressionLengthIfPossible(value);
-            if (sourceLength == -1)
-            {
-                return; // can't work out source length, can't check
-            }
+            AssignmentResult result = targetType.CheckAssignment(sourceType);
 
-            Variable target;
-            if (!DeclaredVariables.TryGetValue(variableName, out target))
+            if (!result.IsOK)
             {
-                return; // can't find a variable declaration
-            }
-
-            int targetLength = target.SqlTypeInfo.Length;
-
-            if (targetLength == -1)
-            {
-                return; // can't figure out how long the string is. TODO: shouldn't that be impossible in this case? 
-            }
-
-            if (targetLength < sourceLength)
-            {
-                Warnings.Add(Warning.StringTruncated(value.StartLine, variableName, targetLength, sourceLength));
+                Warnings.Add(Warning.StringTruncated(value.StartLine, variableName, targetType.Length, sourceType.Length));
             }
         }
+        
+        private SqlTypeInfo GetTypeInfoForVariable(string variableName)
+        {
+            Variable variable;
+            if (!DeclaredVariables.TryGetValue(variableName, out variable))
+            {
+                return SqlTypeInfo.Unknown; // can't find a variable declaration
+            }
+
+            return variable.SqlTypeInfo;
+        }
+
+        private SqlTypeInfo GetTypeInfoForExpression(ScalarExpression value)
+        {
+            if (null == value)
+            {
+                return SqlTypeInfo.Unknown; // no expression, nothing to check
+            }
+
+            var stringLiteralValue = value as StringLiteral;
+            if (null != stringLiteralValue)
+            {
+                var dataRef = new SqlDataTypeReference()
+                {
+                    SqlDataTypeOption = stringLiteralValue.IsNational ? SqlDataTypeOption.NChar : SqlDataTypeOption.Char
+                };
+                dataRef.Parameters.Add(new IntegerLiteral() { Value = stringLiteralValue.Value.Length.ToString() }); // TODO: are there corner cases where C# length != SQL length?                
+                return new SqlTypeInfo(dataRef); 
+            }
+
+            var variableReference = value as VariableReference;
+            if (null != variableReference)
+            {
+                Variable variable;
+                if (DeclaredVariables.TryGetValue(variableReference.Name, out variable))
+                {
+                    return variable.SqlTypeInfo;
+                }
+            }
+
+            return SqlTypeInfo.Unknown;
+        }        
 
         private int GetExpressionLengthIfPossible(ScalarExpression value)
         {

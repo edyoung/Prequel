@@ -46,6 +46,16 @@ namespace Prequel.Tests
             Assert.False(result.IsOK);
         }
 
+        [Fact]
+        public void MaxStringCanBeAssignedFromShortString()
+        {
+            SqlTypeInfo longStringInfo = new SqlTypeInfo(CharOfMaxLength());
+            SqlTypeInfo shortStringInfo = new SqlTypeInfo(CharOfLength(5));
+
+            AssignmentResult result = shortStringInfo.CheckAssignment(longStringInfo);
+            Assert.False(result.IsOK);
+        }
+
         private static SqlDataTypeReference CharOfLength(int len)
         {
             var dataRef = new SqlDataTypeReference()
@@ -54,6 +64,17 @@ namespace Prequel.Tests
             };
 
             dataRef.Parameters.Add(new IntegerLiteral() { Value = len.ToString() });
+            return dataRef;
+        }
+
+        private static SqlDataTypeReference CharOfMaxLength()
+        {
+            var dataRef = new SqlDataTypeReference()
+            {
+                SqlDataTypeOption = SqlDataTypeOption.Char
+            };
+
+            dataRef.Parameters.Add(new MaxLiteral());
             return dataRef;
         }
     }
