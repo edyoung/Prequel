@@ -32,7 +32,7 @@ And it will print out
 
 Prequel requires the Microsoft SQL Server 2014 Transact-SQL ScriptDom package, which can be found on 
 [http://www.microsoft.com/en-us/download/details.aspx?id=42295](http://www.microsoft.com/en-us/download/details.aspx?id=42295).
-Click Downlaod and choose the SqlDom.msi installer. To install Prequel itself, just unpack the .zip somewhere on your path. 
+Click Download and choose the SqlDom.msi installer. To install Prequel itself, just unpack the .zip somewhere on your path. 
 Note that even if you want to target an earlier version of SQL, you still want the 2014 ScriptDom package.
 
 ## Status
