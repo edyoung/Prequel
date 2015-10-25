@@ -67,11 +67,43 @@ namespace Prequel.Tests
             Assert.True(result.IsOK);
         }
 
+        [Fact]
+        public void WideStringCanBeAssignedFromNarrowString()
+        {
+            SqlTypeInfo wideStringInfo = new SqlTypeInfo(NCharOfLength(10));
+            SqlTypeInfo narrowStringInfo = new SqlTypeInfo(CharOfLength(10));
+
+            AssignmentResult result = wideStringInfo.CheckAssignment(narrowStringInfo);
+            Assert.True(result.IsOK);
+        }
+
+        [Fact]
+        public void NarrowStringCannotBeAssignedFromWideString()
+        {
+            SqlTypeInfo wideStringInfo = new SqlTypeInfo(NCharOfLength(10));
+            SqlTypeInfo narrowStringInfo = new SqlTypeInfo(CharOfLength(10));
+
+            AssignmentResult result = narrowStringInfo.CheckAssignment(wideStringInfo);
+            Assert.False(result.IsOK);
+            Assert.Contains(WarningID.StringConverted, result.Warnings);
+        }
+
         private static SqlDataTypeReference CharOfLength(int len)
         {
             var dataRef = new SqlDataTypeReference()
             {
                 SqlDataTypeOption = SqlDataTypeOption.Char
+            };
+
+            dataRef.Parameters.Add(new IntegerLiteral() { Value = len.ToString() });
+            return dataRef;
+        }
+
+        private static SqlDataTypeReference NCharOfLength(int len)
+        {
+            var dataRef = new SqlDataTypeReference()
+            {
+                SqlDataTypeOption = SqlDataTypeOption.NChar
             };
 
             dataRef.Parameters.Add(new IntegerLiteral() { Value = len.ToString() });

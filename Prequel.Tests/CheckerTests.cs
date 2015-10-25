@@ -405,7 +405,7 @@ set @tooshort = @toolong
 
         #region String type narrowing
         
-        //[Fact] - under development
+        [Fact] 
         public void DeclareVarCharWithNLiteralRaisesWarning()
         {
             var results = Check("declare @wrongtype as varchar(5) = N'hello'");

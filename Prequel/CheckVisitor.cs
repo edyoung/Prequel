@@ -56,6 +56,10 @@
                     {
                         Warnings.Add(Warning.StringTruncated(value.StartLine, variableName, targetType.Length, sourceType.Length));
                     }
+                    if (warning == WarningID.StringConverted)
+                    {
+                        Warnings.Add(Warning.StringConverted(value.StartLine, variableName));
+                    }
                 }
             }
         }

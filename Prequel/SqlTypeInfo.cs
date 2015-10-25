@@ -42,10 +42,27 @@
                     return result;
                 }
 
+                if (IsNarrowString(this.TypeOption.Value) && IsWideString(other.TypeOption.Value))
+                {
+                    var result = new AssignmentResult(false);
+                    result.Warnings.Add(WarningID.StringConverted);
+                    return result;
+                }
+
                 return AssignmentResult.OK;
             }
 
             throw new NotImplementedException();
+        }
+
+        private bool IsWideString(SqlDataTypeOption typeOption)
+        {
+            return typeOption == SqlDataTypeOption.NChar || typeOption == SqlDataTypeOption.NVarChar;
+        }
+
+        private bool IsNarrowString(SqlDataTypeOption typeOption)
+        {
+            return typeOption == SqlDataTypeOption.Char || typeOption == SqlDataTypeOption.VarChar;
         }
 
         private static bool IsStringLike(SqlDataTypeOption typeOption)
