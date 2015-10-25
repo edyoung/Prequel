@@ -61,4 +61,7 @@
   <ItemGroup>
     <Build Include="SqlWithWarnings.sql" />
   </ItemGroup>
+  <PropertyGroup>
+    <PostBuildEvent>"$(SolutionDir)\Prequel.exe\$(OutputPath)\Prequel.exe" "$(ProjectDir)\SqlWithWarnings.sql"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

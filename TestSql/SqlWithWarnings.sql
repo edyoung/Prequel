@@ -1,5 +1,4 @@
 ﻿create  procedure foo 
 as
-	declare @undeclared as char
-    set @undeclared = 2
+	declare @foo as char = N'hello'    
 go
