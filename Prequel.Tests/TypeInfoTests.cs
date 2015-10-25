@@ -48,13 +48,23 @@ namespace Prequel.Tests
         }
 
         [Fact]
-        public void MaxStringCanBeAssignedFromShortString()
+        public void ShortStringCannotBeAssignedFromMaxString()
         {
-            SqlTypeInfo longStringInfo = new SqlTypeInfo(CharOfMaxLength());
+            SqlTypeInfo maxStringInfo = new SqlTypeInfo(CharOfMaxLength());
             SqlTypeInfo shortStringInfo = new SqlTypeInfo(CharOfLength(5));
 
-            AssignmentResult result = shortStringInfo.CheckAssignment(longStringInfo);
+            AssignmentResult result = shortStringInfo.CheckAssignment(maxStringInfo);
             Assert.False(result.IsOK);
+        }
+
+        [Fact]
+        public void MaxStringCanBeAssignedFromMaxString()
+        {
+            SqlTypeInfo maxStringInfo = new SqlTypeInfo(CharOfMaxLength());
+            SqlTypeInfo shortStringInfo = new SqlTypeInfo(CharOfLength(5));
+
+            AssignmentResult result = maxStringInfo.CheckAssignment(shortStringInfo);
+            Assert.True(result.IsOK);
         }
 
         private static SqlDataTypeReference CharOfLength(int len)

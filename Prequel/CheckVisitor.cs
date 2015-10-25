@@ -26,7 +26,7 @@
 
         public override void ExplicitVisit(DeclareVariableElement node)
         {
-            DeclaredVariables[node.VariableName.Value] = new Variable(node.DataType) { Node = node.VariableName };            
+            DeclaredVariables[node.VariableName.Value] = new Variable(node.DataType) { Node = node.VariableName };
             base.ExplicitVisit(node);
             CheckForValidAssignment(node.VariableName.Value, node.DataType, node.Value);
         }
@@ -44,17 +44,22 @@
         private void CheckForValidAssignment(string variableName, DataTypeReference dataType, ScalarExpression value)
         {
             SqlTypeInfo sourceType = GetTypeInfoForExpression(value);
-
             SqlTypeInfo targetType = GetTypeInfoForVariable(variableName);
-            
+
             AssignmentResult result = targetType.CheckAssignment(sourceType);
 
             if (!result.IsOK)
             {
-                Warnings.Add(Warning.StringTruncated(value.StartLine, variableName, targetType.Length, sourceType.Length));
+                foreach (var warning in result.Warnings)
+                {
+                    if (warning == WarningID.StringTruncated)
+                    {
+                        Warnings.Add(Warning.StringTruncated(value.StartLine, variableName, targetType.Length, sourceType.Length));
+                    }
+                }
             }
         }
-        
+
         private SqlTypeInfo GetTypeInfoForVariable(string variableName)
         {
             Variable variable;
@@ -81,7 +86,7 @@
                     SqlDataTypeOption = stringLiteralValue.IsNational ? SqlDataTypeOption.NChar : SqlDataTypeOption.Char
                 };
                 dataRef.Parameters.Add(new IntegerLiteral() { Value = stringLiteralValue.Value.Length.ToString() }); // TODO: are there corner cases where C# length != SQL length?                
-                return new SqlTypeInfo(dataRef); 
+                return new SqlTypeInfo(dataRef);
             }
 
             var variableReference = value as VariableReference;
@@ -95,7 +100,7 @@
             }
 
             return SqlTypeInfo.Unknown;
-        }                
+        }
 
         public override void ExplicitVisit(DeclareTableVariableBody node)
         {
@@ -111,7 +116,7 @@
 
         public override void ExplicitVisit(ProcedureParameter node)
         {
-            DeclaredVariables[node.VariableName.Value] = new Variable(node.DataType) { Node = node.VariableName };            
+            DeclaredVariables[node.VariableName.Value] = new Variable(node.DataType) { Node = node.VariableName };
             base.ExplicitVisit(node);
         }
 
