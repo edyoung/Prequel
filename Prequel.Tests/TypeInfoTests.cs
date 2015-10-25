@@ -22,6 +22,39 @@ namespace Prequel.Tests
         {
             SqlTypeInfo knownTypeInfo = new SqlTypeInfo(new SqlDataTypeReference() { SqlDataTypeOption = SqlDataTypeOption.Bit });
             AssignmentResult result = knownTypeInfo.CheckAssignment(SqlTypeInfo.Unknown);
+            Assert.True(result.IsOK);
         }        
+
+        [Fact]
+        public void ShortStringCanBeAssignedToLongString()
+        {
+            SqlTypeInfo longStringInfo = new SqlTypeInfo(CharOfLength(10));
+            SqlTypeInfo shortStringInfo = new SqlTypeInfo(CharOfLength(5));
+
+            AssignmentResult result = longStringInfo.CheckAssignment(shortStringInfo);
+            Assert.True(result.IsOK);
+
+        }
+
+        [Fact]
+        public void LongStringCannotBeAssignedToShortString()
+        {
+            SqlTypeInfo longStringInfo = new SqlTypeInfo(CharOfLength(10));
+            SqlTypeInfo shortStringInfo = new SqlTypeInfo(CharOfLength(5));
+
+            AssignmentResult result = shortStringInfo.CheckAssignment(longStringInfo);
+            Assert.False(result.IsOK);
+        }
+
+        private static SqlDataTypeReference CharOfLength(int len)
+        {
+            var dataRef = new SqlDataTypeReference()
+            {
+                SqlDataTypeOption = SqlDataTypeOption.Char
+            };
+
+            dataRef.Parameters.Add(new IntegerLiteral() { Value = len.ToString() });
+            return dataRef;
+        }
     }
 }

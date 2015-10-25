@@ -28,7 +28,31 @@
                 return AssignmentResult.OK;
             }
 
+            if (this.TypeOption == null || other.TypeOption == null)
+            {
+                // this is not correct, but we don't implement these type checks currently,
+                // so fall back to claiming it's OK
+                return AssignmentResult.OK;
+            }
+
+            if (IsStringLike(this.TypeOption.Value) && IsStringLike(other.TypeOption.Value))
+            {
+                if(this.Length < other.Length)
+                {
+                    return new AssignmentResult(false);
+                }
+                return AssignmentResult.OK;
+            }
+
             throw new NotImplementedException();
+        }
+
+        private static bool IsStringLike(SqlDataTypeOption typeOption)
+        {
+            return typeOption == SqlDataTypeOption.Char ||
+                typeOption == SqlDataTypeOption.VarChar ||
+                typeOption == SqlDataTypeOption.NChar ||
+                typeOption == SqlDataTypeOption.NVarChar;
         }
 
         /// <summary>
