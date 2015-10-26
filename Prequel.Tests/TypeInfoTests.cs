@@ -41,7 +41,6 @@ namespace Prequel.Tests
 
             AssignmentResult result = longStringInfo.CheckAssignment(0, "x", shortStringInfo);
             Assert.True(result.IsOK);
-
         }
 
         [Fact]
@@ -111,7 +110,10 @@ namespace Prequel.Tests
         [Fact]
         public void Assign_String_To_Int_Warns()
         {
-
+            SqlTypeInfo intInfo = new SqlTypeInfo(new SqlDataTypeReference() { SqlDataTypeOption = SqlDataTypeOption.Int });
+            AssignmentResult result = intInfo.CheckAssignment(0, "x", new SqlTypeInfo(NCharOfLength(5)));
+            Assert.False(result.IsOK);
+            Assert.Contains(result.Warnings, (w) => w.Number == WarningID.ImplicitConversion);
         }
 
         private static SqlDataTypeReference CharOfLength(int len)

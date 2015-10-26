@@ -6,6 +6,7 @@
 
     /// <summary>
     /// Summarizes SQL's type info in a handier form.
+    /// https://msdn.microsoft.com/en-US/library/ms191530(v=sql.120).aspx has main conversions
     /// </summary>
     public class SqlTypeInfo
     {
@@ -51,6 +52,11 @@
             }
 
             // more checks go here
+            if (this.TypeOption.Value == SqlDataTypeOption.Int && other.TypeOption.Value == SqlDataTypeOption.NChar)
+            {
+                return new AssignmentResult(false, new List<Warning>() { Warning.ImplicitConversion(startLine, variableName, this.TypeOption.Value.ToString(), other.TypeOption.Value.ToString()) });
+            }
+
             return AssignmentResult.OK;
         }
 
@@ -99,7 +105,7 @@
         
         private SqlDataTypeOption? TypeOption { get; set; }
 
-        public int Length { get; private set; }        
+        private int Length { get; set; }        
 
         private int GetMaxLengthOfStringVariable(SqlDataTypeReference typeReference)
         {

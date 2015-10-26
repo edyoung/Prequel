@@ -15,6 +15,7 @@
         ProcedureWithSPPrefix,        
         StringTruncated,
         StringConverted,
+        ImplicitConversion
     }
     
     public enum WarningLevel
@@ -68,6 +69,12 @@
         {
             return new Warning(line, WarningID.UndeclaredVariableUsed,
                 string.Format("Variable {0} used before being declared", variableName));
+        }
+
+        internal static Warning ImplicitConversion(int line, string variableName, string destinationType, string sourceType)
+        {
+            return new Warning(line, WarningID.ImplicitConversion, 
+                string.Format("Variable {0} has type {1} and is assigned a value of type {2}. Consider CAST or CONVERT to make the conversion explicit", variableName, destinationType, sourceType));
         }
 
         public static Warning UnusedVariableDeclared(int line, string variableName)
@@ -126,7 +133,14 @@
                     WarningID.StringConverted,
                     WarningLevel.Serious,
                     "8-bit variable assigned a unicode value",
-                    "A variable is of 8-bit (char or varchar) type but is assigned a unicode value. This will mangle the text if it contains characters which can't be represented. Use CONVERT to explicitly indicate how you want this handled.")
+                    "A variable is of 8-bit (char or varchar) type but is assigned a unicode value. This will mangle the text if it contains characters which can't be represented. Use CONVERT to explicitly indicate how you want this handled."),
+
+                new WarningInfo(
+                    WarningID.ImplicitConversion,
+                    WarningLevel.Minor,
+                    "Suspicious implicit type conversion",
+                    @"A variable of one type is assigned a value of a different type (such as assigning an Int to a VarChar). 
+SQL will implicitly convert them, but it's possible this wasn't what you wanted. Use CONVERT to explicitly indicate how you want this handled.")
             };
 
             foreach (var w in warnings)
