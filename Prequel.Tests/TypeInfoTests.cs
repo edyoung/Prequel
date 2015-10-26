@@ -35,62 +35,44 @@ namespace Prequel.Tests
 
         [Fact]
         public void Assign_ShortString_To_LongString_NoWarn()
-        {
-            SqlTypeInfo longStringInfo = new SqlTypeInfo(CharOfLength(10));
-            SqlTypeInfo shortStringInfo = new SqlTypeInfo(CharOfLength(5));
-
-            AssignmentResult result = longStringInfo.CheckAssignment(0, "x", shortStringInfo);
+        {            
+            AssignmentResult result = Check(CharOfLength(10), CharOfLength(5));
             Assert.True(result.IsOK);
         }
 
         [Fact]
         public void Assign_LongString_To_ShortString_Warns()
-        {
-            SqlTypeInfo longStringInfo = new SqlTypeInfo(CharOfLength(10));
-            SqlTypeInfo shortStringInfo = new SqlTypeInfo(CharOfLength(5));
-
-            AssignmentResult result = shortStringInfo.CheckAssignment(0, "x", longStringInfo);
+        {            
+            AssignmentResult result = Check(CharOfLength(5), CharOfLength(10)); 
             Assert.False(result.IsOK);
             Assert.Contains(result.Warnings, (w) => w.Number == WarningID.StringTruncated);
         }
 
         [Fact]
         public void Assign_MaxString_To_ShortString_Warns()
-        {
-            SqlTypeInfo maxStringInfo = new SqlTypeInfo(CharOfMaxLength());
-            SqlTypeInfo shortStringInfo = new SqlTypeInfo(CharOfLength(5));
-
-            AssignmentResult result = shortStringInfo.CheckAssignment(0, "x", maxStringInfo);
+        {            
+            AssignmentResult result = Check(CharOfLength(5), CharOfMaxLength());
             Assert.False(result.IsOK);
         }
 
         [Fact]
         public void Assign_ShortString_To_MaxString_NoWarn()
         {
-            SqlTypeInfo maxStringInfo = new SqlTypeInfo(CharOfMaxLength());
-            SqlTypeInfo shortStringInfo = new SqlTypeInfo(CharOfLength(5));
-
-            AssignmentResult result = maxStringInfo.CheckAssignment(0, "x", shortStringInfo);
+            AssignmentResult result = Check(CharOfMaxLength(), CharOfLength(5));
             Assert.True(result.IsOK);
         }
 
         [Fact]
         public void Assign_NarrowString_To_WideString_NoWarn()
-        {
-            SqlTypeInfo wideStringInfo = new SqlTypeInfo(NCharOfLength(10));
-            SqlTypeInfo narrowStringInfo = new SqlTypeInfo(CharOfLength(10));
-
-            AssignmentResult result = wideStringInfo.CheckAssignment(0, "x", narrowStringInfo);
+        {            
+            AssignmentResult result = Check(NCharOfLength(10), CharOfLength(10)); 
             Assert.True(result.IsOK);
         }
 
         [Fact]
         public void Assign_WideString_To_NarrowString_Warns()
-        {
-            SqlTypeInfo wideStringInfo = new SqlTypeInfo(NCharOfLength(10));
-            SqlTypeInfo narrowStringInfo = new SqlTypeInfo(CharOfLength(10));
-
-            AssignmentResult result = narrowStringInfo.CheckAssignment(0, "x", wideStringInfo);
+        {            
+            AssignmentResult result = Check(CharOfLength(10), NCharOfLength(10));
             Assert.False(result.IsOK);
             Assert.Contains(result.Warnings, (w) => w.Number == WarningID.StringConverted);
         }
@@ -98,36 +80,38 @@ namespace Prequel.Tests
         [Fact]
         public void Assign_LongWideString_To_NarrowShortString_WarnsTwice()
         {
-            SqlTypeInfo wideStringInfo = new SqlTypeInfo(NCharOfLength(20));
-            SqlTypeInfo narrowStringInfo = new SqlTypeInfo(CharOfLength(10));
-
-            AssignmentResult result = narrowStringInfo.CheckAssignment(0, "x", wideStringInfo);
+            AssignmentResult result = Check(CharOfLength(5), NCharOfLength(10));
             Assert.False(result.IsOK);
-            Assert.Contains(result.Warnings, (w) => w.Number == WarningID.StringConverted);
-            Assert.Contains(result.Warnings, (w) => w.Number == WarningID.StringTruncated);
+            MyAssert.OneWarningOfType(WarningID.StringConverted, result);
+            MyAssert.OneWarningOfType(WarningID.StringTruncated, result);
         }
 
         [Fact]
         public void Assign_String_To_Int_Warns()
         {
             SqlTypeInfo intInfo = new SqlTypeInfo(new SqlDataTypeReference() { SqlDataTypeOption = SqlDataTypeOption.Int });
-            AssignmentResult result = intInfo.CheckAssignment(0, "x", new SqlTypeInfo(NCharOfLength(5)));
+            AssignmentResult result = Check(intInfo, NCharOfLength(5));
             Assert.False(result.IsOK);
-            Assert.Contains(result.Warnings, (w) => w.Number == WarningID.ImplicitConversion);
+            MyAssert.OneWarningOfType(WarningID.ImplicitConversion, result);
         }
 
-        private static SqlDataTypeReference CharOfLength(int len)
+        private static AssignmentResult Check(SqlTypeInfo to, SqlTypeInfo from)
         {
+            return to.CheckAssignment(0, "x", from);
+        }
+
+        private static SqlTypeInfo CharOfLength(int len)
+        {            
             var dataRef = new SqlDataTypeReference()
             {
                 SqlDataTypeOption = SqlDataTypeOption.Char
             };
 
             dataRef.Parameters.Add(new IntegerLiteral() { Value = len.ToString() });
-            return dataRef;
+            return new SqlTypeInfo(dataRef);
         }
 
-        private static SqlDataTypeReference NCharOfLength(int len)
+        private static SqlTypeInfo NCharOfLength(int len)
         {
             var dataRef = new SqlDataTypeReference()
             {
@@ -135,10 +119,10 @@ namespace Prequel.Tests
             };
 
             dataRef.Parameters.Add(new IntegerLiteral() { Value = len.ToString() });
-            return dataRef;
+            return new SqlTypeInfo(dataRef);
         }
 
-        private static SqlDataTypeReference CharOfMaxLength()
+        private static SqlTypeInfo CharOfMaxLength()
         {
             var dataRef = new SqlDataTypeReference()
             {
@@ -146,7 +130,7 @@ namespace Prequel.Tests
             };
 
             dataRef.Parameters.Add(new MaxLiteral());
-            return dataRef;
+            return new SqlTypeInfo(dataRef);
         }
     }
 }
