@@ -3,10 +3,9 @@
     using System;
     using System.Collections.Generic;
     using Microsoft.SqlServer.TransactSql.ScriptDom;
-
+    
     /// <summary>
     /// Summarizes SQL's type info in a handier form.
-    /// https://msdn.microsoft.com/en-US/library/ms191530(v=sql.120).aspx has main conversions
     /// </summary>
     public class SqlTypeInfo
     {
@@ -35,26 +34,33 @@
                 return AssignmentResult.OK;
             }
 
-            if (IsStringLike(this.TypeOption.Value) && IsStringLike(other.TypeOption.Value))
+            var fromType = other.TypeOption.Value;
+            var toType = this.TypeOption.Value;
+
+            List<Warning> warnings = new List<Warning>();
+            var conversionResult = TypeConversionHelper.GetConversionResult(fromType, toType);
+            if (0 != (conversionResult & TypeConversionResult.CheckLength))
             {
-                List<Warning> warnings = new List<Warning>();
                 if (this.Length < other.Length)
                 {
-                    warnings.Add(Warning.StringTruncated(startLine, variableName, this.Length, other.Length));                    
+                    warnings.Add(Warning.StringTruncated(startLine, variableName, this.Length, other.Length));
                 }
+            }
 
-                if (IsNarrowString(this.TypeOption.Value) && IsWideString(other.TypeOption.Value))
-                {
-                    warnings.Add(Warning.StringConverted(startLine, variableName));                 
-                }
+            if (0 != (conversionResult & TypeConversionResult.Narrowing))
+            {
+                warnings.Add(Warning.StringConverted(startLine, variableName));
+            }
 
+            if (warnings.Count > 0)
+            {
                 return new AssignmentResult(warnings.Count == 0, warnings);
             }
 
             // more checks go here
-            if (this.TypeOption.Value == SqlDataTypeOption.Int && other.TypeOption.Value == SqlDataTypeOption.NChar)
+            if (toType == SqlDataTypeOption.Int && fromType == SqlDataTypeOption.NChar)
             {
-                return new AssignmentResult(false, new List<Warning>() { Warning.ImplicitConversion(startLine, variableName, this.TypeOption.Value.ToString(), other.TypeOption.Value.ToString()) });
+                return new AssignmentResult(false, new List<Warning>() { Warning.ImplicitConversion(startLine, variableName, toType.ToString(), fromType.ToString()) });
             }
 
             return AssignmentResult.OK;
@@ -62,7 +68,7 @@
 
         private bool IsWideString(SqlDataTypeOption typeOption)
         {
-            return typeOption == SqlDataTypeOption.NChar || typeOption == SqlDataTypeOption.NVarChar;
+            return typeOption == SqlDataTypeOption.NChar || typeOption == SqlDataTypeOption.NVarChar; 
         }
 
         private bool IsNarrowString(SqlDataTypeOption typeOption)
@@ -136,5 +142,5 @@
 
             return length;
         }
-    }    
+    }
 }

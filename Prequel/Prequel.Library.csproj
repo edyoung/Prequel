@@ -59,6 +59,7 @@
     <Compile Include="SqlParserFactory.cs" />
     <Compile Include="ProgramTerminatingException.cs" />
     <Compile Include="SqlTypeInfo.cs" />
+    <Compile Include="TypeConversionHelper.cs" />
     <Compile Include="Variable.cs" />
     <Compile Include="Warning.cs" />
     <Compile Include="WarningInfo.cs" />
