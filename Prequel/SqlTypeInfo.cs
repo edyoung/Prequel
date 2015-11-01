@@ -51,19 +51,15 @@
             {
                 warnings.Add(Warning.StringConverted(startLine, variableName));
             }
-
-            if (warnings.Count > 0)
-            {
-                return new AssignmentResult(warnings.Count == 0, warnings);
-            }
-
+            
             // more checks go here
             if (toType == SqlDataTypeOption.Int && fromType == SqlDataTypeOption.NChar)
             {
-                return new AssignmentResult(false, new List<Warning>() { Warning.ImplicitConversion(startLine, variableName, toType.ToString(), fromType.ToString()) });
+                warnings.Add(Warning.ImplicitConversion(startLine, variableName, toType.ToString(), fromType.ToString()));
+                
             }
 
-            return AssignmentResult.OK;
+            return new AssignmentResult(warnings.Count == 0, warnings); 
         }
 
         private bool IsWideString(SqlDataTypeOption typeOption)
