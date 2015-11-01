@@ -45,7 +45,7 @@
 
     public static class TypeConversionHelper
     {
-        // Encodes the table in https://msdn.microsoft.com/en-US/library/ms191530(v=sql.120).aspx showing which types can be converted 
+        // Encodes the table in https://msdn.microsoft.com/en-us/library/ms191530.aspx showing which types can be converted 
         private static IDictionary<Tuple<SqlDataTypeOption, SqlDataTypeOption>, TypeConversionResult> conversionTable = CreateConversionTable();
 
         private static IDictionary<Tuple<SqlDataTypeOption, SqlDataTypeOption>, TypeConversionResult> CreateConversionTable()

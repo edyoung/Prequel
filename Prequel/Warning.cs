@@ -15,7 +15,8 @@
         ProcedureWithSPPrefix,        
         StringTruncated,
         StringConverted,
-        ImplicitConversion
+        ImplicitConversion,
+        ConvertToVarCharOfUnspecifiedLength
     }
     
     public enum WarningLevel
@@ -92,6 +93,11 @@
             return new Warning(line, WarningID.StringConverted, string.Format("Variable {0} is of 8-bit (char or varchar) type but is assigned a unicode value.", variableName));
         }
 
+        public static Warning ConvertToVarCharOfUnspecifiedLength(int line)
+        {
+            return new Warning(line, WarningID.ConvertToVarCharOfUnspecifiedLength, string.Format("CONVERT(varchar, ...) without specifying length may lead to unexpected truncation."));
+        }
+
         [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1118:ParameterMustNotSpanMultipleLines", Justification = "Long doc strings")]
         private static IDictionary<WarningID, WarningInfo> CreateWarningInfoMap()
         {
@@ -140,7 +146,13 @@
                     WarningLevel.Minor,
                     "Suspicious implicit type conversion",
                     @"A variable of one type is assigned a value of a different type (such as assigning an Int to a VarChar). 
-SQL will implicitly convert them, but it's possible this wasn't what you wanted. Use CONVERT to explicitly indicate how you want this handled.")
+SQL will implicitly convert them, but it's possible this wasn't what you wanted. Use CONVERT to explicitly indicate how you want this handled."),
+
+                new WarningInfo(
+                    WarningID.ConvertToVarCharOfUnspecifiedLength,
+                    WarningLevel.Serious,
+                    "CONVERT to variable with implicit length",
+                    @"CONVERT(char, ...) implicitly truncates values longer than 30 characters, which is often unexpected. If you really want 30, use CONVERT(char(30), ...)")                    
             };
 
             foreach (var w in warnings)

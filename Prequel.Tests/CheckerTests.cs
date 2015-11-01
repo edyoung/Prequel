@@ -402,5 +402,23 @@ set @tooshort = @toolong
         }
 
         #endregion
+
+        #region Convert to string without length spec
+
+        [Fact]
+        public void ConvertToVarCharWithoutLengthWarns()
+        {
+            var results = Check("DECLARE @myVariable AS varchar(50) = convert(varchar, '01234567890123456789012345678901234567890123456789');");
+            Warning w = MyAssert.OneWarningOfType(WarningID.ConvertToVarCharOfUnspecifiedLength, results);
+        }
+
+        [Fact]
+        public void ConvertToVarCharWithLengthNoWarning()
+        {
+            var results = Check("DECLARE @myVariable AS varchar(50) = convert(varchar(30), '01234567890123456789012345678901234567890123456789');");
+            MyAssert.NoWarningsOfType(WarningID.ConvertToVarCharOfUnspecifiedLength, results);
+        }
+
+        #endregion
     }
 }

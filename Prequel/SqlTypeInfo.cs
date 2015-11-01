@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using Microsoft.SqlServer.TransactSql.ScriptDom;
-    
+
     /// <summary>
     /// Summarizes SQL's type info in a handier form.
     /// </summary>
@@ -57,8 +57,8 @@
                 warnings.Add(Warning.ImplicitConversion(startLine, variableName, toType.ToString(), fromType.ToString()));
             }
 
-            return new AssignmentResult(warnings.Count == 0, warnings); 
-        }        
+            return new AssignmentResult(warnings.Count == 0, warnings);
+        }
 
         private static bool IsStringLike(SqlDataTypeOption typeOption)
         {
@@ -82,7 +82,7 @@
         public SqlTypeInfo(DataTypeReference dataType)
         {
             DataType = dataType;
-            
+
             var sqlDataType = dataType as SqlDataTypeReference;
             if (null != sqlDataType)
             {
@@ -91,36 +91,50 @@
                 Length = GetMaxLengthOfStringVariable(sqlDataType);
             }
         }
-        
+
         private SqlDataTypeOption? TypeOption { get; set; }
 
-        private int Length { get; set; } = -1;        
+        private int Length { get; set; } = -1;
+
+        public bool IsImplicitLengthString()
+        {
+            var sqlDataType = DataType as SqlDataTypeReference;
+            if (null == DataType)
+            {
+                return false;
+            }
+
+            if (!IsStringLike(sqlDataType.SqlDataTypeOption))
+            {
+                return false;
+            }
+
+            return ExplicitLength(sqlDataType) == null;
+        }
+
+        private static int? ExplicitLength(SqlDataTypeReference typeReference)
+        {
+            foreach (var param in typeReference.Parameters)
+            {
+                if (param.LiteralType == LiteralType.Integer)
+                {
+                    return Convert.ToInt32(param.Value);
+                }
+                else if (param.LiteralType == LiteralType.Max)
+                {
+                    return int.MaxValue; // isn't it different for char(max)?                    
+                }
+            }
+
+            return null;
+        }
 
         private static int GetMaxLengthOfStringVariable(SqlDataTypeReference typeReference)
         {
             int length = -1;
             if (IsStringLike(typeReference.SqlDataTypeOption))
             {
-                bool foundLength = false;
-                foreach (var param in typeReference.Parameters)
-                {
-                    if (param.LiteralType == LiteralType.Integer)
-                    {
-                        length = Convert.ToInt32(param.Value);
-                        foundLength = true;
-                    }
-                    else if (param.LiteralType == LiteralType.Max)
-                    {
-                        length = int.MaxValue; // isn't it different for char(max)?
-                        foundLength = true;
-                    }
-                }
-
-                if (!foundLength)
-                {
-                    // TODO: is this really right? 
-                    length = 1;
-                }
+                length = ExplicitLength(typeReference) ?? 1;
             }
 
             return length;

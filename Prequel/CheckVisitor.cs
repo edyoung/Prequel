@@ -41,6 +41,16 @@
             }
         }
 
+        public override void ExplicitVisit(ConvertCall node)
+        {
+            base.ExplicitVisit(node);
+            SqlTypeInfo targetType = new SqlTypeInfo(node.DataType);
+            if (targetType.IsImplicitLengthString())
+            {
+                Warnings.Add(Warning.ConvertToVarCharOfUnspecifiedLength(node.StartLine));
+            }
+        }
+
         private void CheckForValidAssignment(string variableName, DataTypeReference dataType, ScalarExpression value)
         {
             if (null == value)
@@ -57,7 +67,7 @@
             {
                 foreach (var warning in result.Warnings)
                 {
-                    Warnings.Add(warning);                    
+                    Warnings.Add(warning);
                 }
             }
         }
