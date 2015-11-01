@@ -93,9 +93,9 @@
             return new Warning(line, WarningID.StringConverted, string.Format("Variable {0} is of 8-bit (char or varchar) type but is assigned a unicode value.", variableName));
         }
 
-        public static Warning ConvertToVarCharOfUnspecifiedLength(int line)
+        public static Warning ConvertToVarCharOfUnspecifiedLength(int line, string type)
         {
-            return new Warning(line, WarningID.ConvertToVarCharOfUnspecifiedLength, string.Format("CONVERT(varchar, ...) without specifying length may lead to unexpected truncation."));
+            return new Warning(line, WarningID.ConvertToVarCharOfUnspecifiedLength, string.Format("CONVERT({0}, ...) without specifying length may lead to unexpected truncation.", type));
         }
 
         [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1118:ParameterMustNotSpanMultipleLines", Justification = "Long doc strings")]

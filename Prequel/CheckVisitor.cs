@@ -47,7 +47,7 @@
             SqlTypeInfo targetType = new SqlTypeInfo(node.DataType);
             if (targetType.IsImplicitLengthString())
             {
-                Warnings.Add(Warning.ConvertToVarCharOfUnspecifiedLength(node.StartLine));
+                Warnings.Add(Warning.ConvertToVarCharOfUnspecifiedLength(node.StartLine, ((SqlDataTypeReference)targetType.DataType).SqlDataTypeOption.ToString()));
             }
         }
 

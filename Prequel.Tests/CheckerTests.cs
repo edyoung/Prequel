@@ -380,7 +380,7 @@ set @tooshort = @toolong
             var results = Check(@"declare @tooshort as varchar(10) = CONVERT(varchar(20), '01234567890123456789')");
             Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
             Assert.Contains("Variable @tooshort has length 10 and is assigned a value with length up to 20", w.Message);
-        }
+        }        
 
         #endregion
 
@@ -403,6 +403,13 @@ set @tooshort = @toolong
         }
 
         [Fact]
+        public void AssignConvertedNCharToCharRaisesWarning()
+        {
+            var results = Check("declare @narrow as char; set @narrow = convert(nchar, 'x')");
+            MyAssert.OneWarningOfType(WarningID.StringConverted, results);
+        }
+
+        [Fact]
         public void AssignCharToNCharIsOK()
         {
             var results = Check("declare @wide as nchar; declare @narrow as char; set @wide = @narrow");
@@ -418,6 +425,14 @@ set @tooshort = @toolong
         {
             var results = Check("DECLARE @myVariable AS varchar(50) = convert(varchar, '01234567890123456789012345678901234567890123456789');");
             Warning w = MyAssert.OneWarningOfType(WarningID.ConvertToVarCharOfUnspecifiedLength, results);
+        }
+
+        [Fact]
+        public void ConvertToNVarCharWithoutLengthWarns()
+        {
+            var results = Check("DECLARE @myVariable AS nvarchar(50) = convert(nvarchar, '01234567890123456789012345678901234567890123456789');");
+            Warning w = MyAssert.OneWarningOfType(WarningID.ConvertToVarCharOfUnspecifiedLength, results);
+            Assert.Contains("CONVERT(NVarChar, ...) without specifying length", w.Message);
         }
 
         [Fact]
