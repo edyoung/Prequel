@@ -51,12 +51,10 @@
             {
                 warnings.Add(Warning.StringConverted(startLine, variableName));
             }
-            
-            // more checks go here
-            if (toType == SqlDataTypeOption.Int && fromType == SqlDataTypeOption.NChar)
+
+            if (0 != (conversionResult & TypeConversionResult.ImplicitLossy))
             {
                 warnings.Add(Warning.ImplicitConversion(startLine, variableName, toType.ToString(), fromType.ToString()));
-                
             }
 
             return new AssignmentResult(warnings.Count == 0, warnings); 

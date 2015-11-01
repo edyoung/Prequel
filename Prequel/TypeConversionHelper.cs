@@ -10,37 +10,37 @@
         /// <summary>
         /// SQL will convert from A to B implicitly and safely
         /// </summary>
-        ImplicitSafe,
+        ImplicitSafe = 0,
 
         /// <summary>
         /// SQL will convert from A to B implicitly but data could be mangled in the process
         /// </summary>
-        ImplicitLossy,
+        ImplicitLossy = 1,
 
         /// <summary>
         /// Only Explicit conversons allowed
         /// </summary>
-        Explicit,
+        Explicit = 2,
 
         /// <summary>
         /// Will be implicitly converted but could be lossy depending on the size of the data (eg varchar)
         /// </summary>
-        CheckLength,
+        CheckLength = 4,
 
         /// <summary>
         /// String type will undergo unicode -> code page conversion
         /// </summary>
-        Narrowing,
+        Narrowing = 8,
 
         /// <summary>
         /// A cannot be converted to B
         /// </summary>
-        NotAllowed,
+        NotAllowed = 16,
 
         /// <summary>
         /// Prequel doesn't know what will happen. Claim everything is great
         /// </summary>
-        NotImplemented
+        NotImplemented = 32
     }
 
     internal static class TypeConversionHelper
@@ -63,6 +63,8 @@
             conversions.Add(SqlDataTypeOption.NVarChar, SqlDataTypeOption.NVarChar, TypeConversionResult.CheckLength);
             conversions.Add(SqlDataTypeOption.Char, SqlDataTypeOption.VarChar, TypeConversionResult.CheckLength);
             conversions.Add(SqlDataTypeOption.NChar, SqlDataTypeOption.NVarChar, TypeConversionResult.CheckLength);
+
+            conversions.Add(SqlDataTypeOption.NChar, SqlDataTypeOption.Int, TypeConversionResult.ImplicitLossy);
 
             return conversions;
         }
