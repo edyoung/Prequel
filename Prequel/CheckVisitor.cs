@@ -112,6 +112,12 @@
                 }
             }
 
+            var convertCall = value as ConvertCall;
+            if (null != convertCall)
+            {
+                return new SqlTypeInfo(convertCall.DataType);
+            }
+
             return SqlTypeInfo.Unknown;
         }
 

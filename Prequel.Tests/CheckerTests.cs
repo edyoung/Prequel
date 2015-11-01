@@ -374,10 +374,18 @@ set @tooshort = @toolong
             Assert.Equal(4, w.Line); // warning should come from the line with the assignment
         }
 
+        [Fact]
+        public void AssignVariablesFromConvertRaisesWarning()
+        {
+            var results = Check(@"declare @tooshort as varchar(10) = CONVERT(varchar(20), '01234567890123456789')");
+            Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
+            Assert.Contains("Variable @tooshort has length 10 and is assigned a value with length 20", w.Message);
+        }
+
         #endregion
 
         #region String type narrowing
-        
+
         [Fact] 
         public void DeclareVarCharWithNLiteralRaisesWarning()
         {
