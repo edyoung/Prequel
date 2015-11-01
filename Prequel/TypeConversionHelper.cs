@@ -43,7 +43,7 @@
         NotImplemented = 32
     }
 
-    internal static class TypeConversionHelper
+    public static class TypeConversionHelper
     {
         // Encodes the table in https://msdn.microsoft.com/en-US/library/ms191530(v=sql.120).aspx showing which types can be converted 
         private static IDictionary<Tuple<SqlDataTypeOption, SqlDataTypeOption>, TypeConversionResult> conversionTable = CreateConversionTable();
@@ -52,19 +52,31 @@
         {
             var conversions = new Dictionary<Tuple<SqlDataTypeOption, SqlDataTypeOption>, TypeConversionResult>();
 
+            // From Char
+            conversions.Add(SqlDataTypeOption.Char, SqlDataTypeOption.Char, TypeConversionResult.CheckLength);
+            conversions.Add(SqlDataTypeOption.Char, SqlDataTypeOption.VarChar, TypeConversionResult.CheckLength);
+            conversions.Add(SqlDataTypeOption.Char, SqlDataTypeOption.NChar, TypeConversionResult.CheckLength);
+            conversions.Add(SqlDataTypeOption.Char, SqlDataTypeOption.NVarChar, TypeConversionResult.CheckLength);
+
+            // From NChar
             conversions.Add(SqlDataTypeOption.NChar, SqlDataTypeOption.Char, TypeConversionResult.CheckLength | TypeConversionResult.Narrowing);
             conversions.Add(SqlDataTypeOption.NChar, SqlDataTypeOption.VarChar, TypeConversionResult.CheckLength | TypeConversionResult.Narrowing);
-            conversions.Add(SqlDataTypeOption.NVarChar, SqlDataTypeOption.Char, TypeConversionResult.CheckLength | TypeConversionResult.Narrowing);
-            conversions.Add(SqlDataTypeOption.NVarChar, SqlDataTypeOption.VarChar, TypeConversionResult.CheckLength | TypeConversionResult.Narrowing);
-
-            conversions.Add(SqlDataTypeOption.Char, SqlDataTypeOption.Char, TypeConversionResult.CheckLength);
             conversions.Add(SqlDataTypeOption.NChar, SqlDataTypeOption.NChar, TypeConversionResult.CheckLength);
-            conversions.Add(SqlDataTypeOption.VarChar, SqlDataTypeOption.VarChar, TypeConversionResult.CheckLength);
-            conversions.Add(SqlDataTypeOption.NVarChar, SqlDataTypeOption.NVarChar, TypeConversionResult.CheckLength);
-            conversions.Add(SqlDataTypeOption.Char, SqlDataTypeOption.VarChar, TypeConversionResult.CheckLength);
             conversions.Add(SqlDataTypeOption.NChar, SqlDataTypeOption.NVarChar, TypeConversionResult.CheckLength);
 
             conversions.Add(SqlDataTypeOption.NChar, SqlDataTypeOption.Int, TypeConversionResult.ImplicitLossy);
+
+            // From VarChar
+            conversions.Add(SqlDataTypeOption.VarChar, SqlDataTypeOption.VarChar, TypeConversionResult.CheckLength);
+            conversions.Add(SqlDataTypeOption.VarChar, SqlDataTypeOption.Char, TypeConversionResult.CheckLength);
+            conversions.Add(SqlDataTypeOption.VarChar, SqlDataTypeOption.NChar, TypeConversionResult.CheckLength);
+            conversions.Add(SqlDataTypeOption.VarChar, SqlDataTypeOption.NVarChar, TypeConversionResult.CheckLength);
+
+            // from NVarChar
+            conversions.Add(SqlDataTypeOption.NVarChar, SqlDataTypeOption.Char, TypeConversionResult.CheckLength | TypeConversionResult.Narrowing);
+            conversions.Add(SqlDataTypeOption.NVarChar, SqlDataTypeOption.VarChar, TypeConversionResult.CheckLength | TypeConversionResult.Narrowing);
+            conversions.Add(SqlDataTypeOption.NVarChar, SqlDataTypeOption.NChar, TypeConversionResult.CheckLength);
+            conversions.Add(SqlDataTypeOption.NVarChar, SqlDataTypeOption.NVarChar, TypeConversionResult.CheckLength);
 
             return conversions;
         }
