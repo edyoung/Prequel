@@ -80,6 +80,7 @@
                 return SqlTypeInfo.Unknown; // no expression, nothing to check
             }
 
+            // consider - we fake a datatype for the string literal, which is a bit ugly. Is there a better way?
             var stringLiteralValue = value as StringLiteral;
             if (null != stringLiteralValue)
             {

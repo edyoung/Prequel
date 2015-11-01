@@ -58,17 +58,7 @@
             }
 
             return new AssignmentResult(warnings.Count == 0, warnings); 
-        }
-
-        private bool IsWideString(SqlDataTypeOption typeOption)
-        {
-            return typeOption == SqlDataTypeOption.NChar || typeOption == SqlDataTypeOption.NVarChar; 
-        }
-
-        private bool IsNarrowString(SqlDataTypeOption typeOption)
-        {
-            return typeOption == SqlDataTypeOption.Char || typeOption == SqlDataTypeOption.VarChar;
-        }
+        }        
 
         private static bool IsStringLike(SqlDataTypeOption typeOption)
         {
@@ -92,8 +82,7 @@
         public SqlTypeInfo(DataTypeReference dataType)
         {
             DataType = dataType;
-            Length = -1;
-
+            
             var sqlDataType = dataType as SqlDataTypeReference;
             if (null != sqlDataType)
             {
@@ -105,9 +94,9 @@
         
         private SqlDataTypeOption? TypeOption { get; set; }
 
-        private int Length { get; set; }        
+        private int Length { get; set; } = -1;        
 
-        private int GetMaxLengthOfStringVariable(SqlDataTypeReference typeReference)
+        private static int GetMaxLengthOfStringVariable(SqlDataTypeReference typeReference)
         {
             int length = -1;
             if (IsStringLike(typeReference.SqlDataTypeOption))
