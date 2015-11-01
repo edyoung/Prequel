@@ -320,7 +320,7 @@ go");
         {
             var results = Check("declare @tooshort as char(1) = 'hello'");
             Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
-            Assert.Contains("Variable @tooshort has length 1 and is assigned a value with length 5", w.Message);
+            Assert.Contains("Variable @tooshort has length 1 and is assigned a value with length up to 5", w.Message);
         }
 
         [Fact]
@@ -335,7 +335,7 @@ go");
         {
             var results = Check("declare @tooshort as char = 'hello'");
             Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
-            Assert.Contains("Variable @tooshort has length 1 and is assigned a value with length 5", w.Message);
+            Assert.Contains("Variable @tooshort has length 1 and is assigned a value with length up to 5", w.Message);
         }
 
         [Fact]
@@ -343,7 +343,7 @@ go");
         {
             var results = Check("declare @tooshort as varchar = 'hello'");
             Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
-            Assert.Contains("Variable @tooshort has length 1 and is assigned a value with length 5", w.Message);
+            Assert.Contains("Variable @tooshort has length 1 and is assigned a value with length up to 5", w.Message);
         }
 
         [Fact]
@@ -358,7 +358,7 @@ go");
         {
             var results = Check("declare @tooshort as varchar; set @tooshort = 'hello'");
             Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
-            Assert.Contains("Variable @tooshort has length 1 and is assigned a value with length 5", w.Message);
+            Assert.Contains("Variable @tooshort has length 1 and is assigned a value with length up to 5", w.Message);
         }
 
         [Fact]
@@ -370,7 +370,7 @@ declare @toolong as varchar(20) = '01234567890123456789'
 set @tooshort = @toolong
 ");
             Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
-            Assert.Contains("Variable @tooshort has length 10 and is assigned a value with length 20", w.Message);
+            Assert.Contains("Variable @tooshort has length 10 and is assigned a value with length up to 20", w.Message);
             Assert.Equal(4, w.Line); // warning should come from the line with the assignment
         }
 
@@ -379,7 +379,7 @@ set @tooshort = @toolong
         {
             var results = Check(@"declare @tooshort as varchar(10) = CONVERT(varchar(20), '01234567890123456789')");
             Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
-            Assert.Contains("Variable @tooshort has length 10 and is assigned a value with length 20", w.Message);
+            Assert.Contains("Variable @tooshort has length 10 and is assigned a value with length up to 20", w.Message);
         }
 
         #endregion

@@ -85,7 +85,7 @@
         
         public static Warning StringTruncated(int line, string variableName, int targetLength, int sourceLength)
         {
-            return new Warning(line, WarningID.StringTruncated, string.Format("Variable {0} has length {1} and is assigned a value with length {2}, which will be truncated", variableName, targetLength, sourceLength));
+            return new Warning(line, WarningID.StringTruncated, string.Format("Variable {0} has length {1} and is assigned a value with length up to {2}, which might be truncated", variableName, targetLength, sourceLength));
         }
 
         public static Warning StringConverted(int line, string variableName)
