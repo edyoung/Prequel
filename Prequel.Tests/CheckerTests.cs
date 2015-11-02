@@ -86,6 +86,16 @@ namespace Prequel.Tests
             var ex = Assert.Throws<ProgramTerminatingException>(() => c.Run());
         }
 
+        /// <summary>
+        /// This parses in one SQL file but not when run through prequel. why?
+        /// </summary>
+        // [Fact]
+        public void ThisShouldParse()
+        {
+            CheckResults results = Check("grant SELECT on User to ServerRole");
+            MyAssert.NoErrors(results);
+        }
+
         #endregion
 
         #region reporting
