@@ -15,7 +15,7 @@
 
         public Variable(DataTypeReference dataType)
         {
-            SqlTypeInfo = new SqlTypeInfo(dataType);
+            SqlTypeInfo = SqlTypeInfo.Create(dataType);
         }
     }
 }

@@ -20,7 +20,7 @@ namespace Prequel.Tests
         [Fact]
         public void Assign_UnknownType_To_Known_NoWarn()
         {
-            SqlTypeInfo knownTypeInfo = new SqlTypeInfo(new SqlDataTypeReference() { SqlDataTypeOption = SqlDataTypeOption.Bit });
+            SqlTypeInfo knownTypeInfo = SqlTypeInfo.Create(new SqlDataTypeReference() { SqlDataTypeOption = SqlDataTypeOption.Bit });
             AssignmentResult result = knownTypeInfo.CheckAssignment(0, "x", SqlTypeInfo.Unknown);
             Assert.True(result.IsOK);
         }
@@ -28,7 +28,7 @@ namespace Prequel.Tests
         [Fact]
         public void Assign_KnownType_To_Unknown_NoWarn()
         {
-            SqlTypeInfo knownTypeInfo = new SqlTypeInfo(new SqlDataTypeReference() { SqlDataTypeOption = SqlDataTypeOption.Bit });
+            SqlTypeInfo knownTypeInfo = SqlTypeInfo.Create(new SqlDataTypeReference() { SqlDataTypeOption = SqlDataTypeOption.Bit });
             AssignmentResult result = SqlTypeInfo.Unknown.CheckAssignment(0, "x", knownTypeInfo);
             Assert.True(result.IsOK);
         }
@@ -89,7 +89,7 @@ namespace Prequel.Tests
         [Fact]
         public void Assign_String_To_Int_Warns()
         {
-            SqlTypeInfo intInfo = new SqlTypeInfo(new SqlDataTypeReference() { SqlDataTypeOption = SqlDataTypeOption.Int });
+            SqlTypeInfo intInfo = SqlTypeInfo.Create(new SqlDataTypeReference() { SqlDataTypeOption = SqlDataTypeOption.Int });
             AssignmentResult result = Check(intInfo, NCharOfLength(5));
             Assert.False(result.IsOK);
             MyAssert.OneWarningOfType(WarningID.ImplicitConversion, result);
@@ -108,7 +108,7 @@ namespace Prequel.Tests
             };
 
             dataRef.Parameters.Add(new IntegerLiteral() { Value = len.ToString() });
-            return new SqlTypeInfo(dataRef);
+            return SqlTypeInfo.Create(dataRef);
         }
 
         private static SqlTypeInfo NCharOfLength(int len)
@@ -119,7 +119,7 @@ namespace Prequel.Tests
             };
 
             dataRef.Parameters.Add(new IntegerLiteral() { Value = len.ToString() });
-            return new SqlTypeInfo(dataRef);
+            return SqlTypeInfo.Create(dataRef);
         }
 
         private static SqlTypeInfo CharOfMaxLength()
@@ -130,7 +130,7 @@ namespace Prequel.Tests
             };
 
             dataRef.Parameters.Add(new MaxLiteral());
-            return new SqlTypeInfo(dataRef);
+            return SqlTypeInfo.Create(dataRef);
         }
     }
 }

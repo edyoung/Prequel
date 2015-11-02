@@ -44,7 +44,7 @@
         public override void ExplicitVisit(ConvertCall node)
         {
             base.ExplicitVisit(node);
-            SqlTypeInfo targetType = new SqlTypeInfo(node.DataType);
+            SqlTypeInfo targetType = SqlTypeInfo.Create(node.DataType);
             if (targetType.IsImplicitLengthString())
             {
                 Warnings.Add(Warning.ConvertToVarCharOfUnspecifiedLength(node.StartLine, "CONVERT", ((SqlDataTypeReference)targetType.DataType).SqlDataTypeOption.ToString()));
@@ -54,7 +54,7 @@
         public override void ExplicitVisit(CastCall node)
         {
             base.ExplicitVisit(node);
-            SqlTypeInfo targetType = new SqlTypeInfo(node.DataType);
+            SqlTypeInfo targetType = SqlTypeInfo.Create(node.DataType);
             if (targetType.IsImplicitLengthString())
             {
                 Warnings.Add(Warning.ConvertToVarCharOfUnspecifiedLength(node.StartLine, "CAST", ((SqlDataTypeReference)targetType.DataType).SqlDataTypeOption.ToString()));
@@ -109,7 +109,7 @@
                     SqlDataTypeOption = stringLiteralValue.IsNational ? SqlDataTypeOption.NChar : SqlDataTypeOption.Char
                 };
                 dataRef.Parameters.Add(new IntegerLiteral() { Value = stringLiteralValue.Value.Length.ToString() }); // TODO: are there corner cases where C# length != SQL length?                
-                return new SqlTypeInfo(dataRef);
+                return SqlTypeInfo.Create(dataRef);
             }
 
             var variableReference = value as VariableReference;
@@ -125,14 +125,15 @@
             var convertCall = value as ConvertCall;
             if (null != convertCall)
             {
-                return new SqlTypeInfo(convertCall.DataType);
+                return SqlTypeInfo.Create(convertCall.DataType);
             }
 
             var castCall = value as CastCall;
             if (null != castCall)
             {
-                return new SqlTypeInfo(castCall.DataType);
+                return SqlTypeInfo.Create(castCall.DataType);
             }
+
             return SqlTypeInfo.Unknown;
         }
 

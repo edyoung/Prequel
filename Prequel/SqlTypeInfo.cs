@@ -78,8 +78,13 @@
             get { return unknown; }
         }
 
+        public static SqlTypeInfo Create(DataTypeReference dataType)
+        {
+            return new SqlTypeInfo(dataType);
+        }
+
         // NB dataType can be null
-        public SqlTypeInfo(DataTypeReference dataType)
+        private SqlTypeInfo(DataTypeReference dataType)
         {
             DataType = dataType;
 
