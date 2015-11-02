@@ -10,8 +10,8 @@
     /// </summary>
     internal class CheckVisitor : TSqlFragmentVisitor
     {
-        private IDictionary<string, Variable> DeclaredVariables { get; set; }
-
+        private VariableSet Variables { get; } = new VariableSet();
+        
         public IList<Warning> Warnings { get; private set; }
 
         private string executeParameterVariable;
@@ -21,12 +21,11 @@
         public CheckVisitor()
         {
             Warnings = new List<Warning>();
-            DeclaredVariables = new Dictionary<string, Variable>(StringComparer.OrdinalIgnoreCase);
         }
 
         public override void ExplicitVisit(DeclareVariableElement node)
         {
-            DeclaredVariables[node.VariableName.Value] = new Variable(node.DataType) { Node = node.VariableName };
+            Variables.Declare(node); 
             base.ExplicitVisit(node);
             CheckForValidAssignment(node.VariableName.Value, node.Value);
         }
@@ -34,11 +33,7 @@
         public override void ExplicitVisit(SetVariableStatement node)
         {
             base.ExplicitVisit(node);
-            Variable target;
-            if (DeclaredVariables.TryGetValue(node.Variable.Name, out target))
-            {
-                CheckForValidAssignment(node.Variable.Name, node.Expression);
-            }
+            CheckForValidAssignment(node.Variable.Name, node.Expression);            
         }
 
         public override void ExplicitVisit(ConvertCall node)
@@ -72,7 +67,7 @@
             SqlTypeInfo targetType = GetTypeInfoForVariable(variableName);
 
             AssignmentResult result = targetType.CheckAssignment(value.StartLine, variableName, sourceType);
-
+            
             if (!result.IsOK)
             {
                 foreach (var warning in result.Warnings)
@@ -84,13 +79,7 @@
 
         private SqlTypeInfo GetTypeInfoForVariable(string variableName)
         {
-            Variable variable;
-            if (!DeclaredVariables.TryGetValue(variableName, out variable))
-            {
-                return SqlTypeInfo.Unknown; // can't find a variable declaration
-            }
-
-            return variable.SqlTypeInfo;
+            return Variables.GetTypeInfoIfPossible(variableName);            
         }
 
         private SqlTypeInfo GetTypeInfoForExpression(ScalarExpression value)
@@ -110,11 +99,7 @@
             var variableReference = value as VariableReference;
             if (null != variableReference)
             {
-                Variable variable;
-                if (DeclaredVariables.TryGetValue(variableReference.Name, out variable))
-                {
-                    return variable.SqlTypeInfo;
-                }
+                return Variables.GetTypeInfoIfPossible(variableReference.Name);                
             }
 
             var convertCall = value as ConvertCall;
@@ -134,7 +119,7 @@
 
         public override void ExplicitVisit(DeclareTableVariableBody node)
         {
-            DeclaredVariables[node.VariableName.Value] = new Variable(null) { Node = node.VariableName };
+            Variables.Declare(node); 
             base.ExplicitVisit(node);
         }
 
@@ -146,7 +131,7 @@
 
         public override void ExplicitVisit(ProcedureParameter node)
         {
-            DeclaredVariables[node.VariableName.Value] = new Variable(node.DataType) { Node = node.VariableName };
+            Variables.Declare(node);
             base.ExplicitVisit(node);
         }
 
@@ -198,14 +183,9 @@
                 // in "exec foo @param = value", @param is allowed without being declared, though really it should be checked against params of foo
                 return;
             }
-
-            Variable target;
-            if (DeclaredVariables.TryGetValue(targetVariable, out target))
-            {
-                target.Referenced = true;
-            }
-            else
-            {
+            
+            if (!Variables.TryReference(targetVariable))
+            {                
                 Warnings.Add(Warning.UndeclaredVariableUsed(node.StartLine, targetVariable));
             }
         }
@@ -218,20 +198,17 @@
 
         public override void ExplicitVisit(TSqlBatch batch)
         {
-            DeclaredVariables.Clear(); // clear local vars from any previous batch
+            Variables.Clear(); // clear local vars from any previous batch
             base.ExplicitVisit(batch);
             LogUnreferencedVariables();
         }
 
         private void LogUnreferencedVariables()
         {
-            foreach (var kv in DeclaredVariables)
+            foreach (var kv in Variables.GetUnreferencedVariables())
             {
-                if (!kv.Value.Referenced)
-                {
-                    TSqlFragment node = kv.Value.Node;
-                    Warnings.Add(Warning.UnusedVariableDeclared(node.StartLine, kv.Key));
-                }
+                TSqlFragment node = kv.Value.Node;
+                Warnings.Add(Warning.UnusedVariableDeclared(node.StartLine, kv.Key));                
             }
         }
     }

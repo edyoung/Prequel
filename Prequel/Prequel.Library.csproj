@@ -63,6 +63,7 @@
     <Compile Include="TypeConversionHelper.cs" />
     <Compile Include="UnknownSqlTypeInfo.cs" />
     <Compile Include="Variable.cs" />
+    <Compile Include="VariableSet.cs" />
     <Compile Include="Warning.cs" />
     <Compile Include="WarningInfo.cs" />
   </ItemGroup>
