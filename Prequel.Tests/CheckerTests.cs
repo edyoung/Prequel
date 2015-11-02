@@ -89,7 +89,7 @@ namespace Prequel.Tests
         /// <summary>
         /// This parses in one SQL file but not when run through prequel. why?
         /// </summary>
-        // [Fact]
+        [Fact(Skip="Not sure why this string works in sample sql file")]
         public void ThisShouldParse()
         {
             CheckResults results = Check("grant SELECT on User to ServerRole");
@@ -390,7 +390,15 @@ set @tooshort = @toolong
             var results = Check(@"declare @tooshort as varchar(10) = CONVERT(varchar(20), '01234567890123456789')");
             Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
             Assert.Contains("Variable @tooshort has length 10 and is assigned a value with length up to 20", w.Message);
-        }        
+        }
+
+        [Fact]
+        public void AssignVariablesFromCastRaisesWarning()
+        {
+            var results = Check(@"declare @tooshort as varchar(10) = CAST('01234567890123456789' as varchar(20))");
+            Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
+            Assert.Contains("Variable @tooshort has length 10 and is assigned a value with length up to 20", w.Message);
+        }
 
         #endregion
 
@@ -442,7 +450,7 @@ set @tooshort = @toolong
         {
             var results = Check("DECLARE @myVariable AS nvarchar(50) = convert(nvarchar, '01234567890123456789012345678901234567890123456789');");
             Warning w = MyAssert.OneWarningOfType(WarningID.ConvertToVarCharOfUnspecifiedLength, results);
-            Assert.Contains("CONVERT(NVarChar, ...) without specifying length", w.Message);
+            Assert.Contains("CONVERT to type NVarChar without specifying length", w.Message);
         }
 
         [Fact]
@@ -452,6 +460,12 @@ set @tooshort = @toolong
             MyAssert.NoWarningsOfType(WarningID.ConvertToVarCharOfUnspecifiedLength, results);
         }
 
+        [Fact]
+        public void CastToVarCharWithoutLengthWarns()
+        {
+            var results = Check("DECLARE @myVariable AS varchar(50) = cast('01234567890123456789012345678901234567890123456789' as varchar);");
+            Warning w = MyAssert.OneWarningOfType(WarningID.ConvertToVarCharOfUnspecifiedLength, results);
+        }
         #endregion
     }
 }
