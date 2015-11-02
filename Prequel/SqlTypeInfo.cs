@@ -7,14 +7,37 @@
     /// <summary>
     /// Summarizes SQL's type info in a handier form.
     /// </summary>
-    public class SqlTypeInfo
+    public abstract class SqlTypeInfo
     {
-        public DataTypeReference DataType
+        /// <summary>
+        /// A special value for when we don't know the value of the expression
+        /// </summary>
+        public static SqlTypeInfo Unknown { get; } = new UnknownSqlTypeInfo();
+
+        // Factory to create the appropriate subtype
+        public static SqlTypeInfo Create(DataTypeReference dataType)
         {
-            get; private set;
+            if (dataType == null)
+            {
+                return Unknown;
+            }
+
+            var sqlDataType = dataType as SqlDataTypeReference;
+
+            if (sqlDataType == null)
+            {
+                // we don't yet handle any other type - treat them as as unknown
+                return Unknown;
+            }
+
+            return new FullSqlTypeInfo(sqlDataType);
         }
 
-        // If we assign type other to this, report any possible issues
+        public virtual bool IsImplicitLengthString()
+        {
+            return false;
+        }
+
         public AssignmentResult CheckAssignment(int startLine, string variableName, SqlTypeInfo other)
         {
             if (this == SqlTypeInfo.Unknown)
@@ -27,122 +50,10 @@
                 return AssignmentResult.OK;
             }
 
-            if (this.TypeOption == null || other.TypeOption == null)
-            {
-                // this is not correct, but we don't implement these type checks currently,
-                // so fall back to claiming it's OK
-                return AssignmentResult.OK;
-            }
-
-            var fromType = other.TypeOption.Value;
-            var toType = this.TypeOption.Value;
-
-            List<Warning> warnings = new List<Warning>();
-            var conversionResult = TypeConversionHelper.GetConversionResult(fromType, toType);
-            if (0 != (conversionResult & TypeConversionResult.CheckLength))
-            {
-                if (this.Length < other.Length)
-                {
-                    warnings.Add(Warning.StringTruncated(startLine, variableName, this.Length, other.Length));
-                }
-            }
-
-            if (0 != (conversionResult & TypeConversionResult.Narrowing))
-            {
-                warnings.Add(Warning.StringConverted(startLine, variableName));
-            }
-
-            if (0 != (conversionResult & TypeConversionResult.ImplicitLossy))
-            {
-                warnings.Add(Warning.ImplicitConversion(startLine, variableName, toType.ToString(), fromType.ToString()));
-            }
-
-            return new AssignmentResult(warnings.Count == 0, warnings);
+            var fullOther = (FullSqlTypeInfo)other;
+            return ((FullSqlTypeInfo)this).CheckFullAssignment(startLine, variableName, fullOther);
         }
 
-        private static bool IsStringLike(SqlDataTypeOption typeOption)
-        {
-            return typeOption == SqlDataTypeOption.Char ||
-                typeOption == SqlDataTypeOption.VarChar ||
-                typeOption == SqlDataTypeOption.NChar ||
-                typeOption == SqlDataTypeOption.NVarChar;
-        }
-
-        /// <summary>
-        /// A special value for when we don't know the value of the expression
-        /// </summary>
-        private static SqlTypeInfo unknown = new SqlTypeInfo(null);
-
-        public static SqlTypeInfo Unknown
-        {
-            get { return unknown; }
-        }
-
-        public static SqlTypeInfo Create(DataTypeReference dataType)
-        {
-            return new SqlTypeInfo(dataType);
-        }
-
-        // NB dataType can be null
-        private SqlTypeInfo(DataTypeReference dataType)
-        {
-            DataType = dataType;
-
-            var sqlDataType = dataType as SqlDataTypeReference;
-            if (null != sqlDataType)
-            {
-                this.TypeOption = sqlDataType.SqlDataTypeOption;
-
-                Length = GetMaxLengthOfStringVariable(sqlDataType);
-            }
-        }
-
-        private SqlDataTypeOption? TypeOption { get; set; }
-
-        private int Length { get; set; } = -1;
-
-        public bool IsImplicitLengthString()
-        {
-            var sqlDataType = DataType as SqlDataTypeReference;
-            if (null == DataType)
-            {
-                return false;
-            }
-
-            if (!IsStringLike(sqlDataType.SqlDataTypeOption))
-            {
-                return false;
-            }
-
-            return ExplicitLength(sqlDataType) == null;
-        }
-
-        private static int? ExplicitLength(SqlDataTypeReference typeReference)
-        {
-            foreach (var param in typeReference.Parameters)
-            {
-                if (param.LiteralType == LiteralType.Integer)
-                {
-                    return Convert.ToInt32(param.Value);
-                }
-                else if (param.LiteralType == LiteralType.Max)
-                {
-                    return int.MaxValue; // isn't it different for char(max)?                    
-                }
-            }
-
-            return null;
-        }
-
-        private static int GetMaxLengthOfStringVariable(SqlDataTypeReference typeReference)
-        {
-            int length = -1;
-            if (IsStringLike(typeReference.SqlDataTypeOption))
-            {
-                length = ExplicitLength(typeReference) ?? 1;
-            }
-
-            return length;
-        }
+        public abstract string TypeName { get; }
     }
 }

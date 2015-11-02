@@ -28,7 +28,7 @@
         {
             DeclaredVariables[node.VariableName.Value] = new Variable(node.DataType) { Node = node.VariableName };
             base.ExplicitVisit(node);
-            CheckForValidAssignment(node.VariableName.Value, node.DataType, node.Value);
+            CheckForValidAssignment(node.VariableName.Value, node.Value);
         }
 
         public override void ExplicitVisit(SetVariableStatement node)
@@ -37,7 +37,7 @@
             Variable target;
             if (DeclaredVariables.TryGetValue(node.Variable.Name, out target))
             {
-                CheckForValidAssignment(node.Variable.Name, target.SqlTypeInfo.DataType, node.Expression);
+                CheckForValidAssignment(node.Variable.Name, node.Expression);
             }
         }
 
@@ -47,7 +47,7 @@
             SqlTypeInfo targetType = SqlTypeInfo.Create(node.DataType);
             if (targetType.IsImplicitLengthString())
             {
-                Warnings.Add(Warning.ConvertToVarCharOfUnspecifiedLength(node.StartLine, "CONVERT", ((SqlDataTypeReference)targetType.DataType).SqlDataTypeOption.ToString()));
+                Warnings.Add(Warning.ConvertToVarCharOfUnspecifiedLength(node.StartLine, "CONVERT", targetType.TypeName));
             }
         }
 
@@ -57,11 +57,11 @@
             SqlTypeInfo targetType = SqlTypeInfo.Create(node.DataType);
             if (targetType.IsImplicitLengthString())
             {
-                Warnings.Add(Warning.ConvertToVarCharOfUnspecifiedLength(node.StartLine, "CAST", ((SqlDataTypeReference)targetType.DataType).SqlDataTypeOption.ToString()));
+                Warnings.Add(Warning.ConvertToVarCharOfUnspecifiedLength(node.StartLine, "CAST", targetType.TypeName));
             }
         }
 
-        private void CheckForValidAssignment(string variableName, DataTypeReference dataType, ScalarExpression value)
+        private void CheckForValidAssignment(string variableName, ScalarExpression value)
         {
             if (null == value)
             {
@@ -94,12 +94,7 @@
         }
 
         private SqlTypeInfo GetTypeInfoForExpression(ScalarExpression value)
-        {
-            if (null == value)
-            {
-                return SqlTypeInfo.Unknown; // no expression, nothing to check
-            }
-
+        {            
             // consider - we fake a datatype for the string literal, which is a bit ugly. Is there a better way?
             var stringLiteralValue = value as StringLiteral;
             if (null != stringLiteralValue)
