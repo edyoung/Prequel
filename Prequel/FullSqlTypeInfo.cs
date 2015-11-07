@@ -37,6 +37,14 @@
                 }
             }
 
+            if (0 != (conversionResult & TypeConversionResult.CheckConvertedLength))
+            {
+                if (this.Length < other.Length)
+                {
+                    warnings.Add(Warning.ConvertToTooShortString(startLine, variableName, this.Length, other.Length));
+                }
+            }
+
             if (0 != (conversionResult & TypeConversionResult.Narrowing))
             {
                 warnings.Add(Warning.StringConverted(startLine, variableName));
@@ -102,6 +110,13 @@
             if (IsStringLike(typeReference.SqlDataTypeOption))
             {
                 length = ExplicitLength(typeReference) ?? 1;
+            }
+
+            switch(typeReference.SqlDataTypeOption)
+            {
+                case SqlDataTypeOption.Int:
+                    length = Int32.MinValue.ToString().Length;
+                    break;
             }
 
             return length;

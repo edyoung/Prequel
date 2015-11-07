@@ -16,7 +16,8 @@
         StringTruncated,
         StringConverted,
         ImplicitConversion,
-        ConvertToVarCharOfUnspecifiedLength
+        ConvertToVarCharOfUnspecifiedLength,
+        ConvertToTooShortString
     }
     
     public enum WarningLevel
@@ -98,6 +99,11 @@
             return new Warning(line, WarningID.ConvertToVarCharOfUnspecifiedLength, string.Format("{0} to type {1} without specifying length may lead to unexpected truncation.", operation, type));
         }
 
+        public static Warning ConvertToTooShortString(int line, string variableName, int targetLength, int sourceLength)
+        {
+            return new Warning(line, WarningID.ConvertToTooShortString, $"Variable {variableName} has length {targetLength} and is assigned a value which could be up to {sourceLength} characters when converted to a string");
+        }
+
         [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1118:ParameterMustNotSpanMultipleLines", Justification = "Long doc strings")]
         private static IDictionary<WarningID, WarningInfo> CreateWarningInfoMap()
         {
@@ -133,7 +139,7 @@
                     WarningID.StringTruncated,
                     WarningLevel.Serious,
                     "Fixed-length or variable-length variable assigned a value greater than it can hold",
-                    "A variable was assigned a string which is too large for it to hold. The string will be truncated, which is probably not desired."),
+                    "A variable was assigned a string which could be too large for it to hold. The string will be truncated, which is probably not desired."),
 
                 new WarningInfo(
                     WarningID.StringConverted,
@@ -152,7 +158,13 @@ SQL will implicitly convert them, but it's possible this wasn't what you wanted.
                     WarningID.ConvertToVarCharOfUnspecifiedLength,
                     WarningLevel.Serious,
                     "CONVERT to variable with implicit length",
-                    @"CONVERT(char, ...) implicitly truncates values longer than 30 characters, which is often unexpected. If you really want 30, use CONVERT(char(30), ...)")                    
+                    @"CONVERT(char, ...) implicitly truncates values longer than 30 characters, which is often unexpected. If you really want 30, use CONVERT(char(30), ...)"),
+                
+                new WarningInfo(
+                    WarningID.ConvertToTooShortString,
+                    WarningLevel.Serious,
+                    "Conversion to string might be too long",
+                    "A variable was assigned to a string which could be too large for it to hold when converted to a string.")                    
             };
 
             foreach (var w in warnings)

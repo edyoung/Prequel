@@ -38,9 +38,14 @@
         NotAllowed = 16,
 
         /// <summary>
+        /// A will be converted to string, check max length of that
+        /// </summary>
+        CheckConvertedLength = 32,
+
+        /// <summary>
         /// Prequel doesn't know what will happen. Claim everything is great
         /// </summary>
-        NotImplemented = 32
+        NotImplemented = 1 << 16
     }
 
     public static class TypeConversionHelper
@@ -77,6 +82,9 @@
             conversions.Add(SqlDataTypeOption.NVarChar, SqlDataTypeOption.VarChar, TypeConversionResult.CheckLength | TypeConversionResult.Narrowing);
             conversions.Add(SqlDataTypeOption.NVarChar, SqlDataTypeOption.NChar, TypeConversionResult.CheckLength);
             conversions.Add(SqlDataTypeOption.NVarChar, SqlDataTypeOption.NVarChar, TypeConversionResult.CheckLength);
+
+            // from Int
+            conversions.Add(SqlDataTypeOption.Int, SqlDataTypeOption.Char, TypeConversionResult.CheckConvertedLength);
 
             return conversions;
         }

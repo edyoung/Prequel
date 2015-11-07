@@ -466,6 +466,16 @@ set @tooshort = @toolong
             var results = Check("DECLARE @myVariable AS varchar(50) = cast('01234567890123456789012345678901234567890123456789' as varchar);");
             Warning w = MyAssert.OneWarningOfType(WarningID.ConvertToVarCharOfUnspecifiedLength, results);
         }
+
+        #endregion
+
+        #region int to string conversions
+        [Fact]
+        public void ConvertIntToSmallCharWarns()
+        {
+            var results = Check("DECLARE @x as char(2); declare @y as int; set @x = @y");
+            Warning w = MyAssert.OneWarningOfType(WarningID.ConvertToTooShortString, results);            
+        }
         #endregion
     }
 }
