@@ -117,6 +117,9 @@
                 case SqlDataTypeOption.Int:
                     length = Int32.MinValue.ToString().Length;
                     break;
+                case SqlDataTypeOption.SmallInt:
+                    length = Int16.MinValue.ToString().Length;
+                    break;
             }
 
             return length;

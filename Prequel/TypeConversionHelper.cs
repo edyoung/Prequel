@@ -85,6 +85,15 @@
 
             // from Int
             conversions.Add(SqlDataTypeOption.Int, SqlDataTypeOption.Char, TypeConversionResult.CheckConvertedLength);
+            conversions.Add(SqlDataTypeOption.Int, SqlDataTypeOption.VarChar, TypeConversionResult.CheckConvertedLength);
+            conversions.Add(SqlDataTypeOption.Int, SqlDataTypeOption.NChar, TypeConversionResult.CheckConvertedLength);
+            conversions.Add(SqlDataTypeOption.Int, SqlDataTypeOption.NVarChar, TypeConversionResult.CheckConvertedLength);
+
+            // from smallint
+            conversions.Add(SqlDataTypeOption.SmallInt, SqlDataTypeOption.Char, TypeConversionResult.CheckConvertedLength);
+            conversions.Add(SqlDataTypeOption.SmallInt, SqlDataTypeOption.VarChar, TypeConversionResult.CheckConvertedLength);
+            conversions.Add(SqlDataTypeOption.SmallInt, SqlDataTypeOption.NChar, TypeConversionResult.CheckConvertedLength);
+            conversions.Add(SqlDataTypeOption.SmallInt, SqlDataTypeOption.NVarChar, TypeConversionResult.CheckConvertedLength);
 
             return conversions;
         }

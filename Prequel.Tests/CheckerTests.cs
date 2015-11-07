@@ -464,7 +464,7 @@ set @tooshort = @toolong
         public void CastToVarCharWithoutLengthWarns()
         {
             var results = Check("DECLARE @myVariable AS varchar(50) = cast('01234567890123456789012345678901234567890123456789' as varchar);");
-            Warning w = MyAssert.OneWarningOfType(WarningID.ConvertToVarCharOfUnspecifiedLength, results);
+            MyAssert.OneWarningOfType(WarningID.ConvertToVarCharOfUnspecifiedLength, results);
         }
 
         #endregion
@@ -474,8 +474,23 @@ set @tooshort = @toolong
         public void ConvertIntToSmallCharWarns()
         {
             var results = Check("DECLARE @x as char(2); declare @y as int; set @x = @y");
-            Warning w = MyAssert.OneWarningOfType(WarningID.ConvertToTooShortString, results);            
+            MyAssert.OneWarningOfType(WarningID.ConvertToTooShortString, results);            
         }
+
+        [Fact]
+        public void ConvertIntToLongCharNoWarning()
+        {
+            var results = Check("DECLARE @x as char(12); declare @y as int; set @x = @y");
+            MyAssert.NoWarningsOfType(WarningID.ConvertToTooShortString, results);
+        }
+
+        [Fact]
+        public void ConvertSmallintToSmallVarcharWarns()
+        {
+            var results = Check("DECLARE @x as varchar(2); declare @y as smallint; set @x = @y");
+            MyAssert.OneWarningOfType(WarningID.ConvertToTooShortString, results);
+        }
+
         #endregion
     }
 }
