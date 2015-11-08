@@ -122,6 +122,12 @@
                 return SqlTypeInfo.CreateFromBinaryExpression(leftType, rightType, binaryExpression.BinaryExpressionType);
             }
 
+            var parenthesisExpression = value as ParenthesisExpression;
+            if (null != parenthesisExpression)
+            {
+                return GetTypeInfoForExpression(parenthesisExpression.Expression);
+            }
+
             return SqlTypeInfo.Unknown;
         }
 

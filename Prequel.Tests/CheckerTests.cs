@@ -489,6 +489,17 @@ set @tooshort = @toolong
 
         #endregion
 
+        #region parenthesis
+
+        [Fact]
+        public void AssignmentThroughParenthesisStillWarns()
+        {
+            var results = Check($"DECLARE @x as char(2); declare @y as int; set @x = (@y)");
+            MyAssert.OneWarningOfType(WarningID.ConvertToTooShortString, results);
+        }
+
+        #endregion
+
         #region datatypes from arithmetic
 
         [Fact]
@@ -519,6 +530,13 @@ set @tooshort = @toolong
             MyAssert.NoWarningsOfType(WarningID.ConvertToTooShortString, results);
         }
        
+        [Fact]
+        public void ConvertIntFromMoreArithmeticToSmallCharWarns()
+        {
+            var results = Check("DECLARE @x as varchar(6); declare @y as int; declare @z as smallint; set @x = ((@z + @z) * (@y- @y) / @z)");
+            MyAssert.OneWarningOfType(WarningID.ConvertToTooShortString, results);
+        }
+
         #endregion
     }
 }
