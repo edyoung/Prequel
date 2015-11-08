@@ -263,6 +263,14 @@ exec foo @b
             MyAssert.OneWarningOfType(WarningID.UndeclaredVariableUsed, results);
         }
 
+        [Fact]
+        public void VariableDeclaredWithCustomTypeNoWarning()
+        {
+            var results = Check("declare @a MyType, @b MyType2; set @a = @b");
+            MyAssert.NoWarningsOfType(WarningID.UndeclaredVariableUsed, results);
+        }
+
+
         // Used just to have a convenient place to paste snippets to try out
         [Fact]
         public void Experiment()
