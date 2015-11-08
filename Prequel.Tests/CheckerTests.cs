@@ -498,9 +498,24 @@ set @tooshort = @toolong
         [Fact]
         public void ConvertIntFromArithmeticToSmallCharWarns()
         {
-            var results = Check("DECLARE @x as varchar(2); declare @y as smallint; declare @z as int; set @x = @y + @z");
+            var results = Check("DECLARE @x as varchar(6); declare @y as smallint; declare @z as int; set @x = @y + @z");
             MyAssert.OneWarningOfType(WarningID.ConvertToTooShortString, results);
         }
+
+        [Fact]
+        public void ConvertSmallIntFromArithmeticToSmallCharWarns()
+        {
+            var results = Check("DECLARE @x as varchar(2); declare @y as smallint; declare @z as smallint; set @x = @y + @z");
+            MyAssert.OneWarningOfType(WarningID.ConvertToTooShortString, results);
+        }
+
+        [Fact]
+        public void ConvertSmallIntFromArithmeticToLargeEnoughCharNoWarning()
+        {
+            var results = Check("DECLARE @x as varchar(6); declare @y as smallint; declare @z as smallint; set @x = @y + @z");
+            MyAssert.NoWarningsOfType(WarningID.ConvertToTooShortString, results);
+        }
+
         #endregion
     }
 }

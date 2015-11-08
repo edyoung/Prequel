@@ -102,11 +102,42 @@
 
         // Encodes the precedence rules in https://msdn.microsoft.com/en-us/library/ms190309.aspx
         private static IDictionary<SqlDataTypeOption, int> CreatePrecedenceTable()
-        {
+        {            
             var table = new Dictionary<SqlDataTypeOption, int>();
-
+            
+            table[SqlDataTypeOption.None] = 0;
+            
+            // 1 == user defined
+            table[SqlDataTypeOption.Sql_Variant] = 2;
+            
+            // 3 what happened to XML?
+            table[SqlDataTypeOption.DateTimeOffset] = 4;
+            table[SqlDataTypeOption.DateTime2] = 5;
+            table[SqlDataTypeOption.DateTime] = 6;            
+            table[SqlDataTypeOption.SmallDateTime] = 7;
+            table[SqlDataTypeOption.Date] = 8;
+            table[SqlDataTypeOption.Time] = 9;
+            table[SqlDataTypeOption.Float] = 10;
+            table[SqlDataTypeOption.Real] = 11;
+            table[SqlDataTypeOption.Decimal] = 12;
+            table[SqlDataTypeOption.Money] = 13;
+            table[SqlDataTypeOption.SmallMoney] = 14;
+            table[SqlDataTypeOption.BigInt] = 15;
             table[SqlDataTypeOption.Int] = 16;
             table[SqlDataTypeOption.SmallInt] = 17;
+            table[SqlDataTypeOption.TinyInt] = 18;
+            table[SqlDataTypeOption.Bit] = 19;
+            table[SqlDataTypeOption.NText] = 20;
+            table[SqlDataTypeOption.Text] = 21;
+            table[SqlDataTypeOption.Image] = 22;
+            table[SqlDataTypeOption.Timestamp] = 23;
+            table[SqlDataTypeOption.UniqueIdentifier] = 24;
+            table[SqlDataTypeOption.NVarChar] = 25;
+            table[SqlDataTypeOption.NChar] = 26;
+            table[SqlDataTypeOption.VarChar] = 27;
+            table[SqlDataTypeOption.Char] = 28;
+            table[SqlDataTypeOption.VarBinary] = 29;
+            table[SqlDataTypeOption.Binary] = 30;
             return table;
         }
 
