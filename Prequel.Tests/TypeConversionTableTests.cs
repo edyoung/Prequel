@@ -13,7 +13,7 @@ namespace Prequel.Tests
         private static readonly SqlDataTypeOption[] stringTypes = new SqlDataTypeOption[] { SqlDataTypeOption.Char, SqlDataTypeOption.NChar, SqlDataTypeOption.VarChar, SqlDataTypeOption.NVarChar };
 
         private static readonly SqlDataTypeOption[] numericTypes = new SqlDataTypeOption[] {
-            //SqlDataTypeOption.BigInt,
+            SqlDataTypeOption.BigInt,
             //SqlDataTypeOption.Decimal,
             //SqlDataTypeOption.Float,
             SqlDataTypeOption.Int,

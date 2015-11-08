@@ -130,6 +130,9 @@
                 case SqlDataTypeOption.SmallInt:
                     length = short.MinValue.ToString().Length;
                     break;
+                case SqlDataTypeOption.BigInt:
+                    length = long.MinValue.ToString().Length;
+                    break;
             }
 
             return length;

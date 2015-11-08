@@ -470,10 +470,13 @@ set @tooshort = @toolong
         #endregion
 
         #region int to string conversions
-        [Fact]
-        public void ConvertIntToSmallCharWarns()
+        [InlineData("int")]
+        [InlineData("smallint")]
+        [InlineData("bigint")]
+        [Theory]
+        public void ConvertIntToSmallCharWarns(string type)
         {
-            var results = Check("DECLARE @x as char(2); declare @y as int; set @x = @y");
+            var results = Check($"DECLARE @x as char(2); declare @y as {type}; set @x = @y");
             MyAssert.OneWarningOfType(WarningID.ConvertToTooShortString, results);            
         }
 
@@ -482,13 +485,6 @@ set @tooshort = @toolong
         {
             var results = Check("DECLARE @x as char(12); declare @y as int; set @x = @y");
             MyAssert.NoWarningsOfType(WarningID.ConvertToTooShortString, results);
-        }
-
-        [Fact]
-        public void ConvertSmallintToSmallVarcharWarns()
-        {
-            var results = Check("DECLARE @x as varchar(2); declare @y as smallint; set @x = @y");
-            MyAssert.OneWarningOfType(WarningID.ConvertToTooShortString, results);
         }
 
         #endregion
@@ -515,7 +511,7 @@ set @tooshort = @toolong
             var results = Check("DECLARE @x as varchar(6); declare @y as smallint; declare @z as smallint; set @x = @y + @z");
             MyAssert.NoWarningsOfType(WarningID.ConvertToTooShortString, results);
         }
-
+       
         #endregion
     }
 }
