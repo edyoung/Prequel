@@ -1,7 +1,7 @@
 ﻿namespace Prequel
 {
-    using Microsoft.SqlServer.TransactSql.ScriptDom;
     using System.Collections.Generic;
+    using Microsoft.SqlServer.TransactSql.ScriptDom;
 
     /// <summary>
     /// Holds all the currently known variables
@@ -63,6 +63,5 @@
                 }
             }
         }
-
     }
 }

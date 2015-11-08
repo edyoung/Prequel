@@ -66,6 +66,16 @@
                 typeOption == SqlDataTypeOption.NVarChar;
         }
 
+        internal SqlTypeInfo GetHigherPrecedenceType(FullSqlTypeInfo rightType)
+        {
+            if (TypeConversionHelper.IsHigherPrecedence(this.TypeOption, rightType.TypeOption))
+            {
+                return this;
+            }
+
+            return rightType;
+        }
+
         internal FullSqlTypeInfo(SqlDataTypeReference dataType)
         {
             DataType = dataType;
@@ -112,13 +122,13 @@
                 length = ExplicitLength(typeReference) ?? 1;
             }
 
-            switch(typeReference.SqlDataTypeOption)
+            switch (typeReference.SqlDataTypeOption)
             {
                 case SqlDataTypeOption.Int:
-                    length = Int32.MinValue.ToString().Length;
+                    length = int.MinValue.ToString().Length;
                     break;
                 case SqlDataTypeOption.SmallInt:
-                    length = Int16.MinValue.ToString().Length;
+                    length = short.MinValue.ToString().Length;
                     break;
             }
 

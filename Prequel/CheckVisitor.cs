@@ -114,6 +114,14 @@
                 return SqlTypeInfo.Create(castCall.DataType);
             }
 
+            var binaryExpression = value as BinaryExpression;
+            if (null != binaryExpression)
+            {
+                var leftType = GetTypeInfoForExpression(binaryExpression.FirstExpression);
+                var rightType = GetTypeInfoForExpression(binaryExpression.SecondExpression);
+                return SqlTypeInfo.CreateFromBinaryExpression(leftType, rightType, binaryExpression.BinaryExpressionType);
+            }
+
             return SqlTypeInfo.Unknown;
         }
 

@@ -98,6 +98,27 @@
             return conversions;
         }
 
+        private static IDictionary<SqlDataTypeOption, int> precedenceTable = CreatePrecedenceTable();
+
+        // Encodes the precedence rules in https://msdn.microsoft.com/en-us/library/ms190309.aspx
+        private static IDictionary<SqlDataTypeOption, int> CreatePrecedenceTable()
+        {
+            var table = new Dictionary<SqlDataTypeOption, int>();
+
+            table[SqlDataTypeOption.Int] = 16;
+            table[SqlDataTypeOption.SmallInt] = 17;
+            return table;
+        }
+
+        internal static bool IsHigherPrecedence(SqlDataTypeOption t1, SqlDataTypeOption t2)
+        {
+            int precedenceOfType1 = 0;
+            precedenceTable.TryGetValue(t1, out precedenceOfType1);
+            int precedenceOfType2 = 0;
+            precedenceTable.TryGetValue(t2, out precedenceOfType2);
+            return precedenceOfType1 < precedenceOfType2;            
+        }
+
         public static TypeConversionResult GetConversionResult(SqlDataTypeOption from, SqlDataTypeOption to)
         {
             TypeConversionResult result = TypeConversionResult.NotImplemented;

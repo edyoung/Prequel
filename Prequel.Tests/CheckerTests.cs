@@ -492,5 +492,15 @@ set @tooshort = @toolong
         }
 
         #endregion
+
+        #region datatypes from arithmetic
+
+        [Fact]
+        public void ConvertIntFromArithmeticToSmallCharWarns()
+        {
+            var results = Check("DECLARE @x as varchar(2); declare @y as smallint; declare @z as int; set @x = @y + @z");
+            MyAssert.OneWarningOfType(WarningID.ConvertToTooShortString, results);
+        }
+        #endregion
     }
 }

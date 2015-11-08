@@ -32,7 +32,7 @@
 
             return new FullSqlTypeInfo(sqlDataType);
         }
-
+        
         public virtual bool IsImplicitLengthString()
         {
             return false;
@@ -55,5 +55,21 @@
         }
 
         public abstract string TypeName { get; }
+
+        internal static SqlTypeInfo CreateFromBinaryExpression(SqlTypeInfo leftType, SqlTypeInfo rightType, BinaryExpressionType binaryExpressionType)
+        {
+            if (leftType == SqlTypeInfo.Unknown || rightType == SqlTypeInfo.Unknown)
+            {
+                return SqlTypeInfo.Unknown;
+            }
+
+            if (binaryExpressionType != BinaryExpressionType.Add)
+            {
+                return SqlTypeInfo.Unknown; // TODO: support other expressions
+            }
+
+            SqlTypeInfo higherPrecedenceType = ((FullSqlTypeInfo)leftType).GetHigherPrecedenceType((FullSqlTypeInfo)rightType);
+            return higherPrecedenceType;
+        }
     }
 }
