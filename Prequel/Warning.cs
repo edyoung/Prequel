@@ -57,46 +57,43 @@
 
         public static Warning ProcedureWithSPPrefix(int line, string procedureName)
         {
-            return new Warning(line, WarningID.ProcedureWithSPPrefix,
-                string.Format("Procedure {0} should not start with sp_", procedureName));
+            return new Warning(line, WarningID.ProcedureWithSPPrefix, $"Procedure {procedureName} should not start with sp_");
         }
 
         public static Warning ProcedureWithoutNoCount(int line, string procedureName)
         {
-            return new Warning(line, WarningID.ProcedureWithoutNoCount,
-                string.Format("Procedure {0} does not SET NOCOUNT ON", procedureName));
+            return new Warning(line, WarningID.ProcedureWithoutNoCount, $"Procedure {procedureName} does not SET NOCOUNT ON");
         }
 
         public static Warning UndeclaredVariableUsed(int line, string variableName)
         {
-            return new Warning(line, WarningID.UndeclaredVariableUsed,
-                string.Format("Variable {0} used before being declared", variableName));
+            return new Warning(line, WarningID.UndeclaredVariableUsed, $"Variable {variableName} used before being declared");
         }
 
         internal static Warning ImplicitConversion(int line, string variableName, string destinationType, string sourceType)
         {
             return new Warning(line, WarningID.ImplicitConversion, 
-                string.Format("Variable {0} has type {1} and is assigned a value of type {2}. Consider CAST or CONVERT to make the conversion explicit", variableName, destinationType, sourceType));
+                $"Variable {variableName} has type {destinationType} and is assigned a value of type {sourceType}. Consider CAST or CONVERT to make the conversion explicit");
         }
 
         public static Warning UnusedVariableDeclared(int line, string variableName)
         {
-            return new Warning(line, WarningID.UnusedVariableDeclared, string.Format("Variable {0} declared but never used", variableName));
+            return new Warning(line, WarningID.UnusedVariableDeclared, $"Variable {variableName} declared but never used");
         }
         
         public static Warning StringTruncated(int line, string variableName, int targetLength, int sourceLength)
         {
-            return new Warning(line, WarningID.StringTruncated, string.Format("Variable {0} has length {1} and is assigned a value with length up to {2}, which might be truncated", variableName, targetLength, sourceLength));
+            return new Warning(line, WarningID.StringTruncated, $"Variable {variableName} has length {targetLength} and is assigned a value with length up to {sourceLength}, which might be truncated");
         }
 
         public static Warning StringConverted(int line, string variableName)
         {
-            return new Warning(line, WarningID.StringConverted, string.Format("Variable {0} is of 8-bit (char or varchar) type but is assigned a unicode value.", variableName));
+            return new Warning(line, WarningID.StringConverted, $"Variable {variableName} is of 8-bit (char or varchar) type but is assigned a unicode value.");
         }
 
         public static Warning ConvertToVarCharOfUnspecifiedLength(int line, string operation, string type)
         {
-            return new Warning(line, WarningID.ConvertToVarCharOfUnspecifiedLength, string.Format("{0} to type {1} without specifying length may lead to unexpected truncation.", operation, type));
+            return new Warning(line, WarningID.ConvertToVarCharOfUnspecifiedLength, $"{operation} to type {type} without specifying length may lead to unexpected truncation.");
         }
 
         public static Warning ConvertToTooShortString(int line, string variableName, int targetLength, int sourceLength)
