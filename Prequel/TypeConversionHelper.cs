@@ -101,7 +101,6 @@
             conversions.Add(SqlDataTypeOption.BigInt, SqlDataTypeOption.NChar, TypeConversionResult.CheckConvertedLength);
             conversions.Add(SqlDataTypeOption.BigInt, SqlDataTypeOption.NVarChar, TypeConversionResult.CheckConvertedLength);
 
-
             return conversions;
         }
 

@@ -32,7 +32,7 @@
 
             return new FullSqlTypeInfo(sqlDataType);
         }
-        
+
         public virtual bool IsImplicitLengthString()
         {
             return false;
@@ -63,13 +63,16 @@
                 return SqlTypeInfo.Unknown;
             }
 
-            if (binaryExpressionType != BinaryExpressionType.Add)
+            // these binary expressions produce a result of the highest-precedence type of their operands
+            if (binaryExpressionType == BinaryExpressionType.Add
+                || binaryExpressionType == BinaryExpressionType.Subtract
+                || binaryExpressionType == BinaryExpressionType.Multiply
+                || binaryExpressionType == BinaryExpressionType.Divide)
             {
-                return SqlTypeInfo.Unknown; // TODO: support other expressions
+                return ((FullSqlTypeInfo)leftType).GetHigherPrecedenceType((FullSqlTypeInfo)rightType);
             }
 
-            SqlTypeInfo higherPrecedenceType = ((FullSqlTypeInfo)leftType).GetHigherPrecedenceType((FullSqlTypeInfo)rightType);
-            return higherPrecedenceType;
+            return SqlTypeInfo.Unknown; // TODO: support other expressions
         }
     }
 }
