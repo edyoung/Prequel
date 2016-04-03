@@ -27,6 +27,12 @@ namespace Prequel.Tests
         }
 
         [Fact]
+        public void ArgsButNoFileRaisesUsageException()
+        {
+            Assert.Throws<ProgramTerminatingException>(() => new Arguments("/v:2008"));
+        }
+        
+        [Fact]
         public void ArgumentsHasUsageDescription()
         {
             Assert.NotNull(Arguments.UsageDescription);

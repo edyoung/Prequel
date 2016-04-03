@@ -11,22 +11,20 @@
 
     public class Arguments
     {
-        private string[] args;
         private IList<Input> inputs = new List<Input>();
 
         public Arguments(params string[] args)
         {
             SetDefaults();
-            if (args.Length == 0)
+
+            foreach (var arg in args)
             {
-                throw new ProgramTerminatingException("You must specify at least one file to check");
+                ProcessArgument(arg);
             }
 
-            this.args = args;
-
-            for (int i = 0; i < args.Length; ++i)
+            if (Inputs.Count == 0)
             {
-                ProcessArgument(i, args);
+                throw new ProgramTerminatingException("You must specify at least one file to check");
             }
         }
 
@@ -63,9 +61,9 @@ string.Join("\n", flagDescriptions));
 
         public WarningLevel WarningLevel { get; internal set; }
 
-        private void ProcessArgument(int i, string[] args)
+        private void ProcessArgument(string arg)
         {
-            string currentArg = args[i].ToLowerInvariant();
+            string currentArg = arg.ToLowerInvariant();
             if (currentArg.StartsWith("/") || currentArg.StartsWith("-"))
             {
                 ProcessFlag(currentArg.Substring(1));
