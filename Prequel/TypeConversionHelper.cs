@@ -43,6 +43,11 @@
         CheckConvertedLength = 32,
 
         /// <summary>
+        /// A will be converted to a smaller numeric type, could lead to overflow
+        /// </summary>
+        NumericOverflow = 64,
+
+        /// <summary>
         /// Prequel doesn't know what will happen. Claim everything is great
         /// </summary>
         NotImplemented = 1 << 16
@@ -88,6 +93,8 @@
             conversions.Add(SqlDataTypeOption.Int, SqlDataTypeOption.VarChar, TypeConversionResult.CheckConvertedLength);
             conversions.Add(SqlDataTypeOption.Int, SqlDataTypeOption.NChar, TypeConversionResult.CheckConvertedLength);
             conversions.Add(SqlDataTypeOption.Int, SqlDataTypeOption.NVarChar, TypeConversionResult.CheckConvertedLength);
+
+            conversions.Add(SqlDataTypeOption.Int, SqlDataTypeOption.SmallInt, TypeConversionResult.NumericOverflow);
 
             // from smallint
             conversions.Add(SqlDataTypeOption.SmallInt, SqlDataTypeOption.Char, TypeConversionResult.CheckConvertedLength);

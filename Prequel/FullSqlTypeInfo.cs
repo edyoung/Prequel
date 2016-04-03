@@ -55,6 +55,11 @@
                 warnings.Add(Warning.ImplicitConversion(startLine, variableName, toType.ToString(), fromType.ToString()));
             }
 
+            if (0 != (conversionResult & TypeConversionResult.NumericOverflow))
+            {
+                warnings.Add(Warning.NumericOverflow(startLine, variableName, toType.ToString(), fromType.ToString()));
+            }
+
             return new AssignmentResult(warnings.Count == 0, warnings);
         }
 

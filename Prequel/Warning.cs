@@ -12,14 +12,15 @@
         UndeclaredVariableUsed = 1,
         UnusedVariableDeclared,
         ProcedureWithoutNoCount,
-        ProcedureWithSPPrefix,        
+        ProcedureWithSPPrefix,
         StringTruncated,
         StringConverted,
         ImplicitConversion,
         ConvertToVarCharOfUnspecifiedLength,
-        ConvertToTooShortString
+        ConvertToTooShortString,
+        NumericOverflow
     }
-    
+
     public enum WarningLevel
     {
         None = 0,
@@ -28,9 +29,9 @@
         Minor = 3,
         Max = 3
     }
-    
+
     public class Warning
-    {        
+    {
         private static IDictionary<WarningID, WarningInfo> warningTypes = CreateWarningInfoMap();
 
         public static IDictionary<WarningID, WarningInfo> WarningTypes
@@ -72,15 +73,21 @@
 
         internal static Warning ImplicitConversion(int line, string variableName, string destinationType, string sourceType)
         {
-            return new Warning(line, WarningID.ImplicitConversion, 
+            return new Warning(line, WarningID.ImplicitConversion,
                 $"Variable {variableName} has type {destinationType} and is assigned a value of type {sourceType}. Consider CAST or CONVERT to make the conversion explicit");
+        }
+
+        public static Warning NumericOverflow(int line, string variableName, string destinationType, string sourceType)
+        {
+            return new Warning(line, WarningID.NumericOverflow,
+                $"Variable {variableName} has type {destinationType} and is assigned a value of type {sourceType}, which has a greater numeric range. This could cause overflow");
         }
 
         public static Warning UnusedVariableDeclared(int line, string variableName)
         {
             return new Warning(line, WarningID.UnusedVariableDeclared, $"Variable {variableName} declared but never used");
         }
-        
+
         public static Warning StringTruncated(int line, string variableName, int targetLength, int sourceLength)
         {
             return new Warning(line, WarningID.StringTruncated, $"Variable {variableName} has length {targetLength} and is assigned a value with length up to {sourceLength}, which might be truncated");
@@ -101,11 +108,13 @@
             return new Warning(line, WarningID.ConvertToTooShortString, $"Variable {variableName} has length {targetLength} and is assigned a value which could be up to {sourceLength} characters when converted to a string");
         }
 
+
+
         [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1118:ParameterMustNotSpanMultipleLines", Justification = "Long doc strings")]
         private static IDictionary<WarningID, WarningInfo> CreateWarningInfoMap()
         {
             IDictionary<WarningID, WarningInfo> warningInfo = new Dictionary<WarningID, WarningInfo>();
-            WarningInfo[] warnings = new[] 
+            WarningInfo[] warnings = new[]
             {
                 new WarningInfo(
                     WarningID.UndeclaredVariableUsed,
@@ -156,12 +165,18 @@ SQL will implicitly convert them, but it's possible this wasn't what you wanted.
                     WarningLevel.Serious,
                     "CONVERT to variable with implicit length",
                     @"CONVERT(char, ...) implicitly truncates values longer than 30 characters, which is often unexpected. If you really want 30, use CONVERT(char(30), ...)"),
-                
+
                 new WarningInfo(
                     WarningID.ConvertToTooShortString,
                     WarningLevel.Serious,
                     "Conversion to string might be too long",
-                    "A variable was assigned to a string which could be too large for it to hold when converted to a string.")                    
+                    "A variable was assigned to a string which could be too large for it to hold when converted to a string."),
+
+                new WarningInfo(
+                    WarningID.NumericOverflow,
+                    WarningLevel.Serious,
+                    "Variable assigned to smaller numeric type",
+                    "Assigning a numeric variable with a large range (eg Int) to one with a smaller range (eg SmallInt) can cause numeric overflow if the value is too large for the destination type")
             };
 
             foreach (var w in warnings)

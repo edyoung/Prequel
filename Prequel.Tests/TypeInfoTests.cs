@@ -95,6 +95,16 @@ namespace Prequel.Tests
             MyAssert.OneWarningOfType(WarningID.ImplicitConversion, result);
         }
 
+        [Fact]
+        public void Assign_Int_To_SmallInt_Warns()
+        {
+            SqlTypeInfo smallIntInfo = SqlTypeInfo.Create(new SqlDataTypeReference() { SqlDataTypeOption = SqlDataTypeOption.SmallInt });
+            SqlTypeInfo intInfo = SqlTypeInfo.Create(new SqlDataTypeReference() { SqlDataTypeOption = SqlDataTypeOption.Int });
+            AssignmentResult result = Check(smallIntInfo, intInfo);
+            Assert.False(result.IsOK);
+            MyAssert.OneWarningOfType(WarningID.NumericOverflow, result);
+        }
+
         private static AssignmentResult Check(SqlTypeInfo to, SqlTypeInfo from)
         {
             return to.CheckAssignment(0, "x", from);
