@@ -53,6 +53,25 @@
         NotImplemented = 1 << 16
     }
 
+    public struct NumericTraits
+    {
+        public long Min { get; private set; }
+
+        public long Max { get; private set; }
+
+        /// <summary>
+        /// if object A has a SizeClass >= object B's SizeClass, B can be assigned to A without risk of overlow
+        /// </summary>
+        public int SizeClass { get; private set;  } 
+
+        public NumericTraits(long min, long max, int sizeClass)
+        {
+            Min = min;
+            Max = max;
+            SizeClass = sizeClass;
+        }
+    }
+
     public static class TypeConversionHelper
     {
         // Encodes the table in https://msdn.microsoft.com/en-us/library/ms191530.aspx showing which types can be converted 
@@ -151,6 +170,18 @@
             table[SqlDataTypeOption.Char] = 28;
             table[SqlDataTypeOption.VarBinary] = 29;
             table[SqlDataTypeOption.Binary] = 30;
+            return table;
+        }
+
+        private static IDictionary<SqlDataTypeOption, NumericTraits> numericLimitTable = CreateNumericLimitTable();
+
+        // Encodes the size info from https://msdn.microsoft.com/en-us/library/ms187745.aspx
+        private static IDictionary<SqlDataTypeOption, NumericTraits> CreateNumericLimitTable()
+        {
+            var table = new Dictionary<SqlDataTypeOption, NumericTraits>();
+
+            table.Add(SqlDataTypeOption.Int, new NumericTraits(Int32.MinValue, Int32.MaxValue, sizeClass: 4));
+            table.Add(SqlDataTypeOption.SmallInt, new NumericTraits(Int16.MinValue, Int16.MinValue, sizeClass: 2));
             return table;
         }
 
