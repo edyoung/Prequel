@@ -113,7 +113,8 @@
             conversions.Add(SqlDataTypeOption.Int, SqlDataTypeOption.NChar, TypeConversionResult.CheckConvertedLength);
             conversions.Add(SqlDataTypeOption.Int, SqlDataTypeOption.NVarChar, TypeConversionResult.CheckConvertedLength);
 
-            conversions.Add(SqlDataTypeOption.Int, SqlDataTypeOption.SmallInt, TypeConversionResult.NumericOverflow);
+            conversions.Add(SqlDataTypeOption.Int, SqlDataTypeOption.TinyInt, TypeConversionResult.NumericOverflow);
+            conversions.Add(SqlDataTypeOption.Int, SqlDataTypeOption.SmallInt, TypeConversionResult.NumericOverflow);            
 
             // from smallint
             conversions.Add(SqlDataTypeOption.SmallInt, SqlDataTypeOption.Char, TypeConversionResult.CheckConvertedLength);

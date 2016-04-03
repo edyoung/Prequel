@@ -106,12 +106,31 @@ namespace Prequel.Tests
         }
 
         [Fact]
+        public void Assign_Int_To_TinyInt_Warns()
+        {
+            SqlTypeInfo smallIntInfo = SqlTypeInfo.Create(new SqlDataTypeReference() { SqlDataTypeOption = SqlDataTypeOption.TinyInt });
+            SqlTypeInfo intInfo = SqlTypeInfo.Create(new SqlDataTypeReference() { SqlDataTypeOption = SqlDataTypeOption.Int });
+            AssignmentResult result = Check(smallIntInfo, intInfo);
+            Assert.False(result.IsOK);
+            MyAssert.OneWarningOfType(WarningID.NumericOverflow, result);
+        }
+
+        [Fact]
         public void Assign_SmallInt_To_Int_NoWarning()
         {
             SqlTypeInfo smallIntInfo = SqlTypeInfo.Create(new SqlDataTypeReference() { SqlDataTypeOption = SqlDataTypeOption.SmallInt });
             SqlTypeInfo intInfo = SqlTypeInfo.Create(new SqlDataTypeReference() { SqlDataTypeOption = SqlDataTypeOption.Int });
             AssignmentResult result = Check(intInfo, smallIntInfo);
             Assert.True(result.IsOK);            
+        }
+
+        [Fact]
+        public void Assign_Int_To_BigInt_NoWarning()
+        {
+            SqlTypeInfo bigIntInfo = SqlTypeInfo.Create(new SqlDataTypeReference() { SqlDataTypeOption = SqlDataTypeOption.BigInt });
+            SqlTypeInfo intInfo = SqlTypeInfo.Create(new SqlDataTypeReference() { SqlDataTypeOption = SqlDataTypeOption.Int });
+            AssignmentResult result = Check(bigIntInfo, intInfo);
+            Assert.True(result.IsOK);
         }
 
         private static AssignmentResult Check(SqlTypeInfo to, SqlTypeInfo from)
