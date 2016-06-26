@@ -481,6 +481,7 @@ set @tooshort = @toolong
         [InlineData("int")]
         [InlineData("smallint")]
         [InlineData("bigint")]
+        [InlineData("tinyint")]
         [Theory]
         public void ConvertIntToSmallCharWarns(string type)
         {

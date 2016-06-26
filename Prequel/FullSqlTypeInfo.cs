@@ -138,6 +138,9 @@
                 case SqlDataTypeOption.BigInt:
                     length = long.MinValue.ToString().Length;
                     break;
+                case SqlDataTypeOption.TinyInt:
+                    length = byte.MaxValue.ToString().Length; // max rather than min because this is unsigned
+                    break;
             }
 
             return length;
