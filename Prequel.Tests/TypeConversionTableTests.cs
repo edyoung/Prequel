@@ -38,6 +38,7 @@ namespace Prequel.Tests
         }
 
         public static IEnumerable<object[]> NumberToString = Pairwise(numericTypes.AsEnumerable(), stringTypes.AsEnumerable());
+        public static IEnumerable<object[]> StringToString = Pairwise(stringTypes.AsEnumerable(), stringTypes.AsEnumerable());
 
         private static readonly SqlDataTypeOption[] allTypes = new SqlDataTypeOption[] {
             SqlDataTypeOption.Binary,
@@ -71,7 +72,8 @@ namespace Prequel.Tests
             SqlDataTypeOption.Sql_Variant
         };
 
-        [Fact]
+        [MemberData(nameof(StringToString))]
+        [Theory]
         public void AllStringToStringConversionsCheckLength()
         {
             foreach(SqlDataTypeOption t1 in stringTypes)
