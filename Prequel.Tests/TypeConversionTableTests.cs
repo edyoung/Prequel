@@ -34,6 +34,8 @@ namespace Prequel.Tests
                 {
                     var result = TypeConversionHelper.GetConversionResult(t1, t2);
                     Assert.False(0 == (result & TypeConversionResult.CheckLength), String.Format("converting {0} to {1} doesn't check length", t1, t2));
+                    var result2 = TypeConversionHelper.GetConversionResult2(t1, t2);
+                    Assert.Equal(result, result2);
                 }
             }
         }
