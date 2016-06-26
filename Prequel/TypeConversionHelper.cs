@@ -160,7 +160,7 @@
                 /* bigint            */ { ni, ni, cc, cc, cc, cc, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, __, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni},
                 /* int               */ { ni, ni, cc, cc, cc, cc, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, __, no, no, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni},
                 /* smallint          */ { ni, ni, cc, cc, cc, cc, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, __, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni},
-                /* tinyint           */ { ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, __, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni},
+                /* tinyint           */ { ni, ni, cc, cc, cc, cc, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, __, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni},
                 /* money             */ { ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, __, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni},
                 /* smallmoney        */ { ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, __, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni},
                 /* bit               */ { ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, __, ni, ni, ni, ni, ni, ni, ni, ni, ni},

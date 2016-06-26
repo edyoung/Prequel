@@ -22,8 +22,22 @@ namespace Prequel.Tests
             //SqlDataTypeOption.Real,
             SqlDataTypeOption.SmallInt,
             //SqlDataTypeOption.SmallMoney,
-            //SqlDataTypeOption.TinyInt};
+            SqlDataTypeOption.TinyInt        
         };
+
+
+        public static IEnumerable<object[]> Pairwise(IEnumerable<SqlDataTypeOption> seriesA, IEnumerable<SqlDataTypeOption> seriesB)
+        {
+            foreach(var a in seriesA)
+            {
+                foreach(var b in seriesB)
+                {
+                    yield return new object[] { a, b };
+                }
+            }
+        }
+
+        public static IEnumerable<object[]> NumberToString = Pairwise(numericTypes.AsEnumerable(), stringTypes.AsEnumerable());
 
         private static readonly SqlDataTypeOption[] allTypes = new SqlDataTypeOption[] {
             SqlDataTypeOption.Binary,
@@ -70,17 +84,12 @@ namespace Prequel.Tests
             }
         }
 
-        [Fact]
-        public void AllNumericToStringConversionsCheckConvertedLength()
+        [MemberData(nameof(NumberToString))]
+        [Theory]
+        public void AllNumericToStringConversionsCheckConvertedLength(SqlDataTypeOption numericType, SqlDataTypeOption stringType)
         {
-            foreach(SqlDataTypeOption numericType in numericTypes)
-            {
-                foreach(SqlDataTypeOption stringType in stringTypes)
-                {
-                    var result = TypeConversionHelper.GetConversionResult(numericType, stringType);
-                    Assert.False(0 == (result & TypeConversionResult.CheckConvertedLength), String.Format("converting {0} to {1} doesn't check length", numericType, stringType));
-                }
-            }
+           var result = TypeConversionHelper.GetConversionResult(numericType, stringType);
+           Assert.False(0 == (result & TypeConversionResult.CheckConvertedLength), String.Format("converting {0} to {1} doesn't check length", numericType, stringType));
         }
     }
 }
