@@ -74,16 +74,10 @@ namespace Prequel.Tests
 
         [MemberData(nameof(StringToString))]
         [Theory]
-        public void AllStringToStringConversionsCheckLength()
+        public void AllStringToStringConversionsCheckLength(SqlDataTypeOption t1, SqlDataTypeOption t2)
         {
-            foreach(SqlDataTypeOption t1 in stringTypes)
-            {
-                foreach(SqlDataTypeOption t2 in stringTypes)
-                {
-                    var result = TypeConversionHelper.GetConversionResult(t1, t2);
-                    Assert.False(0 == (result & TypeConversionResult.CheckLength), String.Format("converting {0} to {1} doesn't check length", t1, t2));
-                }
-            }
+            var result = TypeConversionHelper.GetConversionResult(t1, t2);
+            Assert.False(0 == (result & TypeConversionResult.CheckLength), String.Format("converting {0} to {1} doesn't check length", t1, t2));
         }
 
         [MemberData(nameof(NumberToString))]
