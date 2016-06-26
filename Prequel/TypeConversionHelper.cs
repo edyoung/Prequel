@@ -137,7 +137,6 @@
             const int nTypes = 32;
             var conversions = new TypeConversionResult[nTypes, nTypes]
             {
-                
 #pragma warning disable SA1005 // Single line comments must begin with single space
                 //                 to->   b   vb  ch  vc  nc  nv  dt  sd  d   t   do  d2  dc  nm  fl  re  bi  i   si  ti  $$  s$  bt  ts  ui  im  nt  tx  sv  xm  cu  hi
                 // from
@@ -177,8 +176,6 @@
 
             return conversions;
         }
-
-        
 
         private static IDictionary<SqlDataTypeOption, int> precedenceTable = CreatePrecedenceTable();
 
@@ -260,11 +257,6 @@
             }
 
             return result;
-        }
-
-        public static void Add(this IDictionary<Tuple<SqlDataTypeOption, SqlDataTypeOption>, TypeConversionResult> dictionary, SqlDataTypeOption from, SqlDataTypeOption to, TypeConversionResult result)
-        {
-            dictionary.Add(new Tuple<SqlDataTypeOption, SqlDataTypeOption>(from, to), result);
-        }
+        }        
     }
 }
