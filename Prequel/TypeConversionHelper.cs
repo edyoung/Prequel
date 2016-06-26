@@ -133,7 +133,7 @@
             var cc = TypeConversionResult.CheckConvertedLength;
             var no = TypeConversionResult.NumericOverflow;
             var ok = TypeConversionResult.ImplicitSafe;
-            var __ = TypeConversionResult.ImplicitSafe;  // self-conversion
+            var __ = TypeConversionResult.NotImplemented;  // self-conversion
             var ni = TypeConversionResult.NotImplemented;
 
             const int nTypes = 32;
@@ -147,7 +147,7 @@
                 /* varbinary         */ { ni, __, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni},
                 /* char              */ { ni, ni, cl, cl, cl, cl, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni},
                 /* varchar           */ { ni, ni, cl, cl, cl, cl, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni},
-                /* nchar             */ { ni, ni, ln, ln, cl, cl, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni},
+                /* nchar             */ { ni, ni, ln, ln, cl, cl, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, il, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni},
                 /* nvarchar          */ { ni, ni, ln, ln, cl, cl, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni},
                 /* datetime          */ { ni, ni, ni, ni, ni, ni, __, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni},
                 /* smalldatetime     */ { ni, ni, ni, ni, ni, ni, ni, __, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni},
@@ -160,7 +160,7 @@
                 /* float             */ { ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, __, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni},
                 /* real              */ { ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, __, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni},
                 /* bigint            */ { ni, ni, cc, cc, cc, cc, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, __, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni},
-                /* int               */ { ni, ni, cc, cc, cc, cc, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, __, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni},
+                /* int               */ { ni, ni, cc, cc, cc, cc, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, __, no, no, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni},
                 /* smallint          */ { ni, ni, cc, cc, cc, cc, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, __, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni},
                 /* tinyint           */ { ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, __, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni},
                 /* money             */ { ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, __, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni, ni},
@@ -307,8 +307,11 @@
         public static TypeConversionResult GetConversionResult(SqlDataTypeOption from, SqlDataTypeOption to)
         {
             TypeConversionResult result = TypeConversionResult.NotImplemented;
-            conversionTable.TryGetValue(new Tuple<SqlDataTypeOption, SqlDataTypeOption>(from, to), out result);
-            return result;
+            if(conversionTable.TryGetValue(new Tuple<SqlDataTypeOption, SqlDataTypeOption>(from, to), out result))
+            {
+                return result;
+            }
+            return TypeConversionResult.NotImplemented;
         }
 
         public static TypeConversionResult GetConversionResult2(SqlDataTypeOption from, SqlDataTypeOption to)

@@ -25,6 +25,38 @@ namespace Prequel.Tests
             //SqlDataTypeOption.TinyInt};
         };
 
+        private static readonly SqlDataTypeOption[] allTypes = new SqlDataTypeOption[] {
+            SqlDataTypeOption.Binary,
+            SqlDataTypeOption.VarBinary,
+            SqlDataTypeOption.Char,
+            SqlDataTypeOption.VarChar,
+            SqlDataTypeOption.NChar,
+            SqlDataTypeOption.NVarChar,
+            SqlDataTypeOption.DateTime,
+            SqlDataTypeOption.SmallDateTime,
+            SqlDataTypeOption.Date,
+            SqlDataTypeOption.Time,
+            SqlDataTypeOption.DateTimeOffset,
+            SqlDataTypeOption.DateTime2,
+            SqlDataTypeOption.Decimal,
+            SqlDataTypeOption.Numeric,
+            SqlDataTypeOption.Float,
+            SqlDataTypeOption.Real,
+            SqlDataTypeOption.BigInt,
+            SqlDataTypeOption.Int,
+            SqlDataTypeOption.SmallInt,
+            SqlDataTypeOption.TinyInt,
+            SqlDataTypeOption.Money,
+            SqlDataTypeOption.SmallMoney,
+            SqlDataTypeOption.Bit,
+            SqlDataTypeOption.Timestamp,
+            SqlDataTypeOption.UniqueIdentifier,
+            SqlDataTypeOption.Image,
+            SqlDataTypeOption.NText,
+            SqlDataTypeOption.Text,
+            SqlDataTypeOption.Sql_Variant
+        };
+
         [Fact]
         public void AllStringToStringConversionsCheckLength()
         {
@@ -51,6 +83,20 @@ namespace Prequel.Tests
                     Assert.False(0 == (result & TypeConversionResult.CheckConvertedLength), String.Format("converting {0} to {1} doesn't check length", numericType, stringType));
                     var result2 = TypeConversionHelper.GetConversionResult2(numericType, stringType);
                     Assert.Equal(result, result2);
+                }
+            }
+        }
+
+        [Fact]
+        public void AllConversionsSame()
+        {
+            foreach(SqlDataTypeOption t1 in allTypes)
+            {
+                foreach(SqlDataTypeOption t2 in allTypes)
+                {
+                    var result = TypeConversionHelper.GetConversionResult(t1, t2);
+                    var result2 = TypeConversionHelper.GetConversionResult2(t1, t2);
+                    Assert.True(result == result2, $"Converting {t1} into {t2} produces {result} vs {result2}");
                 }
             }
         }
