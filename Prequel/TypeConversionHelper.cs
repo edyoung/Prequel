@@ -77,6 +77,57 @@
         // Encodes the table in https://msdn.microsoft.com/en-us/library/ms191530.aspx showing which types can be converted 
         private static IDictionary<Tuple<SqlDataTypeOption, SqlDataTypeOption>, TypeConversionResult> conversionTable = CreateConversionTable();
 
+        private static TypeConversionResult[,] CreateConversionTableArray()
+        {
+            var cl = TypeConversionResult.CheckLength;
+            var nr = TypeConversionResult.Narrowing;
+            var il = TypeConversionResult.ImplicitLossy;
+            var cc = TypeConversionResult.CheckConvertedLength;
+            var no = TypeConversionResult.NumericOverflow;
+            var ok = TypeConversionResult.ImplicitSafe;
+            var __ = TypeConversionResult.ImplicitSafe;  // self-conversion
+            const int nTypes = 32;
+            var conversions = new TypeConversionResult[nTypes, nTypes]
+            {
+                // to_>
+                // binary
+                { __, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok},
+                { ok, __, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok},
+                { ok, ok, __, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok},
+                { ok, ok, ok, __, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok},
+                { ok, ok, ok, ok, __, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok},
+                { ok, ok, ok, ok, ok, __, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok},
+                { ok, ok, ok, ok, ok, ok, __, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok},
+                { ok, ok, ok, ok, ok, ok, ok, __, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok},
+                { ok, ok, ok, ok, ok, ok, ok, ok, __, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok},
+                { ok, ok, ok, ok, ok, ok, ok, ok, ok, __, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok},
+                { ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, __, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok},
+                { ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, __, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok},
+                { ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, __, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok},
+                { ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, __, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok},
+                { ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, __, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok},
+                { ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, __, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok},
+                { ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, __, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok},
+                { ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, __, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok},
+                { ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, __, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok},
+                { ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, __, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok},
+                { ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, __, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok},
+                { ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, __, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok},
+                { ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, __, ok, ok, ok, ok, ok, ok, ok, ok, ok},
+                { ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, __, ok, ok, ok, ok, ok, ok, ok, ok},
+                { ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, __, ok, ok, ok, ok, ok, ok, ok},
+                { ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, __, ok, ok, ok, ok, ok, ok},
+                { ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, __, ok, ok, ok, ok, ok},
+                { ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, __, ok, ok, ok, ok},
+                { ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, __, ok, ok, ok},
+                { ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, __, ok, ok},
+                { ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, __, ok},
+                { ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, ok, __},
+            };
+
+            return conversions;
+        }
+
         private static IDictionary<Tuple<SqlDataTypeOption, SqlDataTypeOption>, TypeConversionResult> CreateConversionTable()
         {
             var conversions = new Dictionary<Tuple<SqlDataTypeOption, SqlDataTypeOption>, TypeConversionResult>();
