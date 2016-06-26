@@ -120,8 +120,6 @@
         }
 
         // Encodes the table in https://msdn.microsoft.com/en-us/library/ms191530.aspx showing which types can be converted 
-        private static IDictionary<Tuple<SqlDataTypeOption, SqlDataTypeOption>, TypeConversionResult> conversionTable = CreateConversionTable();
-
         private static TypeConversionResult[,] conversionTableArray = CreateConversionTableArray();
 
         private static TypeConversionResult[,] CreateConversionTableArray()
@@ -180,65 +178,7 @@
             return conversions;
         }
 
-        private static IDictionary<Tuple<SqlDataTypeOption, SqlDataTypeOption>, TypeConversionResult> CreateConversionTable()
-        {
-            var conversions = new Dictionary<Tuple<SqlDataTypeOption, SqlDataTypeOption>, TypeConversionResult>();
-
-            var cl = TypeConversionResult.CheckLength;
-            var nr = TypeConversionResult.Narrowing;
-            var il = TypeConversionResult.ImplicitLossy;
-            var ccl = TypeConversionResult.CheckConvertedLength;
-            var no = TypeConversionResult.NumericOverflow;
-
-            // From Char
-            conversions.Add(SqlDataTypeOption.Char, SqlDataTypeOption.Char, cl);
-            conversions.Add(SqlDataTypeOption.Char, SqlDataTypeOption.VarChar, cl);
-            conversions.Add(SqlDataTypeOption.Char, SqlDataTypeOption.NChar, cl);
-            conversions.Add(SqlDataTypeOption.Char, SqlDataTypeOption.NVarChar, cl);
-
-            // From NChar
-            conversions.Add(SqlDataTypeOption.NChar, SqlDataTypeOption.Char, cl | nr);
-            conversions.Add(SqlDataTypeOption.NChar, SqlDataTypeOption.VarChar, cl | nr);
-            conversions.Add(SqlDataTypeOption.NChar, SqlDataTypeOption.NChar, cl);
-            conversions.Add(SqlDataTypeOption.NChar, SqlDataTypeOption.NVarChar, cl);
-
-            conversions.Add(SqlDataTypeOption.NChar, SqlDataTypeOption.Int, il);
-
-            // From VarChar
-            conversions.Add(SqlDataTypeOption.VarChar, SqlDataTypeOption.VarChar, cl);
-            conversions.Add(SqlDataTypeOption.VarChar, SqlDataTypeOption.Char, cl);
-            conversions.Add(SqlDataTypeOption.VarChar, SqlDataTypeOption.NChar, cl);
-            conversions.Add(SqlDataTypeOption.VarChar, SqlDataTypeOption.NVarChar, cl);
-
-            // from NVarChar
-            conversions.Add(SqlDataTypeOption.NVarChar, SqlDataTypeOption.Char, cl | nr);
-            conversions.Add(SqlDataTypeOption.NVarChar, SqlDataTypeOption.VarChar, cl | nr);
-            conversions.Add(SqlDataTypeOption.NVarChar, SqlDataTypeOption.NChar, cl);
-            conversions.Add(SqlDataTypeOption.NVarChar, SqlDataTypeOption.NVarChar, cl);
-
-            // from Int
-            conversions.Add(SqlDataTypeOption.Int, SqlDataTypeOption.Char, ccl);
-            conversions.Add(SqlDataTypeOption.Int, SqlDataTypeOption.VarChar, ccl);
-            conversions.Add(SqlDataTypeOption.Int, SqlDataTypeOption.NChar, ccl);
-            conversions.Add(SqlDataTypeOption.Int, SqlDataTypeOption.NVarChar, ccl);
-
-            conversions.Add(SqlDataTypeOption.Int, SqlDataTypeOption.TinyInt, no);
-            conversions.Add(SqlDataTypeOption.Int, SqlDataTypeOption.SmallInt, no);            
-
-            // from smallint
-            conversions.Add(SqlDataTypeOption.SmallInt, SqlDataTypeOption.Char, ccl);
-            conversions.Add(SqlDataTypeOption.SmallInt, SqlDataTypeOption.VarChar, ccl);
-            conversions.Add(SqlDataTypeOption.SmallInt, SqlDataTypeOption.NChar, ccl);
-            conversions.Add(SqlDataTypeOption.SmallInt, SqlDataTypeOption.NVarChar, ccl);
-
-            // from bigint
-            conversions.Add(SqlDataTypeOption.BigInt, SqlDataTypeOption.Char, ccl);
-            conversions.Add(SqlDataTypeOption.BigInt, SqlDataTypeOption.VarChar, ccl);
-            conversions.Add(SqlDataTypeOption.BigInt, SqlDataTypeOption.NChar, ccl);
-            conversions.Add(SqlDataTypeOption.BigInt, SqlDataTypeOption.NVarChar, ccl);
-
-            return conversions;
-        }
+        
 
         private static IDictionary<SqlDataTypeOption, int> precedenceTable = CreatePrecedenceTable();
 
@@ -303,18 +243,8 @@
             precedenceTable.TryGetValue(t2, out precedenceOfType2);
             return precedenceOfType1 < precedenceOfType2;            
         }
-
+       
         public static TypeConversionResult GetConversionResult(SqlDataTypeOption from, SqlDataTypeOption to)
-        {
-            TypeConversionResult result = TypeConversionResult.NotImplemented;
-            if(conversionTable.TryGetValue(new Tuple<SqlDataTypeOption, SqlDataTypeOption>(from, to), out result))
-            {
-                return result;
-            }
-            return TypeConversionResult.NotImplemented;
-        }
-
-        public static TypeConversionResult GetConversionResult2(SqlDataTypeOption from, SqlDataTypeOption to)
         {
             TypeConversionResult result = TypeConversionResult.NotImplemented;
             try

@@ -66,8 +66,6 @@ namespace Prequel.Tests
                 {
                     var result = TypeConversionHelper.GetConversionResult(t1, t2);
                     Assert.False(0 == (result & TypeConversionResult.CheckLength), String.Format("converting {0} to {1} doesn't check length", t1, t2));
-                    var result2 = TypeConversionHelper.GetConversionResult2(t1, t2);
-                    Assert.Equal(result, result2);
                 }
             }
         }
@@ -81,22 +79,6 @@ namespace Prequel.Tests
                 {
                     var result = TypeConversionHelper.GetConversionResult(numericType, stringType);
                     Assert.False(0 == (result & TypeConversionResult.CheckConvertedLength), String.Format("converting {0} to {1} doesn't check length", numericType, stringType));
-                    var result2 = TypeConversionHelper.GetConversionResult2(numericType, stringType);
-                    Assert.Equal(result, result2);
-                }
-            }
-        }
-
-        [Fact]
-        public void AllConversionsSame()
-        {
-            foreach(SqlDataTypeOption t1 in allTypes)
-            {
-                foreach(SqlDataTypeOption t2 in allTypes)
-                {
-                    var result = TypeConversionHelper.GetConversionResult(t1, t2);
-                    var result2 = TypeConversionHelper.GetConversionResult2(t1, t2);
-                    Assert.True(result == result2, $"Converting {t1} into {t2} produces {result} vs {result2}");
                 }
             }
         }
