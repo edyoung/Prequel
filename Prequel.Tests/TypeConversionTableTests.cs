@@ -10,6 +10,8 @@ namespace Prequel.Tests
 {
     public class TypeConversionTableTests
     {
+        private static readonly SqlDataTypeOption[] narrowStringTypes = new SqlDataTypeOption[] { SqlDataTypeOption.Char, SqlDataTypeOption.VarChar };
+        private static readonly SqlDataTypeOption[] wideStringTypes = new SqlDataTypeOption[] { SqlDataTypeOption.NChar, SqlDataTypeOption.NVarChar };
         private static readonly SqlDataTypeOption[] stringTypes = new SqlDataTypeOption[] { SqlDataTypeOption.Char, SqlDataTypeOption.NChar, SqlDataTypeOption.VarChar, SqlDataTypeOption.NVarChar };
 
         private static readonly SqlDataTypeOption[] numericTypes = new SqlDataTypeOption[] {
@@ -39,6 +41,7 @@ namespace Prequel.Tests
 
         public static IEnumerable<object[]> NumberToString = Pairwise(numericTypes.AsEnumerable(), stringTypes.AsEnumerable());
         public static IEnumerable<object[]> StringToString = Pairwise(stringTypes.AsEnumerable(), stringTypes.AsEnumerable());
+        public static IEnumerable<object[]> WideStringToNarrowString = Pairwise(wideStringTypes.AsEnumerable(), narrowStringTypes.AsEnumerable());
 
         private static readonly SqlDataTypeOption[] allTypes = new SqlDataTypeOption[] {
             SqlDataTypeOption.Binary,
@@ -78,6 +81,14 @@ namespace Prequel.Tests
         {
             var result = TypeConversionHelper.GetConversionResult(t1, t2);
             Assert.False(0 == (result & TypeConversionResult.CheckLength), String.Format("converting {0} to {1} doesn't check length", t1, t2));
+        }
+
+        [MemberData(nameof(WideStringToNarrowString))]
+        [Theory]
+        public void AllWideStringToStringConversionsCheckNarrowing(SqlDataTypeOption t1, SqlDataTypeOption t2)
+        {
+            var result = TypeConversionHelper.GetConversionResult(t1, t2);
+            Assert.False(0 == (result & TypeConversionResult.Narrowing), String.Format("converting {0} to {1} doesn't warn about narrowing", t1, t2));
         }
 
         [MemberData(nameof(NumberToString))]
