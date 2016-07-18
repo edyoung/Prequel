@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Linq;
 using Xunit;
+using FluentAssertions;
 
 namespace Prequel.Tests
 {
@@ -16,26 +17,28 @@ namespace Prequel.Tests
         [Fact]
         public void NoArgumentsRaisesUsageException()
         {
-            Assert.Throws<ProgramTerminatingException>(() => new Arguments(new string[] { }));
+            Action act = () => new Arguments(new string[] { });
+            act.ShouldThrow<ProgramTerminatingException>();
         }
 
         [Fact]
         public void NoArgumentsSetsFailedExitCode()
         {
-            var ex = Assert.Throws<ProgramTerminatingException>( () => new Arguments(new string[] { } ));
-            Assert.Equal(ExitReason.GeneralFailure, ex.ExitCode);
+            Action act = () => new Arguments(new string[] { });
+            act.ShouldThrow<ProgramTerminatingException>().And.ExitCode.Should().Be(ExitReason.GeneralFailure);            
         }
 
         [Fact]
         public void ArgsButNoFileRaisesUsageException()
         {
-            Assert.Throws<ProgramTerminatingException>(() => new Arguments("/v:2008"));
+            Action act = () => new Arguments("/v:2008");
+            act.ShouldThrow<ProgramTerminatingException>();
         }
         
         [Fact]
         public void ArgumentsHasUsageDescription()
         {
-            Assert.NotNull(Arguments.UsageDescription);
+            Arguments.UsageDescription.Should().NotBeNullOrWhiteSpace();
         }
 
         [InlineData("/help")]
@@ -44,22 +47,22 @@ namespace Prequel.Tests
         [Theory]
         public void UsageRequestUsageExceptionWithSuccessExitCode(string flag)
         {
-            var ex = Assert.Throws<ProgramTerminatingException>(() => new Arguments(flag));
-            Assert.Equal(ExitReason.Success, ex.ExitCode);
+            Action act = () => new Arguments(flag);            
+            act.ShouldThrow<ProgramTerminatingException>().And.ExitCode.Should().Be(ExitReason.Success); 
         }
 
         [Fact]
         public void FileNameIsRecorded()
         {
             var a = new Arguments("foo.sql");
-            Assert.Equal(new string[] { "foo.sql" }, a.Inputs.Select(x => x.Path));
+            a.Inputs.Select(x => x.Path).Should().Equal(new string[] { "foo.sql" });            
         }
 
         [Fact]
         public void SqlVersionFlagIsRecorded()
         {
             var a = new Arguments("/v:2008", "foo.sql");
-            Assert.Equal(typeof(TSql100Parser), a.SqlParserType);
+            a.SqlParserType.Should().Be(typeof(TSql100Parser));
         }
         
         [InlineData("/v:", "")]
@@ -68,8 +71,8 @@ namespace Prequel.Tests
         [Theory]
         public void InvalidVersionStringIsReported(string version, string versionToComplainAbout)
         {
-            var ex = Assert.Throws<ProgramTerminatingException>( () => new Arguments("foo.sql", version));
-            Assert.Contains(string.Format("Unknown SQL version '{0}'", versionToComplainAbout), ex.Message);
+            Action act = () => new Arguments("foo.sql", version);
+            act.ShouldThrow<ProgramTerminatingException>().WithMessage($"Unknown SQL version '{versionToComplainAbout}'*");
         }
 
         [Fact]
@@ -79,35 +82,36 @@ namespace Prequel.Tests
 
             TextReader reader = new StreamReader(a.Inputs[0].Stream);
             string contents = reader.ReadToEnd();
-            Assert.Equal("foo bar", contents);        
+
+            contents.Should().Be("foo bar");            
         }
 
         [Fact]
         public void DefaultIsToDisplayLogo()
         {
             var a = new Arguments("foo.sql");
-            Assert.Equal(true, a.DisplayLogo);
+            a.DisplayLogo.Should().BeTrue();
         }
 
         [Fact]
         public void NoLogoSuppressesLogo()
         {
             var a = new Arguments("foo.sql", "/nologo");
-            Assert.Equal(false, a.DisplayLogo);
+            a.DisplayLogo.Should().BeFalse();
         }
 
         [Fact]
         public void DefaultWarningLevelIsSerious()
         {
             var a = new Arguments("foo.sql");
-            Assert.Equal(WarningLevel.Serious, a.WarningLevel);
+            a.WarningLevel.Should().Be(WarningLevel.Serious);
         }
 
         [Fact]
         public void WarningLevelCanBeSet()
         {
             var a = new Arguments("foo.sql", "/warn:1");
-            Assert.Equal((WarningLevel)1, a.WarningLevel);
+            a.WarningLevel.Should().Be((WarningLevel)1);
         }        
 
         [InlineData("-1")]
@@ -117,15 +121,15 @@ namespace Prequel.Tests
         [Theory]
         public void CrazyWarningLevelCausesError(string weirdLevel)
         {
-            var ex = Assert.Throws<ProgramTerminatingException>(() => new Arguments("foo.sql", "/warn:" + weirdLevel));
-            Assert.Contains(string.Format("Invalid Warning Level '{0}'", weirdLevel), ex.Message);
+            Action act = () => new Arguments("foo.sql", "/warn:" + weirdLevel);
+            act.ShouldThrow<ProgramTerminatingException>().WithMessage($"Invalid Warning Level '{weirdLevel}'*");            
         }
 
         [Fact]
         public void UnknownFlagRaisesError()
         {
-            var ex = Assert.Throws<ProgramTerminatingException>(() => new Arguments("foo.sql", "/z"));
-            Assert.Contains("Unknown flag '/z'", ex.Message);
+            Action act = () => new Arguments("foo.sql", "/z");
+            act.ShouldThrow<ProgramTerminatingException>().WithMessage("Unknown flag '/z'");
         }
     }
 }
