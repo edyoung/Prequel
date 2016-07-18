@@ -20,7 +20,7 @@ namespace Prequel.Tests
         public void ParseSimpleString()
         {
             var results = Check("select * from foo");
-            MyAssert.NoErrorsOrWarnings(results);
+            results.HaveNoErrorsOrWarnings();
         }
        
         [Fact]
@@ -93,7 +93,7 @@ namespace Prequel.Tests
         public void ThisShouldParse()
         {
             CheckResults results = Check("grant SELECT on User to ServerRole");
-            MyAssert.NoErrors(results);
+            results.NoErrors();
         }
 
         #endregion
@@ -129,7 +129,7 @@ namespace Prequel.Tests
         public void WarningLevelZeroNoWarnings()
         {
             var results = Check("\nset @undeclared = 7", "/warn:0");
-            MyAssert.NoErrorsOrWarnings(results);
+            results.HaveNoErrorsOrWarnings();
         }
 
         [Fact]
@@ -164,21 +164,21 @@ namespace Prequel.Tests
         public void FindDeclaredVariableNoWarning()
         {            
             var results = Check("declare @declared as int; set @declared = 1");
-            MyAssert.NoErrorsOrWarnings(results);
+            results.HaveNoErrorsOrWarnings();
         }
 
         [Fact]
         public void DeclarationsAreCaseInsensitive()
         {
             var results = Check("declare @DECLARED as int; set @declared = 1");
-            MyAssert.NoErrorsOrWarnings(results);
+            results.HaveNoErrorsOrWarnings();
         }
 
         [Fact]
         public void AliasesAreCaseInsensitive()
         {
             var results = Check("declare @DECLARED as nvarchar; select @declared = Name from sys.Columns");
-            MyAssert.NoErrors(results);
+            results.NoErrors();
             MyAssert.NoWarningsOfType(WarningID.UndeclaredVariableUsed, results);
         }
 
@@ -196,7 +196,7 @@ set @declared = 1");
         public void MultipleDeclarationsWork()
         {
             var results = Check("declare @a as int, @b as nvarchar; set @b = 'x'; set @a = 3");
-            MyAssert.NoErrors(results);
+            results.NoErrors();
             MyAssert.NoWarningsOfType(WarningID.UndeclaredVariableUsed, results);
         }
 
@@ -211,7 +211,7 @@ set @declared = 1");
         public void UndeclaredGlobalVariableNoWarning()
         {
             var results = Check("select X from Y where X = @@cpu_busy");
-            MyAssert.NoErrorsOrWarnings(results);
+            results.HaveNoErrorsOrWarnings();
         }
 
         [Fact]
@@ -222,7 +222,7 @@ create procedure foo @x INT
 as
     set @x = 2
 go");
-            MyAssert.NoErrorsOrWarnings(results);
+            results.HaveNoErrorsOrWarnings();
         }
 
         [Fact]
@@ -242,7 +242,7 @@ go");
             var results = Check(@"
 declare @t table(Value int)
 insert @t (Value)values(1)");
-            MyAssert.NoErrorsOrWarnings(results);
+            results.HaveNoErrorsOrWarnings();
         }
 
         [Fact]
@@ -251,7 +251,7 @@ insert @t (Value)values(1)");
             var results = Check(@"
 exec foo @a = 1
 ");
-            MyAssert.NoErrorsOrWarnings(results);
+            results.HaveNoErrorsOrWarnings();
         }
 
         [Fact]
@@ -277,7 +277,7 @@ exec foo @b
         {
             var results = Check(@"
 ");
-            MyAssert.NoErrorsOrWarnings(results);
+            results.HaveNoErrorsOrWarnings();
         }
         #endregion
 

@@ -7,14 +7,14 @@ namespace Prequel.Tests
 
     public static class MyAssert
     {
-        public static void NoErrorsOrWarnings(CheckResults results)
+        public static void HaveNoErrorsOrWarnings(this CheckResults results)
         {
             Assert.Empty(results.Errors);
             Assert.Empty(results.Warnings);
             Assert.Equal(ExitReason.Success, results.ExitCode);
         }
 
-        public static void NoErrors(CheckResults results)
+        public static void NoErrors(this CheckResults results)
         {
             Assert.Empty(results.Errors);
         }
