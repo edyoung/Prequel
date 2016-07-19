@@ -93,7 +93,7 @@ namespace Prequel.Tests
         public void ThisShouldParse()
         {
             CheckResults results = Check("grant SELECT on User to ServerRole");
-            results.NoErrors();
+            results.Should().HaveNoErrors();
         }
 
         #endregion
@@ -178,7 +178,7 @@ namespace Prequel.Tests
         public void AliasesAreCaseInsensitive()
         {
             var results = Check("declare @DECLARED as nvarchar; select @declared = Name from sys.Columns");
-            results.NoErrors();
+            results.Should().HaveNoErrors();
             MyAssert.NoWarningsOfType(WarningID.UndeclaredVariableUsed, results);
         }
 
@@ -196,7 +196,7 @@ set @declared = 1");
         public void MultipleDeclarationsWork()
         {
             var results = Check("declare @a as int, @b as nvarchar; set @b = 'x'; set @a = 3");
-            results.NoErrors();
+            results.Should().HaveNoErrors();
             MyAssert.NoWarningsOfType(WarningID.UndeclaredVariableUsed, results);
         }
 

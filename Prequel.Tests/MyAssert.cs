@@ -39,11 +39,7 @@ namespace Prequel.Tests
         {
             CheckResults results = assertions.Subject;
 
-            Execute
-               .Assertion
-               .ForCondition(results.Errors.Count == 0)
-               .BecauseOf("checking this sql should not report any errors")
-               .FailWith("Found {0} errors, the first one is '{1}'", results.Errors.Count, results.Errors.FirstOrDefault());
+            MyAssert.HaveNoErrors(assertions);
 
             Execute
                 .Assertion
@@ -60,9 +56,17 @@ namespace Prequel.Tests
             return assertions;
         }        
 
-        public static void NoErrors(this CheckResults results)
+        public static ResultAssertions HaveNoErrors(this ResultAssertions assertions)
         {
-            Assert.Empty(results.Errors);
+            CheckResults results = assertions.Subject;
+
+            Execute
+              .Assertion
+              .ForCondition(results.Errors.Count == 0)
+              .BecauseOf("checking this sql should not report any errors")
+              .FailWith("Found {0} errors, the first one is '{1}'", results.Errors.Count, results.Errors.FirstOrDefault());
+
+            return assertions;
         }
 
         public static Warning OneWarningOfType(WarningID id, CheckResults results)
