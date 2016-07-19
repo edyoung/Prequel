@@ -20,7 +20,7 @@ namespace Prequel.Tests
         public void ParseSimpleString()
         {
             var results = Check("select * from foo");
-            results.HaveNoErrorsOrWarnings();
+            results.Should().HaveNoErrorsOrWarnings();
         }
        
         [Fact]
@@ -129,7 +129,7 @@ namespace Prequel.Tests
         public void WarningLevelZeroNoWarnings()
         {
             var results = Check("\nset @undeclared = 7", "/warn:0");
-            results.HaveNoErrorsOrWarnings();
+            results.Should().HaveNoErrorsOrWarnings();
         }
 
         [Fact]
@@ -164,14 +164,14 @@ namespace Prequel.Tests
         public void FindDeclaredVariableNoWarning()
         {            
             var results = Check("declare @declared as int; set @declared = 1");
-            results.HaveNoErrorsOrWarnings();
+            results.Should().HaveNoErrorsOrWarnings();
         }
 
         [Fact]
         public void DeclarationsAreCaseInsensitive()
         {
             var results = Check("declare @DECLARED as int; set @declared = 1");
-            results.HaveNoErrorsOrWarnings();
+            results.Should().HaveNoErrorsOrWarnings();
         }
 
         [Fact]
@@ -211,7 +211,7 @@ set @declared = 1");
         public void UndeclaredGlobalVariableNoWarning()
         {
             var results = Check("select X from Y where X = @@cpu_busy");
-            results.HaveNoErrorsOrWarnings();
+            results.Should().HaveNoErrorsOrWarnings();
         }
 
         [Fact]
@@ -222,7 +222,7 @@ create procedure foo @x INT
 as
     set @x = 2
 go");
-            results.HaveNoErrorsOrWarnings();
+            results.Should().HaveNoErrorsOrWarnings();
         }
 
         [Fact]
@@ -242,7 +242,7 @@ go");
             var results = Check(@"
 declare @t table(Value int)
 insert @t (Value)values(1)");
-            results.HaveNoErrorsOrWarnings();
+            results.Should().HaveNoErrorsOrWarnings();
         }
 
         [Fact]
@@ -251,7 +251,7 @@ insert @t (Value)values(1)");
             var results = Check(@"
 exec foo @a = 1
 ");
-            results.HaveNoErrorsOrWarnings();
+            results.Should().HaveNoErrorsOrWarnings();
         }
 
         [Fact]
@@ -277,7 +277,7 @@ exec foo @b
         {
             var results = Check(@"
 ");
-            results.HaveNoErrorsOrWarnings();
+            results.Should().HaveNoErrorsOrWarnings();
         }
         #endregion
 

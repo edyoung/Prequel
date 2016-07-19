@@ -6,16 +6,44 @@ namespace Prequel.Tests
     using Xunit;
     using FluentAssertions;
     using FluentAssertions.Execution;
+    using FluentAssertions.Primitives;
+    using System;
+
+    
+    public class ResultAssertions : ReferenceTypeAssertions<CheckResults, ResultAssertions>
+    {
+        public ResultAssertions(CheckResults results)
+        {
+            Subject = results;
+        }
+
+        protected override string Context
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        
+    }
 
     public static class MyAssert
     {
-        public static void HaveNoErrorsOrWarnings(this CheckResults results)
+        public static ResultAssertions Should(this CheckResults results)
         {
+            return new ResultAssertions(results);
+        }
+
+        public static ResultAssertions HaveNoErrorsOrWarnings(this ResultAssertions assertions)
+        {
+            CheckResults results = assertions.Subject;
+
             Execute
-                .Assertion
-                .ForCondition(results.Errors.Count == 0)
-                .BecauseOf("checking this sql should not report any errors")
-                .FailWith("Found {0} errors, the first one is '{1}'", results.Errors.Count, results.Errors.FirstOrDefault());
+               .Assertion
+               .ForCondition(results.Errors.Count == 0)
+               .BecauseOf("checking this sql should not report any errors")
+               .FailWith("Found {0} errors, the first one is '{1}'", results.Errors.Count, results.Errors.FirstOrDefault());
 
             Execute
                 .Assertion
@@ -28,7 +56,9 @@ namespace Prequel.Tests
                 .ForCondition(results.ExitCode == ExitReason.Success)
                 .BecauseOf("if there are no errors or warnings, checking should be successful")
                 .FailWith($"Exit code was {results.ExitCode}");
-        }
+
+            return assertions;
+        }        
 
         public static void NoErrors(this CheckResults results)
         {
