@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using Xunit;
+using FluentAssertions;
 
 namespace Prequel.Tests
 {          
@@ -147,8 +148,8 @@ namespace Prequel.Tests
             Assert.Equal(WarningLevel.Minor, Warning.WarningTypes[WarningID.UnusedVariableDeclared].Level);
 
             var results = Check("\nset @undeclared = 7\ndeclare @unused as int", "/warn:1");
-            MyAssert.OneWarningOfType(WarningID.UndeclaredVariableUsed, results);
-            MyAssert.NoWarningsOfType(WarningID.UnusedVariableDeclared, results);
+            results.Should().WarnAbout(WarningID.UndeclaredVariableUsed);
+            results.Should().NotWarnAbout(WarningID.UnusedVariableDeclared);
         }
         #endregion
 
@@ -157,7 +158,7 @@ namespace Prequel.Tests
         public void SetUndeclaredVariableRaisesWarning()
         {            
             var results = Check("set @undeclared = 1");
-            MyAssert.OneWarningOfType(WarningID.UndeclaredVariableUsed, results);           
+            results.Should().WarnAbout(WarningID.UndeclaredVariableUsed);           
         }
 
         [Fact]
@@ -179,7 +180,7 @@ namespace Prequel.Tests
         {
             var results = Check("declare @DECLARED as nvarchar; select @declared = Name from sys.Columns");
             results.Should().HaveNoErrors();
-            MyAssert.NoWarningsOfType(WarningID.UndeclaredVariableUsed, results);
+            results.Should().NotWarnAbout(WarningID.UndeclaredVariableUsed);
         }
 
         [Fact]
@@ -189,7 +190,7 @@ namespace Prequel.Tests
 declare @declared as int; 
 GO 
 set @declared = 1");
-            MyAssert.OneWarningOfType(WarningID.UndeclaredVariableUsed, results);
+            results.Should().WarnAbout(WarningID.UndeclaredVariableUsed);
         }
 
         [Fact]
@@ -197,14 +198,14 @@ set @declared = 1");
         {
             var results = Check("declare @a as int, @b as nvarchar; set @b = 'x'; set @a = 3");
             results.Should().HaveNoErrors();
-            MyAssert.NoWarningsOfType(WarningID.UndeclaredVariableUsed, results);
+            results.Should().NotWarnAbout(WarningID.UndeclaredVariableUsed);
         }
 
         [Fact]
         public void SelectUndeclaredVariableRaisesWarning()
         {
             var results = Check("select X from Y where X = @foo");
-            MyAssert.OneWarningOfType(WarningID.UndeclaredVariableUsed, results);
+           results.Should().WarnAbout(WarningID.UndeclaredVariableUsed);
         }
 
         [Fact]
@@ -233,7 +234,7 @@ create procedure foo @x INT
 as
     set @y = 2
 go");
-            MyAssert.OneWarningOfType(WarningID.UndeclaredVariableUsed, results);
+            results.Should().WarnAbout(WarningID.UndeclaredVariableUsed);            
         }
 
         [Fact]
@@ -260,14 +261,14 @@ exec foo @a = 1
             var results = Check(@"
 exec foo @b
 ");
-            MyAssert.OneWarningOfType(WarningID.UndeclaredVariableUsed, results);
+            results.Should().WarnAbout(WarningID.UndeclaredVariableUsed);
         }
 
         [Fact]
         public void VariableDeclaredWithCustomTypeNoWarning()
         {
             var results = Check("declare @a MyType, @b MyType2; set @a = @b");
-            MyAssert.NoWarningsOfType(WarningID.UndeclaredVariableUsed, results);
+            results.Should().NotWarnAbout(WarningID.UndeclaredVariableUsed);
         }
 
 
@@ -286,7 +287,7 @@ exec foo @b
         public void UnusedVariableRaisesWarning()
         {
             var results = Check("declare @foo as int", "/warn:3");
-            MyAssert.OneWarningOfType(WarningID.UnusedVariableDeclared, results);
+            results.Should().WarnAbout(WarningID.UnusedVariableDeclared);
         }
         #endregion
 
@@ -306,7 +307,7 @@ return 1
 go
                 ", "/warn:3");
 
-            MyAssert.OneWarningOfType(WarningID.ProcedureWithoutNoCount, results);
+            results.Should().WarnAbout(WarningID.ProcedureWithoutNoCount);
         }
         #endregion
 
@@ -318,7 +319,7 @@ go
 create procedure sp_foo as 
 return 1
 go");
-            MyAssert.OneWarningOfType(WarningID.ProcedureWithSPPrefix, results);
+            results.Should().WarnAbout(WarningID.ProcedureWithSPPrefix);
         }
 
         // Is SP_ a problem too?
@@ -330,53 +331,57 @@ go");
         public void DeclareStringWithoutLiteralNoWarning()
         {
             var results = Check("declare @fine as char(1)");
-            MyAssert.NoWarningsOfType(WarningID.StringTruncated, results);
+            results.Should().NotWarnAbout(WarningID.StringTruncated);
         }
 
         [Fact]
         public void DeclareStringWithLongerLiteralRaisesWarning()
         {
             var results = Check("declare @tooshort as char(1) = 'hello'");
-            Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
-            Assert.Contains("Variable @tooshort has length 1 and is assigned a value with length up to 5", w.Message);
+            results.Should().WarnAbout(
+                warning => 
+                    warning.Number == WarningID.StringTruncated && warning.Message.Contains("Variable @tooshort has length 1 and is assigned a value with length up to 5"));            
         }
 
         [Fact]
         public void DeclareStringWithSameLengthLiteralNoWarning()
         {
             var results = Check("declare @fine as char(5) = 'hello'");
-            MyAssert.NoWarningsOfType(WarningID.StringTruncated, results);
+            results.Should().NotWarnAbout(WarningID.StringTruncated);
         }
 
         [Fact]
         public void DeclareStringWithImplicitLengthAndLongerLiteralRaisesWarning()
         {
             var results = Check("declare @tooshort as char = 'hello'");
-            Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
-            Assert.Contains("Variable @tooshort has length 1 and is assigned a value with length up to 5", w.Message);
+            results.Should().WarnAbout(
+                warning =>
+                    warning.Number == WarningID.StringTruncated && warning.Message.Contains("Variable @tooshort has length 1 and is assigned a value with length up to 5"));
         }
 
         [Fact]
         public void DeclareVarCharStringWithImplicitLengthAndLongerLiteralRaisesWarning()
         {
             var results = Check("declare @tooshort as varchar = 'hello'");
-            Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
-            Assert.Contains("Variable @tooshort has length 1 and is assigned a value with length up to 5", w.Message);
+            results.Should().WarnAbout(
+                warning =>
+                    warning.Number == WarningID.StringTruncated && warning.Message.Contains("Variable @tooshort has length 1 and is assigned a value with length up to 5"));
         }
 
         [Fact]
         public void DeclareVarCharMaxNoWarning()
         {
             var results = Check("declare @fine as varchar(max) = 'hello'");
-            MyAssert.NoWarningsOfType(WarningID.StringTruncated, results);
+            results.Should().NotWarnAbout(WarningID.StringTruncated);
         }
 
         [Fact]
         public void DeclareAndSeparatelySetWithLiteralRaisesWarning()
         {
             var results = Check("declare @tooshort as varchar; set @tooshort = 'hello'");
-            Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
-            Assert.Contains("Variable @tooshort has length 1 and is assigned a value with length up to 5", w.Message);
+            results.Should().WarnAbout(
+                warning =>
+                    warning.Number == WarningID.StringTruncated && warning.Message.Contains("Variable @tooshort has length 1 and is assigned a value with length up to 5"));
         }
 
         [Fact]

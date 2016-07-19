@@ -8,8 +8,8 @@ namespace Prequel.Tests
     using FluentAssertions.Execution;
     using FluentAssertions.Primitives;
     using System;
+    using System.Linq.Expressions;
 
-    
     public class ResultAssertions : ReferenceTypeAssertions<CheckResults, ResultAssertions>
     {
         public ResultAssertions(CheckResults results)
@@ -55,6 +55,27 @@ namespace Prequel.Tests
 
             return assertions;
         }        
+
+        public static ResultAssertions NotWarnAbout(this ResultAssertions assertions, WarningID id)
+        {
+            CheckResults results = assertions.Subject;
+            results.Warnings.Should().NotContain(x => x.Number == id);
+            return assertions;
+        }
+
+        public static ResultAssertions WarnAbout(this ResultAssertions assertions, WarningID id)
+        {
+            CheckResults results = assertions.Subject;
+            results.Warnings.Should().Contain(x => x.Number == id);
+            return assertions;
+        }
+
+        public static ResultAssertions WarnAbout(this ResultAssertions assertions, Expression<Func<Warning,bool>> predicate)
+        {
+            CheckResults results = assertions.Subject;
+            results.Warnings.Should().Contain(predicate);
+            return assertions;
+        }
 
         public static ResultAssertions HaveNoErrors(this ResultAssertions assertions)
         {
