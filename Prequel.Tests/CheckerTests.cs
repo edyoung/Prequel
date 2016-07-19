@@ -28,8 +28,8 @@ namespace Prequel.Tests
         public void ParseInvalidStringProducesErrors()
         {            
             var results = Check("select >>>");
-            Assert.NotEmpty(results.Errors);
-            Assert.Equal(ExitReason.GeneralFailure, results.ExitCode);
+            results.Errors.Should().Contain(err => err.Message.Contains("Incorrect syntax"));
+            results.ExitCode.Should().Be(ExitReason.GeneralFailure);
         }
 
         [Fact]
@@ -39,7 +39,7 @@ namespace Prequel.Tests
             {
                 Checker c = new Checker(new Arguments(t.FileName));
                 var results = c.Run();
-                Assert.Equal(ExitReason.Success, results.ExitCode);
+                results.ExitCode.Should().Be(ExitReason.Success);
             }
         }
 
@@ -50,8 +50,8 @@ namespace Prequel.Tests
             {
                 Checker c = new Checker(new Arguments(t.FileName));
                 var results = c.Run();
-                Assert.NotEmpty(results.Errors);
-                Assert.Equal<ExitReason>(ExitReason.GeneralFailure, results.ExitCode);
+                results.Errors.Should().NotBeEmpty();
+                results.ExitCode.Should().Be(ExitReason.GeneralFailure);
             }
         }
 
@@ -60,7 +60,7 @@ namespace Prequel.Tests
         {
             // IIF was introduced in sql 2012            
             var results = Check("select iif (1 > 0, 1, 2) from foo", "/v:2008");
-            Assert.NotEmpty(results.Errors);
+            results.Errors.Should().NotBeEmpty();
         }
 
         [Fact]
@@ -68,23 +68,23 @@ namespace Prequel.Tests
         {
             // IIF was introduced in sql 2012
             var results = Check("select iif (1 > 0, 1, 2) from foo", "/v:2012");
-            Assert.Empty(results.Errors);
+            results.Errors.Should().BeEmpty();
         }
 
         [Fact]
         public void ParseMissingFile()
         {
             var c = new Checker(new Arguments("missing.xyz"));
-            var ex = Assert.Throws<ProgramTerminatingException>(() => c.Run());
-            Assert.Contains("missing.xyz", ex.Message);
-            Assert.Equal(ExitReason.IOError, ex.ExitCode);
+            Action act = () => c.Run();
+            act.ShouldThrow<ProgramTerminatingException>().WithMessage("*missing.xyz*").And.ExitCode.Equals(ExitReason.IOError);            
         }
 
         [Fact]
         public void InvalidFileNameRaisesError()
         {
             var c = new Checker(new Arguments("??"));
-            var ex = Assert.Throws<ProgramTerminatingException>(() => c.Run());
+            Action act = () => c.Run();
+            act.ShouldThrow<ProgramTerminatingException>();            
         }
 
         /// <summary>
@@ -109,11 +109,12 @@ namespace Prequel.Tests
                 var results = c.Run();
                 var error = results.Errors[0];
                 string errorMessage = results.FormatError(error);
-                Assert.Contains(t.FileName, errorMessage, StringComparison.OrdinalIgnoreCase); // should contain filename
-                Assert.Contains("(2)", errorMessage); // should contain line number in parens
-                Assert.Contains("ERROR", errorMessage); // should contain ERROR for build tools which look for that
-                Assert.Contains(error.Number.ToString(), errorMessage); // should contain SQL's error code
-                Assert.Contains("Incorrect syntax near select", errorMessage); // should contain SQL's error message
+                errorMessage.Should()
+                    .ContainEquivalentOf(t.FileName, "message should contain the filename")
+                    .And.Contain("(2)", "message should contain the line number") 
+                    .And.Contain("ERROR", "message should contain ERROR for build tools which look for that")
+                    .And.Contain(error.Number.ToString(), "message should contain SQL's error code") 
+                    .And.Contain("Incorrect syntax near select", "message should contain SQL's error message"); 
             }
         }
 
@@ -123,7 +124,7 @@ namespace Prequel.Tests
             var results = Check("\nset @undeclared = 7");
             var warning = results.Warnings[0];
             string warningMessage = results.FormatWarning(warning);
-            Assert.Equal("<inline>(2): WARNING PQL0001: Variable @undeclared used before being declared", warningMessage);
+            warningMessage.Should().Be("<inline>(2): WARNING PQL0001: Variable @undeclared used before being declared");
         }
 
         [Fact]
@@ -137,15 +138,15 @@ namespace Prequel.Tests
         public void WarningLevelZeroStillShowsErrors()
         {
             var results = Check("select >>>", "/warn:0");
-            Assert.NotEmpty(results.Errors);
+            results.Errors.Should().NotBeEmpty();
         }
 
         [Fact]
         public void WarningLevelCriticalHidesMinorErrors()
         {
-            // assert that I haven't changed the level of these warnings
-            Assert.Equal(WarningLevel.Critical, Warning.WarningTypes[WarningID.UndeclaredVariableUsed].Level);
-            Assert.Equal(WarningLevel.Minor, Warning.WarningTypes[WarningID.UnusedVariableDeclared].Level);
+            // assert that I haven't changed the level of these warnings (otherwise test below may not be valid)
+            Warning.WarningTypes[WarningID.UndeclaredVariableUsed].Level.Should().Be(WarningLevel.Critical);
+            Warning.WarningTypes[WarningID.UnusedVariableDeclared].Level.Should().Be(WarningLevel.Minor);
 
             var results = Check("\nset @undeclared = 7\ndeclare @unused as int", "/warn:1");
             results.Should().WarnAbout(WarningID.UndeclaredVariableUsed);
@@ -430,30 +431,36 @@ set @tooshort = @toolong
         public void DeclareVarCharWithNLiteralRaisesWarning()
         {
             var results = Check("declare @wrongtype as varchar(5) = N'hello'");
-            Warning w = MyAssert.OneWarningOfType(WarningID.StringConverted, results);
-            Assert.Contains("Variable @wrongtype", w.Message);
-            Assert.Contains("assigned a unicode value", w.Message);
+
+            results.Should().WarnAbout(
+                warning =>
+                    warning.Number == WarningID.StringConverted &&
+                    warning.Message.Contains("Variable @wrongtype") &&
+                    warning.Message.Contains("assigned a unicode value"));
+            
         }
 
         [Fact]
         public void AssignNCharToCharRaisesWarning()
         {
             var results = Check("declare @wide as nchar; declare @narrow as char; set @narrow = @wide");
-            MyAssert.OneWarningOfType(WarningID.StringConverted, results);
+            results.Should().WarnAbout(WarningID.StringConverted);
+
+            
         }
 
         [Fact]
         public void AssignConvertedNCharToCharRaisesWarning()
         {
             var results = Check("declare @narrow as char; set @narrow = convert(nchar, 'x')");
-            MyAssert.OneWarningOfType(WarningID.StringConverted, results);
+            results.Should().WarnAbout(WarningID.StringConverted);
         }
 
         [Fact]
         public void AssignCharToNCharIsOK()
         {
             var results = Check("declare @wide as nchar; declare @narrow as char; set @wide = @narrow");
-            MyAssert.NoWarningsOfType(WarningID.StringConverted, results);
+            results.Should().NotWarnAbout(WarningID.StringConverted);
         }
 
         #endregion
@@ -464,29 +471,31 @@ set @tooshort = @toolong
         public void ConvertToVarCharWithoutLengthWarns()
         {
             var results = Check("DECLARE @myVariable AS varchar(50) = convert(varchar, '01234567890123456789012345678901234567890123456789');");
-            Warning w = MyAssert.OneWarningOfType(WarningID.ConvertToVarCharOfUnspecifiedLength, results);
+            results.Should().WarnAbout(WarningID.ConvertToVarCharOfUnspecifiedLength);
+            
         }
 
         [Fact]
         public void ConvertToNVarCharWithoutLengthWarns()
         {
             var results = Check("DECLARE @myVariable AS nvarchar(50) = convert(nvarchar, '01234567890123456789012345678901234567890123456789');");
-            Warning w = MyAssert.OneWarningOfType(WarningID.ConvertToVarCharOfUnspecifiedLength, results);
-            Assert.Contains("CONVERT to type NVarChar without specifying length", w.Message);
+            results.Should().WarnAbout(warning =>
+                warning.Number == WarningID.ConvertToVarCharOfUnspecifiedLength &&
+                warning.Message.Contains("CONVERT to type NVarChar without specifying length"));
         }
 
         [Fact]
         public void ConvertToVarCharWithLengthNoWarning()
         {
             var results = Check("DECLARE @myVariable AS varchar(50) = convert(varchar(30), '01234567890123456789012345678901234567890123456789');");
-            MyAssert.NoWarningsOfType(WarningID.ConvertToVarCharOfUnspecifiedLength, results);
+            results.Should().NotWarnAbout(WarningID.ConvertToVarCharOfUnspecifiedLength);
         }
 
         [Fact]
         public void CastToVarCharWithoutLengthWarns()
         {
             var results = Check("DECLARE @myVariable AS varchar(50) = cast('01234567890123456789012345678901234567890123456789' as varchar);");
-            MyAssert.OneWarningOfType(WarningID.ConvertToVarCharOfUnspecifiedLength, results);
+            results.Should().WarnAbout(WarningID.ConvertToVarCharOfUnspecifiedLength);
         }
 
         #endregion
@@ -500,14 +509,14 @@ set @tooshort = @toolong
         public void ConvertIntToSmallCharWarns(string type)
         {
             var results = Check($"DECLARE @x as char(2); declare @y as {type}; set @x = @y");
-            MyAssert.OneWarningOfType(WarningID.ConvertToTooShortString, results);            
+            results.Should().WarnAbout(WarningID.ConvertToTooShortString);
         }
 
         [Fact]
         public void ConvertIntToLongCharNoWarning()
         {
             var results = Check("DECLARE @x as char(12); declare @y as int; set @x = @y");
-            MyAssert.NoWarningsOfType(WarningID.ConvertToTooShortString, results);
+            results.Should().NotWarnAbout(WarningID.ConvertToTooShortString);
         }
 
         #endregion
@@ -518,7 +527,7 @@ set @tooshort = @toolong
         public void AssignmentThroughParenthesisStillWarns()
         {
             var results = Check($"DECLARE @x as char(2); declare @y as int; set @x = (@y)");
-            MyAssert.OneWarningOfType(WarningID.ConvertToTooShortString, results);
+            results.Should().WarnAbout(WarningID.ConvertToTooShortString);
         }
 
         #endregion
@@ -529,35 +538,35 @@ set @tooshort = @toolong
         public void ConvertIntFromAddToSmallCharWarns()
         {
             var results = Check("DECLARE @x as varchar(6); declare @y as smallint; declare @z as int; set @x = @y + @z");
-            MyAssert.OneWarningOfType(WarningID.ConvertToTooShortString, results);
+            results.Should().WarnAbout(WarningID.ConvertToTooShortString);
         }
 
         [Fact]
         public void ConvertIntFromSubToSmallCharWarns()
         {
             var results = Check("DECLARE @x as varchar(6); declare @y as smallint; declare @z as int; set @x = @y - @z");
-            MyAssert.OneWarningOfType(WarningID.ConvertToTooShortString, results);
+            results.Should().WarnAbout(WarningID.ConvertToTooShortString);
         }
 
         [Fact]
         public void ConvertSmallIntFromArithmeticToSmallCharWarns()
         {
             var results = Check("DECLARE @x as varchar(2); declare @y as smallint; declare @z as smallint; set @x = @y + @z");
-            MyAssert.OneWarningOfType(WarningID.ConvertToTooShortString, results);
+            results.Should().WarnAbout(WarningID.ConvertToTooShortString);
         }
 
         [Fact]
         public void ConvertSmallIntFromArithmeticToLargeEnoughCharNoWarning()
         {
             var results = Check("DECLARE @x as varchar(6); declare @y as smallint; declare @z as smallint; set @x = @y + @z");
-            MyAssert.NoWarningsOfType(WarningID.ConvertToTooShortString, results);
+            results.Should().NotWarnAbout(WarningID.ConvertToTooShortString);
         }
        
         [Fact]
         public void ConvertIntFromMoreArithmeticToSmallCharWarns()
         {
             var results = Check("DECLARE @x as varchar(6); declare @y as int; declare @z as smallint; set @x = ((@z + @z) * (@y- @y) / @z)");
-            MyAssert.OneWarningOfType(WarningID.ConvertToTooShortString, results);
+            results.Should().WarnAbout(WarningID.ConvertToTooShortString);
         }
 
         #endregion
