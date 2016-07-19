@@ -89,24 +89,11 @@ namespace Prequel.Tests
 
             return assertions;
         }
-
-        public static Warning OneWarningOfType(WarningID id, CheckResults results)
-        {
-            Assert.Empty(results.Errors);
-            Assert.Equal(1, results.Warnings.Count(warning => warning.Number == id));
-            return results.Warnings.First(warning => warning.Number == id);
-        }
-
+       
         public static Warning OneWarningOfType(WarningID id, AssignmentResult results)
         {
             Assert.Equal(1, results.Warnings.Count(warning => warning.Number == id));
             return results.Warnings.First(warning => warning.Number == id);
-        }
-
-        public static void NoWarningsOfType(WarningID id, CheckResults results)
-        {
-            Assert.Empty(results.Errors);
-            Assert.Equal(0, results.Warnings.Count(warning => warning.Number == id));
-        }
+        }        
     }
 }
