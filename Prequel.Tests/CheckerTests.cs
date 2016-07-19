@@ -392,25 +392,34 @@ declare @tooshort as varchar(10);
 declare @toolong as varchar(20) = '01234567890123456789'
 set @tooshort = @toolong
 ");
-            Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
-            Assert.Contains("Variable @tooshort has length 10 and is assigned a value with length up to 20", w.Message);
-            Assert.Equal(4, w.Line); // warning should come from the line with the assignment
+
+            results.Should().WarnAbout(
+                warning =>
+                    warning.Number == WarningID.StringTruncated && 
+                    warning.Message.Contains("Variable @tooshort has length 10 and is assigned a value with length up to 20") &&
+                    warning.Line == 4);
         }
 
         [Fact]
         public void AssignVariablesFromConvertRaisesWarning()
         {
             var results = Check(@"declare @tooshort as varchar(10) = CONVERT(varchar(20), '01234567890123456789')");
-            Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
-            Assert.Contains("Variable @tooshort has length 10 and is assigned a value with length up to 20", w.Message);
+
+            results.Should().WarnAbout(
+                warning =>
+                    warning.Number == WarningID.StringTruncated &&
+                    warning.Message.Contains("Variable @tooshort has length 10 and is assigned a value with length up to 20"));
         }
 
         [Fact]
         public void AssignVariablesFromCastRaisesWarning()
         {
             var results = Check(@"declare @tooshort as varchar(10) = CAST('01234567890123456789' as varchar(20))");
-            Warning w = MyAssert.OneWarningOfType(WarningID.StringTruncated, results);
-            Assert.Contains("Variable @tooshort has length 10 and is assigned a value with length up to 20", w.Message);
+
+            results.Should().WarnAbout(
+                warning =>
+                    warning.Number == WarningID.StringTruncated &&
+                    warning.Message.Contains("Variable @tooshort has length 10 and is assigned a value with length up to 20"));
         }
 
         #endregion
