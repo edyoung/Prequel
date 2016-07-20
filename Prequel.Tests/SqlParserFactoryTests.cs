@@ -2,6 +2,7 @@
 using Microsoft.SqlServer.TransactSql.ScriptDom;
 
 using Xunit;
+using FluentAssertions;
 
 namespace Prequel.Tests
 {    
@@ -10,7 +11,7 @@ namespace Prequel.Tests
         [Fact]
         public void DefaultparserIsT120()
         {
-            Assert.Equal(typeof(TSql120Parser), SqlParserFactory.DefaultType);
+            SqlParserFactory.DefaultType.Should().Be(typeof(TSql120Parser));
         }
 
         [InlineData("foo")]
@@ -19,14 +20,15 @@ namespace Prequel.Tests
         [Theory]
         public void InvalidVersionsAreRejected(string version)
         {
-            Assert.Throws<ArgumentException>(() => SqlParserFactory.Type(version));
+            Action act = () => SqlParserFactory.Type(version);
+            act.ShouldThrow<ArgumentException>();
         }
 
         [Fact]
         public void InvalidVersionExceptionContainsKnownVersions()
         {
-            var ex = Assert.Throws<ArgumentException>(() => SqlParserFactory.Type("foo"));
-            Assert.Contains(SqlParserFactory.AllVersions, ex.Message);
+            Action act = () => SqlParserFactory.Type("foo");            
+            act.ShouldThrow<ArgumentException>().WithMessage("*" + SqlParserFactory.AllVersions + "*");
         }
     }
 }
