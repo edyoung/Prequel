@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
-
+using FluentAssertions;
 
 namespace Prequel.Tests
 {
@@ -19,7 +19,7 @@ namespace Prequel.Tests
             foreach(var id in System.Enum.GetValues(typeof(WarningID)))
             {
                 WarningID warningID = (WarningID)id;
-                Assert.Equal(warningID, Warning.WarningTypes[warningID].ID); // make sure every warning is in the map and has correct id
+                warningID.Should().Be(Warning.WarningTypes[warningID].ID); // make sure every warning is in the map and has correct id
             }
         }
     }
