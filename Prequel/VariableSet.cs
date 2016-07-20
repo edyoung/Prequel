@@ -42,6 +42,11 @@
             DeclaredVariables[node.VariableName.Value] = new Variable(null) { Node = node.VariableName };
         }
 
+        public void Declare(SelectSetVariable node)
+        {
+            DeclaredVariables[node.Variable.Name] = new Variable(null) { Node = node };
+        }
+
         public SqlTypeInfo GetTypeInfoIfPossible(string name)
         {
             Variable variable;

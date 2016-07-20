@@ -137,6 +137,12 @@
             base.ExplicitVisit(node);
         }
 
+        public override void ExplicitVisit(SelectSetVariable node)
+        {
+            Variables.Declare(node);
+            base.ExplicitVisit(node);
+        }
+
         // Remove all the warnings which the user doesn't want to see
         internal void FilterWarnings(WarningLevel warningLevel)
         {

@@ -8,7 +8,7 @@
         internal bool Referenced { get; set; }
 
         // where the variable was defined
-        internal Identifier Node { get; set; }
+        internal TSqlFragment Node { get; set; }
 
         // a convenient version of the bits of the SQL typesystem we (currently) care about
         internal SqlTypeInfo SqlTypeInfo { get; set;  }

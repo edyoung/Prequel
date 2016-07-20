@@ -272,6 +272,16 @@ exec foo @b
             results.Should().NotWarnAbout(WarningID.UndeclaredVariableUsed);
         }
 
+        [Fact]
+        public void SelectCanDeclareVariables()
+        {
+            var results = Check("select @Maxdop = Value from dbo.DbConfigInt where Name = N'Maxdop'");
+            results.Should().NotWarnAbout(WarningID.UndeclaredVariableUsed);
+        }
+
+        #endregion
+
+        #region experiment
 
         // Used just to have a convenient place to paste snippets to try out
         [Fact]

@@ -30,7 +30,12 @@
                 TSqlFragment sqlFragment = parser.Parse(reader, out errors);
 
                 CheckVisitor checkVisitor = new CheckVisitor();
-                sqlFragment.Accept(checkVisitor);
+
+                if (errors.Count == 0) 
+                {
+                    // we only get a parse tree to check if there are no errors
+                    sqlFragment.Accept(checkVisitor);
+                }
 
                 checkVisitor.FilterWarnings(arguments.WarningLevel);
                 return new CheckResults(input, errors, checkVisitor.Warnings);
