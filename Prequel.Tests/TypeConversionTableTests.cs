@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using FluentAssertions;
 
 namespace Prequel.Tests
 {
@@ -80,7 +81,7 @@ namespace Prequel.Tests
         public void AllStringToStringConversionsCheckLength(SqlDataTypeOption t1, SqlDataTypeOption t2)
         {
             var result = TypeConversionHelper.GetConversionResult(t1, t2);
-            Assert.False(0 == (result & TypeConversionResult.CheckLength), String.Format("converting {0} to {1} doesn't check length", t1, t2));
+            (result & TypeConversionResult.CheckLength).Should().NotBe(0, "converting {0} to {1} should check length", t1, t2);
         }
 
         [MemberData(nameof(WideStringToNarrowString))]
@@ -88,7 +89,7 @@ namespace Prequel.Tests
         public void AllWideStringToStringConversionsCheckNarrowing(SqlDataTypeOption t1, SqlDataTypeOption t2)
         {
             var result = TypeConversionHelper.GetConversionResult(t1, t2);
-            Assert.False(0 == (result & TypeConversionResult.Narrowing), String.Format("converting {0} to {1} doesn't warn about narrowing", t1, t2));
+            (result & TypeConversionResult.Narrowing).Should().NotBe(0, "converting {0} to {1} should warn about narrowing", t1, t2);
         }
 
         [MemberData(nameof(NumberToString))]
@@ -96,7 +97,7 @@ namespace Prequel.Tests
         public void AllNumericToStringConversionsCheckConvertedLength(SqlDataTypeOption numericType, SqlDataTypeOption stringType)
         {
            var result = TypeConversionHelper.GetConversionResult(numericType, stringType);
-           Assert.False(0 == (result & TypeConversionResult.CheckConvertedLength), String.Format("converting {0} to {1} doesn't check length", numericType, stringType));
+           (result & TypeConversionResult.CheckConvertedLength).Should().NotBe(0, "converting {0} to {1} should check length", numericType, stringType);           
         }
     }
 }
