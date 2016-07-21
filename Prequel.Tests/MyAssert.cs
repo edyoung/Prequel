@@ -10,9 +10,25 @@ namespace Prequel.Tests
     using System;
     using System.Linq.Expressions;
 
-    public class ResultAssertions : ReferenceTypeAssertions<CheckResults, ResultAssertions>
+    public class CheckResultAssertions : ReferenceTypeAssertions<CheckResults, CheckResultAssertions>
     {
-        public ResultAssertions(CheckResults results)
+        public CheckResultAssertions(CheckResults results)
+        {
+            Subject = results;
+        }
+
+        protected override string Context
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }        
+    }
+
+    public class AssignmentResultAssertions : ReferenceTypeAssertions<AssignmentResult, AssignmentResultAssertions>
+    {
+        public AssignmentResultAssertions(AssignmentResult results)
         {
             Subject = results;
         }
@@ -24,22 +40,25 @@ namespace Prequel.Tests
                 throw new NotImplementedException();
             }
         }
-
-        
     }
 
-    public static class MyAssert
+    public static class Assertions
     {
-        public static ResultAssertions Should(this CheckResults results)
+        public static CheckResultAssertions Should(this CheckResults results)
         {
-            return new ResultAssertions(results);
+            return new CheckResultAssertions(results);
         }
 
-        public static ResultAssertions HaveNoErrorsOrWarnings(this ResultAssertions assertions)
+        public static AssignmentResultAssertions Should(this AssignmentResult results)
+        {
+            return new AssignmentResultAssertions(results);
+        }
+
+        public static CheckResultAssertions HaveNoErrorsOrWarnings(this CheckResultAssertions assertions)
         {
             CheckResults results = assertions.Subject;
 
-            MyAssert.HaveNoErrors(assertions);
+            Assertions.HaveNoErrors(assertions);
 
             Execute
                 .Assertion
@@ -56,28 +75,28 @@ namespace Prequel.Tests
             return assertions;
         }        
 
-        public static ResultAssertions NotWarnAbout(this ResultAssertions assertions, WarningID id)
+        public static CheckResultAssertions NotWarnAbout(this CheckResultAssertions assertions, WarningID id)
         {
             CheckResults results = assertions.Subject;
             results.Warnings.Should().NotContain(x => x.Number == id);
             return assertions;
         }
 
-        public static ResultAssertions WarnAbout(this ResultAssertions assertions, WarningID id)
+        public static CheckResultAssertions WarnAbout(this CheckResultAssertions assertions, WarningID id)
         {
             CheckResults results = assertions.Subject;
             results.Warnings.Should().Contain(x => x.Number == id);
             return assertions;
         }
 
-        public static ResultAssertions WarnAbout(this ResultAssertions assertions, Expression<Func<Warning,bool>> predicate)
+        public static CheckResultAssertions WarnAbout(this CheckResultAssertions assertions, Expression<Func<Warning,bool>> predicate)
         {
             CheckResults results = assertions.Subject;
             results.Warnings.Should().Contain(predicate);
             return assertions;
         }
 
-        public static ResultAssertions HaveNoErrors(this ResultAssertions assertions)
+        public static CheckResultAssertions HaveNoErrors(this CheckResultAssertions assertions)
         {
             CheckResults results = assertions.Subject;
 
@@ -89,11 +108,19 @@ namespace Prequel.Tests
 
             return assertions;
         }
-       
-        public static Warning OneWarningOfType(WarningID id, AssignmentResult results)
+
+        public static AssignmentResultAssertions WarnAbout(this AssignmentResultAssertions assertions, Expression<Func<Warning, bool>> predicate)
         {
-            Assert.Equal(1, results.Warnings.Count(warning => warning.Number == id));
-            return results.Warnings.First(warning => warning.Number == id);
-        }        
+            AssignmentResult results = assertions.Subject;
+            results.Warnings.Should().Contain(predicate);
+            return assertions;
+        }
+
+        public static AssignmentResultAssertions WarnAbout(this AssignmentResultAssertions assertions, WarningID id)
+        {
+            AssignmentResult results = assertions.Subject;
+            results.Warnings.Should().Contain(x => x.Number == id);
+            return assertions;
+        }      
     }
 }
